@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -7,284 +8,66 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@sports/ui";
-import { Button } from "@sports/ui";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@sports/ui";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sports/ui";
-import {
+  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Badge,
 } from "@sports/ui";
-import { Input } from "@sports/ui";
-import { useToast } from "@sports/ui";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@sports/ui";
-import { Badge } from "@sports/ui";
 import { apiClient } from "@/lib/api";
-
-const registrationSchema = z.object({
-  itemId: z.number(),
-  participantIds: z
-    .array(z.number())
-    .min(1, "At least one participant is required"),
-  groupName: z.string().optional(),
-  metaInfo: z.string().optional(),
-});
-
-type RegistrationFormValues = z.infer<typeof registrationSchema>;
+import { EmptyState } from "@/components/empty-state";
+import { Plus, Users } from "lucide-react";
 
 export default function RegistrationsPage() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [selectedParticipants, setSelectedParticipants] = useState<number[]>(
-    [],
-  );
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const form = useForm<RegistrationFormValues>({
-    resolver: zodResolver(registrationSchema),
-  });
-
-  const { data: items = [],  isLoading: itemsLoading } = useQuery({
+  const navigate = useNavigate();
+  
+  const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["items"],
-    queryFn: () => apiClient.getItems(),
+    queryFn: () => apiClient.getItems().then(res => {
+      setSelectedItem(res[0]?.item)
+      return res
+    }),
   });
-
-  const { data: participants = [], isLoading: participantsLoading } = useQuery({
-    queryKey: ["participants"],
-    queryFn: () => apiClient.getParticipants(),
-  });
-
+  const [selectedItem, setSelectedItem] = useState(items[0]?.item);
 
   const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
-    queryKey: ["registrations", selectedItem?.id],
-    queryFn: () => {
-      if (!selectedItem?.id) return [];
-      return apiClient.getRegistrations()
-    },
-    enabled: !!selectedItem?.id,
+    queryKey: ["registrations"],
+    queryFn: () => apiClient.getRegistrations(),
   });
 
-  const mutation = useMutation({
-    mutationFn: async (values: RegistrationFormValues) => {
-      await Promise.all(values.participantIds.map((participantId: number) => {
-        return apiClient.createRegistration({ ...values, participantId });
-      }))
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["registrations"] });
-      setIsOpen(false);
-      form.reset();
-      setSelectedParticipants([]);
-      toast({
-        title: "Success",
-        description: "Registration created successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = (values: RegistrationFormValues) => {
-    mutation.mutate({
-      ...values,
-      participantIds: selectedParticipants,
-    });
-  };
-
-  const isLoading = itemsLoading || participantsLoading || registrationsLoading;
+  const isLoading = itemsLoading || registrationsLoading;
   if (isLoading) return <div>Loading...</div>;
-
-  const filteredParticipants = participants?.filter((p: any) => {
-    if (!selectedItem) return true;
-    // Filter by gender if item is gender-specific
-    if (selectedItem.gender !== "any") {
-      return p.gender === selectedItem.gender;
-    }
-    return true;
-  });
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Registrations Management</h1>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Registration</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Add Registration</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="itemId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Item</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          const item = items.find(
-                            (i: any) => i.id === parseInt(value),
-                          );
-                          setSelectedItem(item);
-                          field.onChange(parseInt(value));
-                        }}
-                        value={field.value?.toString()}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select item" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {items?.map((item: any) => (
-                            <SelectItem
-                              key={item.id}
-                              value={item.id.toString()}
-                            >
-                              {item.name} ({item.gender})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {selectedItem?.isGroup && (
-                  <FormField
-                    control={form.control}
-                    name="groupName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Group Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Enter group name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="metaInfo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meta Info</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Enter additional information"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="space-y-2">
-                  <FormLabel>Select Participants</FormLabel>
-                  <div className="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto">
-                    {filteredParticipants?.map((participant: any) => (
-                      <Card
-                        key={participant.id}
-                        className={`cursor-pointer ${
-                          selectedParticipants.includes(participant.id)
-                            ? "border-primary"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          const newSelected = selectedParticipants.includes(
-                            participant.id,
-                          )
-                            ? selectedParticipants.filter(
-                                (id) => id !== participant.id,
-                              )
-                            : [...selectedParticipants, participant.id];
-                          setSelectedParticipants(newSelected);
-                        }}
-                      >
-                        <CardHeader className="p-4">
-                          <CardTitle className="text-sm font-medium">
-                            {participant.fullName}
-                          </CardTitle>
-                          <CardDescription>
-                            Chest No: {participant.chestNo}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="flex gap-2">
-                            <Badge>{participant.section.name}</Badge>
-                            <Badge variant="outline">
-                              Semester {participant.semester}
-                            </Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full">
-                  Create Registration
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => navigate("/registrations/new")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Registration
+        </Button>
       </div>
 
       <div className="mb-6">
         <Select
           onValueChange={(value) => {
-            const item = items.find((i: any) => i.id === parseInt(value));
-            setSelectedItem(item);
+            const item = items.find(({ item }) => item.id === parseInt(value));
+            setSelectedItem(item?.item as any);
           }}
+          value={selectedItem ? selectedItem.id.toString() : ""}
         >
-          <SelectTrigger>
+          <SelectTrigger className="max-w-96">
             <SelectValue placeholder="Select an item to view registrations" />
           </SelectTrigger>
           <SelectContent>
-            {items?.map((item: any) => (
+            {items?.map(({ item }) => (
               <SelectItem key={item.id} value={item.id.toString()}>
-                {item.name}
+                {item.name}{" "}
+                <Badge variant="outline" className="capitalize mx-2 text-xs">
+                  {item.gender}
+                </Badge>
               </SelectItem>
             ))}
           </SelectContent>
@@ -304,28 +87,43 @@ export default function RegistrationsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {registrations?.map((registration: any) => (
-              <TableRow key={registration.id}>
-                <TableCell>{registration.participant.fullName}</TableCell>
-                <TableCell>{registration.participant.chestNo}</TableCell>
-                <TableCell>{registration.participant.section.name}</TableCell>
-                <TableCell>{registration.groupName || "-"}</TableCell>
-                <TableCell>{registration.metaInfo || "-"}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      registration.status === "participated"
-                        ? "default"
-                        : registration.status === "not_participated"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
-                    {registration.status.replace("_", " ")}
-                  </Badge>
+            {registrations
+              ?.filter(
+                ({ registration }) => registration.itemId === selectedItem?.id
+              )
+              .map(({ registration, participant }) => (
+                <TableRow key={registration.id}>
+                  <TableCell>{participant.fullName}</TableCell>
+                  <TableCell>{participant.chestNo}</TableCell>
+                  <TableCell>{participant.sectionName}</TableCell>
+                  <TableCell>{registration.groupId || "-"}</TableCell>
+                  <TableCell>{registration.metaInfo || "-"}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        registration.status === "participated"
+                          ? "default"
+                          : registration.status === "not_participated"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {registration.status.replace("_", " ")}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            {registrations?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="h-96">
+                  <EmptyState
+                    icon={Users}
+                    title="No registrations found"
+                    description="Get started by adding your first registration."
+                  />
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       )}

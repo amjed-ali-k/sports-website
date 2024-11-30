@@ -191,7 +191,7 @@ class ApiClient {
     return response.json();
   }
 
-  async createResult(data: Omit<Result, "id" | "createdAt" | "updatedAt">) {
+  async createResult(data: Omit<Result, "id" | "createdAt" | "updatedAt" | "points">) {
     const response = await this.client.api.results.$post({
       json: data,
     });

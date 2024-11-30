@@ -13,6 +13,7 @@ import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections"; // added import statement
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
+import NewRegistrationPage from "./pages/new-registration";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/registrations/new"
+                  element={
+                    <ProtectedRoute requiredRole="rep">
+                      <NewRegistrationPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/results"
                   element={
                     <ProtectedRoute requiredRole="rep">
@@ -80,6 +89,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
                 <Route path="/sections" element={<SectionsPage />} />
               </Route>
             </Routes>

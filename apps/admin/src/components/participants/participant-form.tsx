@@ -23,7 +23,7 @@ import { apiClient } from "@/lib/api";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  sectionId: z.number().min(1, "Section is required"),
+  sectionId: z.coerce.number().min(1, "Section is required"),
   semester: z
     .string()
     .transform((val) => parseInt(val))
@@ -33,20 +33,18 @@ const formSchema = z.object({
 });
 
 interface ParticipantFormProps {
-  onSubmit: (data: z.infer<typeof formSchema>) => void;
+  onSubmit: (data: z.infer<typeof formSchema>) => void | Promise<void>;
   isLoading?: boolean;
 }
 
-export function ParticipantForm({
-  onSubmit,
-  isLoading,
-}: ParticipantFormProps) {
+export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
   const { data: sections = [] } = useQuery({
     queryKey: ["sections"],
-    queryFn: () => apiClient.getSections().then(s => {
-      s.length && form.setValue("sectionId", s[0].id)
-      return s
-    }),
+    queryFn: () =>
+      apiClient.getSections().then((s) => {
+        s.length && form.setValue("sectionId", s[0].id);
+        return s;
+      }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,9 +57,14 @@ export function ParticipantForm({
     },
   });
 
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    await onSubmit(data);
+    form.reset();
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="fullName"
@@ -82,7 +85,10 @@ export function ParticipantForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Section</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value.toString()}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value.toString()}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a section" />
@@ -90,7 +96,10 @@ export function ParticipantForm({
                 </FormControl>
                 <SelectContent>
                   {sections.map((section) => (
-                    <SelectItem key={section.id} value={section.id?.toString() || ''}>
+                    <SelectItem
+                      key={section.id}
+                      value={section.id?.toString() || ""}
+                    >
                       {section.name}
                     </SelectItem>
                   ))}
@@ -138,7 +147,7 @@ export function ParticipantForm({
                 <FormLabel>Gender</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

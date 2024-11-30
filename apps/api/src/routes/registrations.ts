@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { registrations, items, participants } from "@sports/database";
+import { registrations, items, participants, sections } from "@sports/database";
 import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -77,6 +77,8 @@ const router = hono()
           id: participants.id,
           fullName: participants.fullName,
           chestNo: participants.chestNo,
+          sectionId: sections.id,
+          sectionName: sections.name,
         },
         item: {
           id: items.id,
@@ -84,6 +86,7 @@ const router = hono()
         },
       })
       .from(registrations)
+      .innerJoin(sections, eq(sections.id, participants.sectionId))
       .innerJoin(participants, eq(registrations.participantId, participants.id))
       .innerJoin(items, eq(registrations.itemId, items.id))
       .all();

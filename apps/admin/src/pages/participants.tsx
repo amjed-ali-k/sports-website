@@ -30,7 +30,7 @@ export default function ParticipantsPage() {
     mutationFn: (values: any) => apiClient.createParticipant(values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
-      setIsDialogOpen(false);
+      // setIsDialogOpen(false);
       toast({
         title: "Success",
         description: "Participant created successfully",

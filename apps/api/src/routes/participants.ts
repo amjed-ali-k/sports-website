@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { participants, sections } from "@sports/database";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createParticipantSchema = z.object({
@@ -9,7 +9,6 @@ const createParticipantSchema = z.object({
   semester: z.number().min(1).max(8),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable(),
-
 });
 
 const updateParticipantSchema = z.object({
@@ -40,10 +39,13 @@ const router = hono()
     const latestParticipant = await db
       .select()
       .from(participants)
-      .orderBy(participants.chestNo)
+      .where(eq(participants.sectionId, data.sectionId))
+      .orderBy(desc(participants.chestNo))
       .get();
 
-    const chestNo = latestParticipant ? latestParticipant.chestNo + 1 : 1000;
+    const chestNo = latestParticipant
+      ? Number(latestParticipant.chestNo) + 1
+      : section.id * 500;
 
     const participant = await db
       .insert(participants)

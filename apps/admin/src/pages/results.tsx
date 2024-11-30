@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  Badge,
   Table,
   TableBody,
   TableCell,
@@ -36,7 +37,6 @@ const resultSchema = z.object({
   itemId: z.number(),
   position: z.enum(["first", "second", "third"]),
   registrationId: z.number(),
-  points: z.number().min(0),
 });
 
 type ResultFormValues = z.infer<typeof resultSchema>;
@@ -54,6 +54,10 @@ export default function ResultsPage() {
   const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["items"],
     queryFn: () => apiClient.getItems(),
+  });
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => apiClient.getSections(),
   });
 
   const { data: registrations = [], isLoading: registrationsLoading } =
@@ -103,7 +107,7 @@ export default function ResultsPage() {
     mutation.mutate(values);
   };
 
-  const isLoading = itemsLoading || registrationsLoading || resultsLoading;
+  const isLoading = itemsLoading || registrationsLoading;
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -140,12 +144,18 @@ export default function ResultsPage() {
                           <SelectValue placeholder="Select item" />
                         </SelectTrigger>
                         <SelectContent>
-                          {items?.map((item: any) => (
+                          {items?.map(({ item }) => (
                             <SelectItem
                               key={item.id}
                               value={item.id.toString()}
                             >
-                              {item.name}
+                              {item.name}{" "}
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 text-xs capitalize"
+                              >
+                                {item.gender}
+                              </Badge>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -182,30 +192,39 @@ export default function ResultsPage() {
                 <FormField
                   control={form.control}
                   name="registrationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Participant</FormLabel>
-                      <Select
-                        onValueChange={(value) =>
-                          field.onChange(parseInt(value))
-                        }
-                        value={field.value?.toString()}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select participant" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {registrations?.map((reg: any) => (
-                            <SelectItem key={reg.id} value={reg.id.toString()}>
-                              {reg.participant.fullName} (
-                              {reg.participant.chestNo})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const [itemId] = form.watch(["itemId"]);
+                    return (
+                      <FormItem>
+                        <FormLabel>Participant</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
+                          value={field.value?.toString()}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select participant" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {registrations
+                              ?.filter(
+                                ({ registration: reg }) => reg.itemId === itemId
+                              )
+                              .map(({ registration: reg, participant }) => (
+                                <SelectItem
+                                  key={reg.id}
+                                  value={reg.id.toString()}
+                                >
+                                  {participant.fullName} ({participant.chestNo})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <Button type="submit" className="w-full">
@@ -218,12 +237,15 @@ export default function ResultsPage() {
       </div>
 
       <div className="mb-6">
-        <Select onValueChange={(value) => setSelectedItem(parseInt(value))}>
+        <Select
+          onValueChange={(value) => setSelectedItem(parseInt(value))}
+          value={selectedItem?.toString()}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select an item to view results" />
           </SelectTrigger>
           <SelectContent>
-            {items?.map((item: any) => (
+            {items?.map(({ item }) => (
               <SelectItem key={item.id} value={item.id.toString()}>
                 {item.name}
               </SelectItem>
@@ -244,21 +266,23 @@ export default function ResultsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results?.map((result: any) => (
+            {results?.map(({ result, participant }) => (
               <TableRow key={result.id}>
                 <TableCell className="capitalize">{result.position}</TableCell>
+                <TableCell>{participant.fullName}</TableCell>
+                <TableCell>{participant.chestNo}</TableCell>
                 <TableCell>
-                  {result.registration.participant.fullName}
-                </TableCell>
-                <TableCell>{result.registration.participant.chestNo}</TableCell>
-                <TableCell>
-                  {result.registration.participant.section.name}
+                  {
+                    sections.find(
+                      (section) => section.id === participant.sectionId
+                    )?.name
+                  }
                 </TableCell>
                 <TableCell>{result.points}</TableCell>
               </TableRow>
-            ))} {
-              results?.length === 0 && (
-                <TableRow>
+            ))}{" "}
+            {results?.length === 0 && (
+              <TableRow>
                 <TableCell colSpan={5} className="h-96">
                   <EmptyState
                     icon={Award}
@@ -267,8 +291,7 @@ export default function ResultsPage() {
                   />
                 </TableCell>
               </TableRow>
-              )
-            }
+            )}
           </TableBody>
         </Table>
       )}

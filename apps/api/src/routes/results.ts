@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { results, items, registrations, participants, sections } from "@sports/database";
+import {
+  results,
+  items,
+  registrations,
+  participants,
+  sections,
+} from "@sports/database";
 import { eq, and, sql } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -7,13 +13,11 @@ const createResultSchema = z.object({
   itemId: z.number(),
   position: z.enum(["first", "second", "third"]),
   registrationId: z.number(),
-  points: z.number(),
 });
 
 const updateResultSchema = z.object({
   position: z.enum(["first", "second", "third"]),
   registrationId: z.number(),
-  points: z.number(),
 });
 
 const router = hono()
@@ -48,18 +52,39 @@ const router = hono()
       .get();
 
     if (existingResult) {
-      return c.json(
-        { error: "Position already taken for this item" },
-        400
-      );
+      return c.json({ error: "Position already taken for this item" }, 400);
     }
 
-    const result = await db.insert(results).values(data).returning().get();
+    const points =
+      data.position === "first"
+        ? item.pointsFirst
+        : data.position === "second"
+          ? item.pointsSecond
+          : item.pointsThird;
+
+    const result = await db
+      .insert(results)
+      .values({ ...data, points })
+      .returning()
+      .get();
     return c.json(result, 201);
   })
   .get("/", async (c) => {
     const db = c.get("db");
-    const allResults = await db.select().from(results).all();
+    const allResults = await db
+      .select({
+        result: results,
+        participant: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+          sectionId: participants.sectionId,
+        },
+      })
+      .from(results)
+      .innerJoin(registrations, eq(results.registrationId, registrations.id))
+      .innerJoin(participants, eq(registrations.participantId, participants.id))
+      .all();
     return c.json(allResults);
   })
   .get("/item/:itemId", async (c) => {
@@ -110,10 +135,21 @@ const router = hono()
       .select({
         sectionId: sections.id,
         sectionName: sections.name,
-        totalPoints: sql<number>`COALESCE(SUM(${results.points}), 0)`.as("total_points"),
-        firstCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'first' THEN 1 ELSE 0 END), 0)`.as("first_count"),
-        secondCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'second' THEN 1 ELSE 0 END), 0)`.as("second_count"),
-        thirdCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'third' THEN 1 ELSE 0 END), 0)`.as("third_count"),
+        totalPoints: sql<number>`COALESCE(SUM(${results.points}), 0)`.as(
+          "total_points"
+        ),
+        firstCount:
+          sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'first' THEN 1 ELSE 0 END), 0)`.as(
+            "first_count"
+          ),
+        secondCount:
+          sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'second' THEN 1 ELSE 0 END), 0)`.as(
+            "second_count"
+          ),
+        thirdCount:
+          sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'third' THEN 1 ELSE 0 END), 0)`.as(
+            "third_count"
+          ),
       })
       .from(sections)
       .leftJoin(participants, eq(sections.id, participants.sectionId))
@@ -166,10 +202,7 @@ const router = hono()
       .get();
 
     if (positionTaken) {
-      return c.json(
-        { error: "Position already taken for this item" },
-        400
-      );
+      return c.json({ error: "Position already taken for this item" }, 400);
     }
 
     const updatedResult = await db
