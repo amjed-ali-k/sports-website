@@ -8,9 +8,6 @@ import type {
   Registration,
 } from "@sports/api/dist/src/types";
 
-type ErrorType = {
-  error: string;
-};
 class ApiClient {
   private client: ReturnType<typeof hc<AppType>>;
 
@@ -76,7 +73,11 @@ class ApiClient {
     return response.json();
   }
 
-  async createItem(data: Omit<Item, "id" | "createdAt" | "updatedAt">) {
+  async createItem(
+    data: Omit<Item, "id" | "createdAt" | "updatedAt"> & {
+      maxParticipants: number;
+    }
+  ) {
     const response = await this.client.api.items.$post({
       json: data,
     });
@@ -94,7 +95,7 @@ class ApiClient {
     return response.json();
   }
 
-  async deleteItem(id: number): Promise<unknown | ErrorType> {
+  async deleteItem(id: number) {
     const response = await this.client.api.items[":id"].$delete({
       param: { id: id.toString() },
     });
@@ -102,21 +103,19 @@ class ApiClient {
   }
 
   // Categories
-  async getCategories(): Promise<Category[] | ErrorType> {
+  async getCategories() {
     const response = await this.client.api.categories.$get();
     return response.json();
   }
 
-  async getCategory(id: number): Promise<Category | ErrorType> {
+  async getCategory(id: number) {
     const response = await this.client.api.categories[":id"].$get({
       param: { id: id.toString() },
     });
     return response.json();
   }
 
-  async createCategory(
-    data: Omit<Category, "id" | "createdAt" | "updatedAt">
-  ): Promise<Category | ErrorType> {
+  async createCategory(data: Omit<Category, "id" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.categories.$post({
       json: data,
     });
@@ -138,7 +137,7 @@ class ApiClient {
 
   async createRegistration(
     data: Omit<Registration, "id" | "createdAt" | "updatedAt">
-  ): Promise<Registration | ErrorType> {
+  ) {
     const response = await this.client.api.registrations.$post({
       json: data,
     });
@@ -150,7 +149,7 @@ class ApiClient {
     data: Omit<Registration, "id" | "createdAt" | "updatedAt"> & {
       status: "registered" | "participated" | "not_participated";
     }
-  ): Promise<Registration | ErrorType> {
+  ) {
     const response = await this.client.api.registrations[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -158,7 +157,7 @@ class ApiClient {
     return response.json();
   }
 
-  async deleteRegistration(id: number): Promise<unknown | ErrorType> {
+  async deleteRegistration(id: number) {
     const response = await this.client.api.registrations[":id"].$delete({
       param: { id: id.toString() },
     });
