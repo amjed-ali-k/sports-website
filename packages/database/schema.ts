@@ -44,6 +44,7 @@ export const items = sqliteTable("items", {
   categoryId: integer("category_id").references(() => categories.id).notNull(),
   isGroup: integer("is_group", { mode: "boolean" }).notNull().default(false),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
+  maxParticipants: integer().default(0).notNull(),
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),

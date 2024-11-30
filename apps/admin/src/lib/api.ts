@@ -2,17 +2,15 @@ import { hc } from "hono/client";
 import { AppType } from "@sports/api";
 import type {
   Participant,
-  Section,
   Item,
   Category,
   Result,
   Registration,
-  LeaderboardEntry,
 } from "@sports/api/dist/src/types";
 
 type ErrorType = {
-  error: string
-}
+  error: string;
+};
 class ApiClient {
   private client: ReturnType<typeof hc<AppType>>;
 
@@ -38,14 +36,19 @@ class ApiClient {
     return response.json();
   }
 
-  async createParticipant(data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">) {
+  async createParticipant(
+    data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">
+  ) {
     const response = await this.client.api.participants.$post({
       json: data,
     });
     return response.json();
   }
 
-  async updateParticipant(id: number, data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">) {
+  async updateParticipant(
+    id: number,
+    data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">
+  ) {
     const response = await this.client.api.participants[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -66,21 +69,24 @@ class ApiClient {
     return response.json();
   }
 
-  async getItem(id: number){
+  async getItem(id: number) {
     const response = await this.client.api.items[":id"].$get({
       param: { id: id.toString() },
     });
     return response.json();
   }
 
-  async createItem(data: Omit<Item, "id" | "createdAt" | "updatedAt">){
+  async createItem(data: Omit<Item, "id" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.items.$post({
       json: data,
     });
     return response.json();
   }
 
-  async updateItem(id: number, data: Omit<Item, "id" | "createdAt" | "updatedAt">) {
+  async updateItem(
+    id: number,
+    data: Omit<Item, "id" | "createdAt" | "updatedAt">
+  ) {
     const response = await this.client.api.items[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -108,7 +114,9 @@ class ApiClient {
     return response.json();
   }
 
-  async createCategory(data: Omit<Category, "id" | "createdAt" | "updatedAt">): Promise<Category | ErrorType> {
+  async createCategory(
+    data: Omit<Category, "id" | "createdAt" | "updatedAt">
+  ): Promise<Category | ErrorType> {
     const response = await this.client.api.categories.$post({
       json: data,
     });
@@ -128,14 +136,21 @@ class ApiClient {
     return response.json();
   }
 
-  async createRegistration(data: Omit<Registration, "id" | "createdAt" | "updatedAt">): Promise<Registration | ErrorType> {
+  async createRegistration(
+    data: Omit<Registration, "id" | "createdAt" | "updatedAt">
+  ): Promise<Registration | ErrorType> {
     const response = await this.client.api.registrations.$post({
       json: data,
     });
     return response.json();
   }
 
-  async updateRegistration(id: number, data: Omit<Registration, "id" | "createdAt" | "updatedAt">): Promise<Registration | ErrorType> {
+  async updateRegistration(
+    id: number,
+    data: Omit<Registration, "id" | "createdAt" | "updatedAt"> & {
+      status: "registered" | "participated" | "not_participated";
+    }
+  ): Promise<Registration | ErrorType> {
     const response = await this.client.api.registrations[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -170,7 +185,10 @@ class ApiClient {
     return response.json();
   }
 
-  async updateResult(id: number, data: Omit<Result, "id" | "createdAt" | "updatedAt">) {
+  async updateResult(
+    id: number,
+    data: Omit<Result, "id" | "createdAt" | "updatedAt">
+  ) {
     const response = await this.client.api.results[":id"].$put({
       param: { id: id.toString() },
       json: data,

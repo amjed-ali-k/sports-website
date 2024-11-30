@@ -6,7 +6,7 @@ import { hono, zodValidator } from "../lib/api";
 const createItemSchema = z.object({
   name: z.string().min(1),
   categoryId: z.number(),
-  maxParticipants: z.number().min(1),
+  maxParticipants: z.number().min(1).optional().default(1),
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),

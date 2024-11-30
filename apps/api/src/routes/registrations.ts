@@ -15,7 +15,7 @@ const updateRegistrationSchema = z.object({
   participantId: z.number(),
   groupId: z.number().optional().nullable(),
   metaInfo: z.string().optional().nullable(),
-  status: z.enum(["registered", "participated", "not_participated"]),
+  status: z.enum(["registered", "participated", "not_participated"]).optional().default("registered"),
 });
 
 const router = hono()
