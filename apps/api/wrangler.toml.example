@@ -3,7 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2024-11-30"
 
 [vars]
-JWT_SECRET = "hello-boye-how-you-doing"
+JWT_SECRET = "hello-boye"
 
 
 [[d1_databases]]

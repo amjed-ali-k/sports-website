@@ -5,6 +5,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "generate": "turbo db:generate",
+    "migrate": "trubo db:migrate",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {

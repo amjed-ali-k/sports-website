@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy src/index.ts",
-    "setup-db": "tsx scripts/setup-db.ts"
+    "setup-db": "tsx scripts/setup-db.ts",
+    "db:migrate": "drizzle-kit migrate:sqlite",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
