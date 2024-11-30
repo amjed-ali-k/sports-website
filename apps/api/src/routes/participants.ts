@@ -1,9 +1,7 @@
-import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { participants } from "@sports/database";
 import { eq } from "drizzle-orm";
-import { hono } from "../lib/api";
-
+import { hono, zodValidator } from "../lib/api";
 
 const createParticipantSchema = z.object({
   fullName: z.string().min(1),
@@ -14,7 +12,7 @@ const createParticipantSchema = z.object({
 });
 
 const router = hono()
-  .post("/", zValidator("json", createParticipantSchema), async (c) => {
+  .post("/", zodValidator(createParticipantSchema), async (c) => {
     const data = c.req.valid("json");
     const db = c.get("db");
 

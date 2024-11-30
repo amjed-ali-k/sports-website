@@ -1,12 +1,28 @@
 import { createDb } from "../db/index";
 import { Hono } from "hono";
+import { validator } from "hono/validator";
 
+type Bindings = {
+  DB: D1Database;
+  JWT_SECRET: string;
+};
 
-export const hono = () => new Hono<{
-    Bindings: {
-      DB: D1Database;
-    };
-    Variables: {
-      db: ReturnType<typeof createDb>;
-    } 
+type Variables = {
+  db: ReturnType<typeof createDb>;
+};
+
+export const hono = <Path extends string = "/">() =>
+  new Hono<{
+    Bindings: Bindings;
+    Variables: Variables;
+    Path: Path;
   }>();
+
+export const zodValidator = <T extends {}>(schema: { parse: (value: unknown) => T }) =>
+  validator("json", (value, c) => {
+    const parsed = schema.parse(value);
+    if (!parsed) {
+      return c.json({ message: "Validation failed" }, 400);
+    }
+    return parsed;
+  });

@@ -1,8 +1,7 @@
-import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { registrations, participants, items } from "@sports/database";
 import { eq, and } from "drizzle-orm";
-import { hono } from "../lib/api";
+import { hono, zodValidator } from "../lib/api";
 
 const createRegistrationSchema = z.object({
   itemId: z.number(),
@@ -16,7 +15,7 @@ const updateRegistrationStatusSchema = z.object({
 });
 
 const router = hono()
-  .post("/", zValidator("json", createRegistrationSchema), async (c) => {
+  .post("/", zodValidator(createRegistrationSchema), async (c) => {
     const data = c.req.valid("json");
     const db = c.get("db");
 
@@ -63,7 +62,7 @@ const router = hono()
   })
   .patch(
     "/:id/status",
-    zValidator("json", updateRegistrationStatusSchema),
+    zodValidator(updateRegistrationStatusSchema),
     async (c) => {
       const id = parseInt(c.req.param("id"));
       const { status } = c.req.valid("json");

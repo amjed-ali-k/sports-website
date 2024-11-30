@@ -9,7 +9,7 @@
     "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20240208.0",
+    "@cloudflare/workers-types": "^4.20241112.0",
     "drizzle-orm": "^0.29.3"
   },
   "devDependencies": {

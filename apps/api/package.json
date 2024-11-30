@@ -22,7 +22,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.9",
     "drizzle-kit": "^0.20.14",
-    "tsx": "^4.7.1",
+    "tsx": "^4.19.2",
     "wrangler": "^3.88.0"
   }
 }

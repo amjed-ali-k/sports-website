@@ -1,11 +1,9 @@
 import { eq } from "drizzle-orm";
 import { sign, verify } from "hono/jwt";
-import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { admins } from "@sports/database/schema";
 import bcrypt from "bcryptjs";
-import { hono } from "../lib/api";
-import { env } from 'hono/adapter'
+import { hono, zodValidator } from "../lib/api";
 
 const loginSchema = z.object({
   email: z.string(),
@@ -22,7 +20,7 @@ const createAdminSchema = z.object({
 const auth = hono()
   .post(
     "/login",
-    zValidator("json", loginSchema),
+    zodValidator(loginSchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
 
@@ -49,13 +47,13 @@ const auth = hono()
           name: admin.name,
           role: admin.role,
         },
-        env<{ JWT_SECRET: string }>(c).JWT_SECRET
+        c.env.JWT_SECRET
       );
 
       return c.json({ token });
     }
   )
-  .post("/setup", zValidator("json", createAdminSchema), async (c) => {
+  .post("/setup", zodValidator(createAdminSchema), async (c) => {
     // Only allow setup if no admins exist
     const existingAdmins = await c.get("db").select().from(admins).limit(1);
     if (existingAdmins.length > 0) {

@@ -4,28 +4,27 @@ import participantsRouter from "./routes/participants";
 import itemsRouter from "./routes/items";
 import registrationsRouter from "./routes/registrations";
 import resultsRouter from "./routes/results";
-import { hono } from "./lib/api"
+import { hono } from "./lib/api";
 import { createDb } from "./db/index";
-import { logger } from 'hono/logger'
-
-
+import { logger } from "hono/logger";
 
 const api = hono()
-.use("*", authMiddleware)
-.route("/participants", participantsRouter)
-.route("/items", itemsRouter)
-.route("/registrations", registrationsRouter)
-.route("/results", resultsRouter)
+  .use("*", authMiddleware)
+  .route("/participants", participantsRouter)
+  .route("/items", itemsRouter)
+  .route("/registrations", registrationsRouter)
+  .route("/results", resultsRouter);
 
-
-const app = hono().use("*", cors()).use(logger())
-.use("/api/*", async (c, next) => {
-  c.set("db", createDb(c.env.DB));
-  await next();
-})
-// Public routes
-.get("/", (c) => c.text("Sports Management API"))
-// Protected routes
-.route("/api", api);
+const app = hono()
+  .use("*", cors())
+  .use(logger())
+  .use("/api/*", async (c, next) => {
+    c.set("db", createDb(c.env.DB));
+    await next();
+  })
+  // Public routes
+  .get("/", (c) => c.text("Sports Management API"))
+  // Protected routes
+  .route("/api", api);
 
 export default app;
