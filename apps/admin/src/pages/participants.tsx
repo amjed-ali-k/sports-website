@@ -12,7 +12,7 @@ import { Button } from "@sports/ui";
 import { ParticipantForm } from "@/components/participants/participant-form";
 import { ParticipantList } from "@/components/participants/participant-list";
 import { CSVImportForm } from "@/components/participants/csv-import-form";
-import { api } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { useToast } from "@sports/ui";
 import { Plus } from "lucide-react";
 
@@ -30,11 +30,11 @@ export default function ParticipantsPage() {
 
   const { data: participants = [] } = useQuery({
     queryKey: ["participants"],
-    queryFn: api.getParticipants,
+    queryFn: apiClient.getParticipants,
   });
 
   const createParticipant = useMutation({
-    mutationFn: api.createParticipant,
+    mutationFn: apiClient.createParticipant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
       setIsDialogOpen(false);
@@ -55,7 +55,7 @@ export default function ParticipantsPage() {
   const importParticipants = useMutation({
     mutationFn: (data: any[]) =>
       Promise.all(
-        data.map((participant) => api.createParticipant(participant))
+        data.map((participant) => apiClient.createParticipant(participant))
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });

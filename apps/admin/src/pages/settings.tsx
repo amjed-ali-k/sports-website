@@ -14,7 +14,7 @@ import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { api } from "../lib/api";
+import { apiClient } from "../lib/api";
 
 const settingsSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
@@ -45,7 +45,7 @@ export default function SettingsPage() {
 
   const updateSettings = useMutation({
     mutationFn: async (data: SettingsFormData) => {
-      return api.updateSettings(data);
+      return apiClient.updateSettings(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["settings"] });
@@ -58,7 +58,7 @@ export default function SettingsPage() {
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
-    queryFn: api.getSettings,
+    queryFn: apiClient.getSettings,
   });
 
   function onSubmit(data: SettingsFormData) {

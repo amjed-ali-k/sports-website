@@ -6,6 +6,7 @@ import registrationsRouter from "./routes/registrations";
 import resultsRouter from "./routes/results";
 import categoriesRouter from "./routes/categories";
 import settingsRouter from "./routes/settings";
+import authRouter from "./routes/auth";
 import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
@@ -24,12 +25,13 @@ const api = hono()
 const app = hono()
   .use("*", cors())
   .use(logger())
-  .use("/api/*", async (c, next) => {
+  .use("*", async (c, next) => {
     c.set("db", createDb(c.env.DB));
     await next();
   })
   // Public routes
   .get("/", (c) => c.text("Sports Management API"))
+  .route("/auth", authRouter)
   // Protected routes
   .route("/api", api);
 

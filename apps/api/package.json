@@ -5,21 +5,19 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy src/index.ts",
-    "setup-db": "tsx scripts/setup-db.ts",
-    "db:migrate": "drizzle-kit migrate",
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
+    "wrangler": "wrangler --local --persist-to ./drizzle/local",
+    "dev": "bun run wrangler -- dev src/index.ts --port 8787",
+    "deploy": "bun run wrangler -- deploy src/index.ts",
+    "db:seed": "bun run wrangler -- dev scripts/seed-db.ts",
+    "db:migrate": "bun run wrangler -- d1 migrations apply gptc-sports-db",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:push": "bun run wrangler -- d1 migrations apply gptc-sports-db",
     "build": "tsc",
     "generate:types": "tsc --emitDeclarationOnly --outDir dist"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.4.1",
     "@sports/database": "*",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.4.1",
-    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
     "hono": "^4.6.12",
     "zod": "^3.23.8"
@@ -27,7 +25,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/better-sqlite3": "^7.6.9",
     "drizzle-kit": "^0.28.1",
     "tsx": "^4.19.2",
     "wrangler": "^3.88.0"

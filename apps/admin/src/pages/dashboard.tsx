@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@sports/ui";
-import { api } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 
 export default function DashboardPage() {
   const { data: leaderboard } = useQuery({
     queryKey: ["leaderboard"],
-    queryFn: () => api.getLeaderboard(),
+    queryFn: () => apiClient.getLeaderboard(),
   });
 
   return (

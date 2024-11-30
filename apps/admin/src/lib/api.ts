@@ -1,6 +1,6 @@
 import { hc } from "hono/client";
-import { AppType } from "@sports/api";
-import type {
+import type { AppType } from "@sports/api";
+import {
   Participant,
   Item,
   Category,
@@ -8,21 +8,38 @@ import type {
   Registration,
 } from "@sports/api/dist/src/types";
 
+const TOKEN_KEY = "sports_admin_token";
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token
+    ? {
+        Authorization: `Bearer ${token}`,
+        "X-API-Key": import.meta.env.VITE_API_KEY!,
+      }
+    : undefined;
+};
+
+export const bareApiClient = hc<AppType>(import.meta.env.VITE_API_URL, {
+  headers: {
+    "X-API-Key": import.meta.env.VITE_API_KEY!,
+  },
+});
+
 class ApiClient {
   private client: ReturnType<typeof hc<AppType>>;
 
   constructor() {
     const baseUrl = import.meta.env.VITE_API_URL;
+    console.log({ baseUrl });
     this.client = hc<AppType>(baseUrl, {
-      headers: {
-        "X-API-Key": import.meta.env.VITE_API_KEY,
-      },
+      headers: getAuthHeaders(),
     });
   }
 
   // Participants
   async getParticipants() {
-    const response = await this.client.api.participants.$get();
+    const response = await this.client.api.participants.$get({});
     return response.json();
   }
 
@@ -62,7 +79,7 @@ class ApiClient {
 
   // Items
   async getItems() {
-    const response = await this.client.api.items.$get();
+    const response = await this.client.api.items.$get({});
     return response.json();
   }
 
@@ -104,7 +121,7 @@ class ApiClient {
 
   // Categories
   async getCategories() {
-    const response = await this.client.api.categories.$get();
+    const response = await this.client.api.categories.$get({});
     return response.json();
   }
 
@@ -124,7 +141,7 @@ class ApiClient {
 
   // Registrations
   async getRegistrations() {
-    const response = await this.client.api.registrations.$get();
+    const response = await this.client.api.registrations.$get({});
     return response.json();
   }
 
@@ -166,7 +183,7 @@ class ApiClient {
 
   // Results
   async getResults() {
-    const response = await this.client.api.results.$get();
+    const response = await this.client.api.results.$get({});
     return response.json();
   }
 
@@ -204,13 +221,13 @@ class ApiClient {
 
   // Leaderboard
   async getLeaderboard() {
-    const response = await this.client.api.results.leaderboard.$get();
+    const response = await this.client.api.results.leaderboard.$get({});
     return response.json();
   }
 
   // Settings
   async getSettings() {
-    const response = await this.client.api.settings.$get();
+    const response = await this.client.api.settings.$get({});
     return response.json();
   }
 
@@ -229,4 +246,4 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient();
+export const apiClient = new ApiClient();

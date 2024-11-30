@@ -6,6 +6,8 @@ import {
   ReactNode,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { bareApiClient } from "./api";
+import { jwtDecode } from "jwt-decode";
 
 interface Admin {
   id: number;
@@ -17,16 +19,47 @@ interface Admin {
 interface AuthContextType {
   admin: Admin | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const TOKEN_KEY = 'sports_admin_token';
+
+// Function to handle 401 responses globally
+const setup401Handler = (logoutFn: () => Promise<void>) => {
+  const originalFetch = window.fetch;
+  window.fetch = async (...args) => {
+    const response = await originalFetch(...args);
+    if (response.status === 401) {
+      await logoutFn();
+    }
+    return response;
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [admin, setAdmin] = useState<Admin | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      await bareApiClient.auth.logout.$post();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem(TOKEN_KEY);
+      setAdmin(null);
+      navigate("/login");
+    }
+  };
+
+  // Set up 401 handler once when component mounts
+  useEffect(() => {
+    setup401Handler(logout);
+  }, []);
 
   useEffect(() => {
     checkAuth();
@@ -34,10 +67,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/auth/me");
-      if (response.ok) {
-        const data = await response.json();
-        setAdmin(data);
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Verify token validity
+      try {
+        const decoded = jwtDecode<Admin & { exp: number}>(token);
+        // Check if token is expired (if exp claim exists)
+        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+          await logout();
+          return;
+        }
+        setAdmin(decoded);
+      } catch (error) {
+        console.error('Invalid token:', error);
+        await logout();
       }
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -47,26 +94,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    const response = await bareApiClient.auth.login.$post({
+      json: { email, password },
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "Login failed");
+      if ("message" in error) {
+        throw new Error(error.message || "Login failed");
+      }
     }
 
     const data = await response.json();
-    setAdmin(data);
-    navigate("/");
-  };
-
-  const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    setAdmin(null);
-    navigate("/login");
+    if ("token" in data) {
+      localStorage.setItem(TOKEN_KEY, data.token);
+      const decodedToken = jwtDecode<Admin>(data.token);
+      setAdmin(decodedToken);
+      navigate("/");
+    }
   };
 
   return (
@@ -85,7 +130,7 @@ export function useAuth() {
 }
 
 export function useRequireAuth(
-  requiredRole?: "rep" | "manager" | "controller",
+  requiredRole?: "rep" | "manager" | "controller"
 ) {
   const { admin, isLoading } = useAuth();
   const navigate = useNavigate();

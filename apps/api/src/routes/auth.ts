@@ -23,7 +23,6 @@ const auth = hono()
     zodValidator(loginSchema),
     async (c) => {
       const { email, password } = c.req.valid("json");
-
       const admin = await c
         .get("db")
         .select()
@@ -40,12 +39,23 @@ const auth = hono()
         return c.json({ message: "Invalid credentials" }, 401);
       }
 
+      // Token expires in 24 hours
+      const exp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+
+      console.log("Admin logged in:", {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      });
+
       const token = await sign(
         {
           id: admin.id,
           email: admin.email,
           name: admin.name,
           role: admin.role,
+          exp,
         },
         c.env.JWT_SECRET
       );
@@ -88,6 +98,11 @@ const auth = hono()
         role: admin.role,
       },
     });
+  })
+  .post("/logout", async (c) => {
+    // Since we're using JWT, we don't need to do anything server-side
+    // The client will handle removing the token
+    return c.json({ message: "Logged out successfully" });
   })
   .get("/me", async (c) => {
     const token = c.req.header("Authorization")?.replace("Bearer ", "");
