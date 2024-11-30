@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { results, items, registrations, participants } from "@sports/database";
+import { results, items, registrations, participants, sections } from "@sports/database";
 import { eq, and, sql } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -91,18 +91,13 @@ const router = hono()
     return c.json(itemResults);
   })
   .get("/participant/:participantId", async (c) => {
-    const participantId = parseInt(c.req.param("participantId"));
+    const participantId = Number(c.req.param("participantId"));
     const db = c.get("db");
 
     const participantResults = await db
-      .select({
-        result: results,
-        registration: registrations,
-        item: items,
-      })
+      .select()
       .from(results)
-      .leftJoin(registrations, eq(results.registrationId, registrations.id))
-      .leftJoin(items, eq(results.itemId, items.id))
+      .innerJoin(registrations, eq(results.registrationId, registrations.id))
       .where(eq(registrations.participantId, participantId))
       .all();
 
@@ -113,13 +108,18 @@ const router = hono()
 
     const leaderboard = await db
       .select({
-        participant: participants,
-        totalPoints: sql<number>`SUM(${results.points})`.as("total_points"),
+        sectionId: sections.id,
+        sectionName: sections.name,
+        totalPoints: sql<number>`COALESCE(SUM(${results.points}), 0)`.as("total_points"),
+        firstCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'first' THEN 1 ELSE 0 END), 0)`.as("first_count"),
+        secondCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'second' THEN 1 ELSE 0 END), 0)`.as("second_count"),
+        thirdCount: sql<number>`COALESCE(SUM(CASE WHEN ${results.position} = 'third' THEN 1 ELSE 0 END), 0)`.as("third_count"),
       })
-      .from(results)
-      .leftJoin(registrations, eq(results.registrationId, registrations.id))
-      .leftJoin(participants, eq(registrations.participantId, participants.id))
-      .groupBy(participants.id)
+      .from(sections)
+      .leftJoin(participants, eq(sections.id, participants.sectionId))
+      .leftJoin(registrations, eq(participants.id, registrations.participantId))
+      .leftJoin(results, eq(registrations.id, results.registrationId))
+      .groupBy(sections.id, sections.name)
       .orderBy(sql`total_points DESC`)
       .all();
 

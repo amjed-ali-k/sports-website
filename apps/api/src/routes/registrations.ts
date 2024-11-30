@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { registrations, participants, items } from "@sports/database";
-import { eq, and } from "drizzle-orm";
+import { registrations, items, participants } from "@sports/database";
+import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createRegistrationSchema = z.object({
@@ -10,7 +10,11 @@ const createRegistrationSchema = z.object({
   metaInfo: z.string().optional().nullable(),
 });
 
-const updateRegistrationStatusSchema = z.object({
+const updateRegistrationSchema = z.object({
+  itemId: z.number(),
+  participantId: z.number(),
+  groupId: z.number().optional().nullable(),
+  metaInfo: z.string().optional().nullable(),
   status: z.enum(["registered", "participated", "not_participated"]),
 });
 
@@ -19,18 +23,18 @@ const router = hono()
     const data = c.req.valid("json");
     const db = c.get("db");
 
-    // Check if participant and item exist
-    const [participant, item] = await Promise.all([
+    // Verify if item and participant exist
+    const [item, participant] = await Promise.all([
+      db.select().from(items).where(eq(items.id, data.itemId)).get(),
       db
         .select()
         .from(participants)
         .where(eq(participants.id, data.participantId))
         .get(),
-      db.select().from(items).where(eq(items.id, data.itemId)).get(),
     ]);
 
-    if (!participant || !item) {
-      return c.json({ error: "Participant or item not found" }, 404);
+    if (!item || !participant) {
+      return c.json({ error: "Item or participant not found" }, 404);
     }
 
     // Check if registration already exists
@@ -39,8 +43,8 @@ const router = hono()
       .from(registrations)
       .where(
         and(
-          eq(registrations.itemId, data.itemId),
-          eq(registrations.participantId, data.participantId)
+          eq(registrations.participantId, data.participantId),
+          eq(registrations.itemId, data.itemId)
         )
       )
       .get();
@@ -54,15 +58,151 @@ const router = hono()
 
     const registration = await db
       .insert(registrations)
-      .values(data)
+      .values({
+        ...data,
+        status: "registered",
+      })
       .returning()
       .get();
 
     return c.json(registration, 201);
   })
+  .get("/", async (c) => {
+    const db = c.get("db");
+
+    const allRegistrations = await db
+      .select({
+        registration: registrations,
+        participant: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+        },
+        item: {
+          id: items.id,
+          name: items.name,
+        },
+      })
+      .from(registrations)
+      .innerJoin(participants, eq(registrations.participantId, participants.id))
+      .innerJoin(items, eq(registrations.itemId, items.id))
+      .all();
+
+    return c.json(allRegistrations);
+  })
+  .get("/:id", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    const registration = await db
+      .select({
+        registration: registrations,
+        participant: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+        },
+        item: {
+          id: items.id,
+          name: items.name,
+        },
+      })
+      .from(registrations)
+      .where(eq(registrations.id, id))
+      .innerJoin(participants, eq(registrations.participantId, participants.id))
+      .innerJoin(items, eq(registrations.itemId, items.id))
+      .get();
+
+    if (!registration) {
+      return c.json({ error: "Registration not found" }, 404);
+    }
+
+    return c.json(registration);
+  })
+  .put("/:id", zodValidator(updateRegistrationSchema), async (c) => {
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+    const db = c.get("db");
+
+    // Check if registration exists
+    const existingRegistration = await db
+      .select()
+      .from(registrations)
+      .where(eq(registrations.id, id))
+      .get();
+
+    if (!existingRegistration) {
+      return c.json({ error: "Registration not found" }, 404);
+    }
+
+    // Verify if item and participant exist
+    const [item, participant] = await Promise.all([
+      db.select().from(items).where(eq(items.id, data.itemId)).get(),
+      db
+        .select()
+        .from(participants)
+        .where(eq(participants.id, data.participantId))
+        .get(),
+    ]);
+
+    if (!item || !participant) {
+      return c.json({ error: "Item or participant not found" }, 404);
+    }
+
+    // Check if another registration exists for the same participant and item
+    const duplicateRegistration = await db
+      .select()
+      .from(registrations)
+      .where(
+        and(
+          eq(registrations.participantId, data.participantId),
+          eq(registrations.itemId, data.itemId),
+          eq(registrations.id, id)
+        )
+      )
+      .get();
+
+    if (duplicateRegistration && duplicateRegistration.id !== id) {
+      return c.json(
+        { error: "Participant already registered for this item" },
+        400
+      );
+    }
+
+    const updatedRegistration = await db
+      .update(registrations)
+      .set(data)
+      .where(eq(registrations.id, id))
+      .returning()
+      .get();
+
+    return c.json(updatedRegistration);
+  })
+  .delete("/:id", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    // Check if registration exists
+    const existingRegistration = await db
+      .select()
+      .from(registrations)
+      .where(eq(registrations.id, id))
+      .get();
+
+    if (!existingRegistration) {
+      return c.json({ error: "Registration not found" }, 404);
+    }
+
+    await db.delete(registrations).where(eq(registrations.id, id));
+    return c.json({ success: true });
+  })
   .patch(
     "/:id/status",
-    zodValidator(updateRegistrationStatusSchema),
+    zodValidator(z.object({
+      status: z
+        .enum(["registered", "participated", "not_participated"])
+       
+    })),
     async (c) => {
       const id = parseInt(c.req.param("id"));
       const { status } = c.req.valid("json");
@@ -89,10 +229,14 @@ const router = hono()
     const itemRegistrations = await db
       .select({
         registration: registrations,
-        participant: participants,
+        participant: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+        },
       })
       .from(registrations)
-      .leftJoin(participants, eq(registrations.participantId, participants.id))
+      .innerJoin(participants, eq(registrations.participantId, participants.id))
       .where(eq(registrations.itemId, itemId))
       .all();
 
@@ -105,10 +249,13 @@ const router = hono()
     const participantRegistrations = await db
       .select({
         registration: registrations,
-        item: items,
+        item: {
+          id: items.id,
+          name: items.name,
+        },
       })
       .from(registrations)
-      .leftJoin(items, eq(registrations.itemId, items.id))
+      .innerJoin(items, eq(registrations.itemId, items.id))
       .where(eq(registrations.participantId, participantId))
       .all();
 

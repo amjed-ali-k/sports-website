@@ -26,26 +26,26 @@ class ApiClient {
   }
 
   // Participants
-  async getParticipants(): Promise<Participant[] | ErrorType> {
+  async getParticipants() {
     const response = await this.client.api.participants.$get();
     return response.json();
   }
 
-  async getParticipant(id: number): Promise<Participant | ErrorType> {
+  async getParticipant(id: number) {
     const response = await this.client.api.participants[":id"].$get({
       param: { id: id.toString() },
     });
     return response.json();
   }
 
-  async createParticipant(data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">): Promise<Participant | ErrorType> {
+  async createParticipant(data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.participants.$post({
       json: data,
     });
     return response.json();
   }
 
-  async updateParticipant(id: number, data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">): Promise<Participant | ErrorType> {
+  async updateParticipant(id: number, data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.participants[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -151,7 +151,7 @@ class ApiClient {
   }
 
   // Results
-  async getResults(): Promise<Result[] | ErrorType> {
+  async getResults() {
     const response = await this.client.api.results.$get();
     return response.json();
   }
@@ -163,14 +163,14 @@ class ApiClient {
     return response.json();
   }
 
-  async createResult(data: Omit<Result, "id" | "createdAt" | "updatedAt">): Promise<Result | ErrorType> {
+  async createResult(data: Omit<Result, "id" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.results.$post({
       json: data,
     });
     return response.json();
   }
 
-  async updateResult(id: number, data: Omit<Result, "id" | "createdAt" | "updatedAt">): Promise<Result | ErrorType> {
+  async updateResult(id: number, data: Omit<Result, "id" | "createdAt" | "updatedAt">) {
     const response = await this.client.api.results[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -178,7 +178,7 @@ class ApiClient {
     return response.json();
   }
 
-  async deleteResult(id: number): Promise<unknown | ErrorType> {
+  async deleteResult(id: number) {
     const response = await this.client.api.results[":id"].$delete({
       param: { id: id.toString() },
     });
@@ -186,8 +186,8 @@ class ApiClient {
   }
 
   // Leaderboard
-  async getLeaderboard(): Promise<LeaderboardEntry[] | ErrorType> {
-    const response = await this.client.api.leaderboard.$get();
+  async getLeaderboard() {
+    const response = await this.client.api.results.leaderboard.$get();
     return response.json();
   }
 }
