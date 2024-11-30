@@ -1,74 +1,163 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+import { hc } from 'hono/client'
+import type { AppType } from '@sports/api'
 
-async function fetchApi<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const token = localStorage.getItem('token');
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  };
+class ApiClient {
+  private client: ReturnType<typeof hc<AppType>>
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    throw new Error('API request failed');
+  constructor() {
+    const baseUrl = import.meta.env.VITE_API_URL
+    this.client = hc<AppType>(baseUrl, {
+      headers: {
+        'X-API-Key': import.meta.env.VITE_API_KEY,
+      },
+    })
   }
 
-  return response.json();
+  // Participants
+  async getParticipants() {
+    const response = await this.client.api.participants.$get()
+    return response.json()
+  }
+
+  async getParticipant(id: number) {
+    const response = await this.client.api.participants[':id'].$get({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  async createParticipant(data: unknown) {
+    const response = await this.client.api.participants.$post({
+      json: data,
+    })
+    return response.json()
+  }
+
+  async updateParticipant(id: number, data: unknown) {
+    const response = await this.client.api.participants[':id'].$put({
+      param: { id: id.toString() },
+      json: data,
+    })
+    return response.json()
+  }
+
+  async deleteParticipant(id: number) {
+    const response = await this.client.api.participants[':id'].$delete({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  // Items
+  async getItems() {
+    const response = await this.client.api.items.$get()
+    return response.json()
+  }
+
+  async getItem(id: number) {
+    const response = await this.client.api.items[':id'].$get({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  async createItem(data: unknown) {
+    const response = await this.client.api.items.$post({
+      json: data,
+    })
+    return response.json()
+  }
+
+  async updateItem(id: number, data: unknown) {
+    const response = await this.client.api.items[':id'].$put({
+      param: { id: id.toString() },
+      json: data,
+    })
+    return response.json()
+  }
+
+  async deleteItem(id: number) {
+    const response = await this.client.api.items[':id'].$delete({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  // Registrations
+  async getRegistrations() {
+    const response = await this.client.api.registrations.$get()
+    return response.json()
+  }
+
+  async getRegistration(id: number) {
+    const response = await this.client.api.registrations[':id'].$get({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  async createRegistration(data: unknown) {
+    const response = await this.client.api.registrations.$post({
+      json: data,
+    })
+    return response.json()
+  }
+
+  async updateRegistration(id: number, data: unknown) {
+    const response = await this.client.api.registrations[':id'].$put({
+      param: { id: id.toString() },
+      json: data,
+    })
+    return response.json()
+  }
+
+  async deleteRegistration(id: number) {
+    const response = await this.client.api.registrations[':id'].$delete({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  // Results
+  async getResults() {
+    const response = await this.client.api.results.$get()
+    return response.json()
+  }
+
+  async getResult(id: number) {
+    const response = await this.client.api.results[':id'].$get({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  async createResult(data: unknown) {
+    const response = await this.client.api.results.$post({
+      json: data,
+    })
+    return response.json()
+  }
+
+  async updateResult(id: number, data: unknown) {
+    const response = await this.client.api.results[':id'].$put({
+      param: { id: id.toString() },
+      json: data,
+    })
+    return response.json()
+  }
+
+  async deleteResult(id: number) {
+    const response = await this.client.api.results[':id'].$delete({
+      param: { id: id.toString() },
+    })
+    return response.json()
+  }
+
+  // Leaderboard
+  async getLeaderboard() {
+    const response = await this.client.api.results.leaderboard.$get()
+    return response.json()
+  }
 }
 
-export const api = {
-  auth: {
-    login: (credentials: { email: string; password: string }) =>
-      fetchApi('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      }),
-  },
-  participants: {
-    list: () => fetchApi('/participants'),
-    create: (data: any) =>
-      fetchApi('/participants', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-    get: (id: number) => fetchApi(`/participants/${id}`),
-  },
-  items: {
-    list: () => fetchApi('/items'),
-    create: (data: any) =>
-      fetchApi('/items', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-    get: (id: number) => fetchApi(`/items/${id}`),
-  },
-  registrations: {
-    list: () => fetchApi('/registrations'),
-    create: (data: any) =>
-      fetchApi('/registrations', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-    updateStatus: (id: number, status: string) =>
-      fetchApi(`/registrations/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      }),
-  },
-  results: {
-    list: () => fetchApi('/results'),
-    create: (data: any) =>
-      fetchApi('/results', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
-    getLeaderboard: () => fetchApi('/results/leaderboard'),
-  },
-};
+export const api = new ApiClient()

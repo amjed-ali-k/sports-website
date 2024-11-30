@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@sports/ui": "workspace:*",
+    "@sports/api": "workspace:*",
     "@tanstack/react-query": "^5.24.1",
     "@tanstack/react-table": "^8.12.0",
     "next-themes": "^0.2.1",
@@ -20,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "react-router-dom": "^6.22.1",
+     "hono": "latest",
     "zod": "^3.22.4"
   },
   "devDependencies": {

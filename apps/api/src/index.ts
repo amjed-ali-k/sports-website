@@ -39,3 +39,4 @@ api.route('/results', resultsRouter);
 app.route('/api', api);
 
 export default app;
+export type AppType = typeof app;
