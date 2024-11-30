@@ -6,9 +6,18 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "db:migrate": {},
-    "db:generate": {},
-    "db:push": {},
+    "db:migrate": {
+      "env": ["CF_TOKEN", "CF_ACCOUNT_ID"],
+      "passThroughEnv": ["CF_TOKEN", "CF_ACCOUNT_ID"]
+    },
+    "db:generate": {
+      "env": ["CF_TOKEN", "CF_ACCOUNT_ID"],
+      "passThroughEnv": ["CF_TOKEN", "CF_ACCOUNT_ID"]
+    },
+    "db:push": {
+      "env": ["CF_TOKEN", "CF_ACCOUNT_ID"],
+      "passThroughEnv": ["CF_TOKEN", "CF_ACCOUNT_ID"]
+    },
     "lint": {},
     "dev": {
       "cache": false,
