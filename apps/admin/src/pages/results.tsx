@@ -60,7 +60,7 @@ export default function ResultsPage() {
     queryFn: () => apiClient.getSections(),
   });
 
-  const { data: registrations = [], isLoading: registrationsLoading } =
+  const { data: registrations = [] } =
     useQuery({
       queryKey: ["registrations", selectedItem],
       queryFn: () => {
@@ -107,7 +107,7 @@ export default function ResultsPage() {
     mutation.mutate(values);
   };
 
-  const isLoading = itemsLoading || registrationsLoading;
+  const isLoading = itemsLoading ;
   if (isLoading) return <div>Loading...</div>;
 
   return (
