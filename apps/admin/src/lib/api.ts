@@ -247,6 +247,8 @@ class ApiClient {
     return response.json();
   }
 
+  
+
   async updateSettings(data: {
     eventName: string;
     eventDate: string;
@@ -257,6 +259,38 @@ class ApiClient {
   }) {
     const response = await this.client.api.settings.$put({
       json: data,
+    });
+    return response.json();
+  }
+
+  async getAdmins() {
+    const response = await this.client.api.admins.$get({});
+    return response.json();
+  }
+
+  async updateAdmin(id: number, data: { role: "rep" | "manager" | "controller" | "super_admin" }) {
+    const response = await this.client.api.admins[":id"].$put({
+      param: { id: id.toString() },
+      json: data,
+    });
+    return response.json();
+  }
+
+  async createAdmin(data: {
+    email: string;
+    name: string;
+    role: "rep" | "manager" | "controller" | "super_admin";
+    password: string;
+  }) {
+    const response = await this.client.api.admins.$post({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async deleteAdmin(id: number) {
+    const response = await this.client.api.admins[":id"].$delete({
+      param: { id: id.toString() },
     });
     return response.json();
   }

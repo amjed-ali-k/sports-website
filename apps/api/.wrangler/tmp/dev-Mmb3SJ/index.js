@@ -71,7 +71,7 @@ var require_bcrypt = __commonJS({
         (global["dcodeIO"] = global["dcodeIO"] || {})["bcrypt"] = factory();
     })(exports, function() {
       "use strict";
-      var bcrypt2 = {};
+      var bcrypt3 = {};
       var randomFallback = null;
       function random(len) {
         if (typeof module !== "undefined" && module && module["exports"])
@@ -97,10 +97,10 @@ var require_bcrypt = __commonJS({
       } catch (e) {
       }
       randomFallback = null;
-      bcrypt2.setRandomFallback = function(random2) {
+      bcrypt3.setRandomFallback = function(random2) {
         randomFallback = random2;
       };
-      bcrypt2.genSaltSync = function(rounds, seed_length) {
+      bcrypt3.genSaltSync = function(rounds, seed_length) {
         rounds = rounds || GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof rounds !== "number")
           throw Error("Illegal arguments: " + typeof rounds + ", " + typeof seed_length);
@@ -117,7 +117,7 @@ var require_bcrypt = __commonJS({
         salt.push(base64_encode(random(BCRYPT_SALT_LEN), BCRYPT_SALT_LEN));
         return salt.join("");
       };
-      bcrypt2.genSalt = function(rounds, seed_length, callback) {
+      bcrypt3.genSalt = function(rounds, seed_length, callback) {
         if (typeof seed_length === "function")
           callback = seed_length, seed_length = void 0;
         if (typeof rounds === "function")
@@ -129,7 +129,7 @@ var require_bcrypt = __commonJS({
         function _async(callback2) {
           nextTick(function() {
             try {
-              callback2(null, bcrypt2.genSaltSync(rounds));
+              callback2(null, bcrypt3.genSaltSync(rounds));
             } catch (err) {
               callback2(err);
             }
@@ -151,19 +151,19 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt2.hashSync = function(s, salt) {
+      bcrypt3.hashSync = function(s, salt) {
         if (typeof salt === "undefined")
           salt = GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof salt === "number")
-          salt = bcrypt2.genSaltSync(salt);
+          salt = bcrypt3.genSaltSync(salt);
         if (typeof s !== "string" || typeof salt !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof salt);
         return _hash(s, salt);
       };
-      bcrypt2.hash = function(s, salt, callback, progressCallback) {
+      bcrypt3.hash = function(s, salt, callback, progressCallback) {
         function _async(callback2) {
           if (typeof s === "string" && typeof salt === "number")
-            bcrypt2.genSalt(salt, function(err, salt2) {
+            bcrypt3.genSalt(salt, function(err, salt2) {
               _hash(s, salt2, callback2, progressCallback);
             });
           else if (typeof s === "string" && typeof salt === "string")
@@ -200,14 +200,14 @@ var require_bcrypt = __commonJS({
         return wrong === 0;
       }
       __name(safeStringCompare, "safeStringCompare");
-      bcrypt2.compareSync = function(s, hash) {
+      bcrypt3.compareSync = function(s, hash) {
         if (typeof s !== "string" || typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof hash);
         if (hash.length !== 60)
           return false;
-        return safeStringCompare(bcrypt2.hashSync(s, hash.substr(0, hash.length - 31)), hash);
+        return safeStringCompare(bcrypt3.hashSync(s, hash.substr(0, hash.length - 31)), hash);
       };
-      bcrypt2.compare = function(s, hash, callback, progressCallback) {
+      bcrypt3.compare = function(s, hash, callback, progressCallback) {
         function _async(callback2) {
           if (typeof s !== "string" || typeof hash !== "string") {
             nextTick(callback2.bind(this, Error("Illegal arguments: " + typeof s + ", " + typeof hash)));
@@ -217,7 +217,7 @@ var require_bcrypt = __commonJS({
             nextTick(callback2.bind(this, null, false));
             return;
           }
-          bcrypt2.hash(s, hash.substr(0, 29), function(err, comp) {
+          bcrypt3.hash(s, hash.substr(0, 29), function(err, comp) {
             if (err)
               callback2(err);
             else
@@ -240,12 +240,12 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt2.getRounds = function(hash) {
+      bcrypt3.getRounds = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         return parseInt(hash.split("$")[2], 10);
       };
-      bcrypt2.getSalt = function(hash) {
+      bcrypt3.getSalt = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         if (hash.length !== 60)
@@ -1882,9 +1882,9 @@ var require_bcrypt = __commonJS({
         }
       }
       __name(_hash, "_hash");
-      bcrypt2.encodeBase64 = base64_encode;
-      bcrypt2.decodeBase64 = base64_decode;
-      return bcrypt2;
+      bcrypt3.encodeBase64 = base64_encode;
+      bcrypt3.decodeBase64 = base64_decode;
+      return bcrypt3;
     });
   }
 });
@@ -12617,7 +12617,7 @@ var admins = sqliteTable(
     email: text("email").notNull(),
     password: text("password").notNull(),
     name: text("name").notNull(),
-    role: text("role", { enum: ["rep", "manager", "controller"] }).notNull(),
+    role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
   },
@@ -13329,20 +13329,20 @@ var SmartRouter = /* @__PURE__ */ __name(class {
     let i = 0;
     let res;
     for (; i < len; i++) {
-      const router8 = routers[i];
+      const router9 = routers[i];
       try {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
-          router8.add(...routes[i2]);
+          router9.add(...routes[i2]);
         }
-        res = router8.match(method, path);
+        res = router9.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
         }
         throw e;
       }
-      this.match = router8.match.bind(router8);
-      this.#routers = [router8];
+      this.match = router9.match.bind(router9);
+      this.#routers = [router9];
       this.#routes = void 0;
       break;
     }
@@ -14280,6 +14280,64 @@ var router7 = hono().get("/", async (c) => {
 });
 var sections_default = router7;
 
+// src/routes/admins.ts
+init_modules_watch_stub();
+var import_bcryptjs2 = __toESM(require_bcrypt());
+var updateAdminSchema = z.object({
+  role: z.enum(["rep", "manager", "controller", "super_admin"])
+});
+var createAdminSchema2 = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().min(1),
+  role: z.enum(["rep", "manager", "controller", "super_admin"])
+});
+var router8 = hono().get("/", async (c) => {
+  const db = c.get("db");
+  const allAdmins = await db.select().from(admins).all();
+  return c.json(allAdmins);
+}).post("/", zodValidator(createAdminSchema2), async (c) => {
+  const { email, password, name, role } = c.req.valid("json");
+  const db = c.get("db");
+  const existingAdmin = await db.select().from(admins).where(eq(admins.email, email)).get();
+  if (existingAdmin) {
+    return c.json({ error: "Admin with this email already exists" }, 400);
+  }
+  const hashedPassword = await import_bcryptjs2.default.hash(password, 10);
+  const admin = await db.insert(admins).values({
+    email,
+    password: hashedPassword,
+    name,
+    role
+  }).returning().get();
+  const { password: _, ...adminWithoutPassword } = admin;
+  return c.json(adminWithoutPassword, 201);
+}).put("/:id", zodValidator(updateAdminSchema), async (c) => {
+  const id = Number(c.req.param("id"));
+  const { role } = c.req.valid("json");
+  const db = c.get("db");
+  const existingAdmin = await db.select().from(admins).where(eq(admins.id, id)).get();
+  if (!existingAdmin) {
+    return c.json({ error: "Admin not found" }, 404);
+  }
+  const updatedAdmin = await db.update(admins).set({ role }).where(eq(admins.id, id)).returning().get();
+  return c.json(updatedAdmin);
+}).delete("/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const db = c.get("db");
+  const existingAdmin = await db.select().from(admins).where(eq(admins.id, id)).get();
+  if (!existingAdmin) {
+    return c.json({ error: "Admin not found" }, 404);
+  }
+  const adminCount = await db.select().from(admins).all();
+  if (adminCount.length <= 1) {
+    return c.json({ error: "Cannot delete the last admin" }, 400);
+  }
+  await db.delete(admins).where(eq(admins.id, id));
+  return c.json({ success: true });
+});
+var admins_default = router8;
+
 // src/db/index.ts
 init_modules_watch_stub();
 
@@ -14569,7 +14627,7 @@ var logger = /* @__PURE__ */ __name((fn = console.log) => {
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/settings", settings_default);
+var api = hono().use("*", authMiddleware).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();

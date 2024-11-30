@@ -20,9 +20,9 @@ const settingsSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
   eventDate: z.string().min(1, "Event date is required"),
   registrationEndDate: z.string().min(1, "Registration end date is required"),
-  maxRegistrationsPerParticipant: z.string().transform((val) => val.toString()),
-  isRegistrationOpen: z.boolean().transform((val) => val.toString()),
-  isResultsPublished: z.boolean().transform((val) => val.toString()),
+  maxRegistrationsPerParticipant: z.string(),
+  isRegistrationOpen: z.string(),
+  isResultsPublished: z.string(),
 });
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
@@ -56,9 +56,12 @@ export default function SettingsPage() {
     },
   });
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings, isLoading,  } = useQuery({
     queryKey: ["settings"],
-    queryFn: apiClient.getSettings,
+    queryFn: () => apiClient.getSettings().then(res => {
+      form.reset(res)
+    }),
+    
   });
 
   function onSubmit(data: SettingsFormData) {
@@ -69,6 +72,7 @@ export default function SettingsPage() {
     return <div>Loading...</div>;
   }
 
+  console.log(form.formState.errors)
   return (
     <div className="container mx-auto py-10">
       <Card>

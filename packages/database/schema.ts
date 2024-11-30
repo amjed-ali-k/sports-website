@@ -91,7 +91,7 @@ export const admins = sqliteTable(
     email: text("email").notNull(),
     password: text("password").notNull(),
     name: text("name").notNull(),
-    role: text("role", { enum: ["rep", "manager", "controller"] }).notNull(),
+    role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
   },

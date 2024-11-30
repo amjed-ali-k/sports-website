@@ -38,15 +38,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Badge } from "@sports/ui";
 import { useAuth, useRequireAuth } from "../lib/auth";
+import { apiClient } from "@/lib/api";
 
 const adminSchema = z.object({
+  id: z.number().optional(),
   email: z.string().email("Invalid email address"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
     .optional(),
   name: z.string().min(1, "Name is required"),
-  role: z.enum(["rep", "manager", "controller"]),
+  role: z.enum(["rep", "manager", "controller", "super_admin"]),
 });
 
 type AdminFormValues = z.infer<typeof adminSchema>;
@@ -56,7 +58,7 @@ export default function AdminsPage() {
   const { admin: currentAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<AdminFormValues | null>(
-    null,
+    null
   );
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -70,22 +72,14 @@ export default function AdminsPage() {
 
   const { data: admins, isLoading } = useQuery({
     queryKey: ["admins"],
-    queryFn: async () => {
-      const response = await fetch("/api/admins");
-      if (!response.ok) throw new Error("Failed to fetch admins");
-      return response.json();
-    },
+    queryFn: () => apiClient.getAdmins(),
   });
 
   const mutation = useMutation({
     mutationFn: async (values: AdminFormValues) => {
-      const response = await fetch("/api/admins", {
-        method: editingAdmin ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!response.ok) throw new Error("Failed to save admin");
-      return response.json();
+      editingAdmin?.id
+        ? await apiClient.updateAdmin(editingAdmin.id, values)
+        : await apiClient.createAdmin({...values, password: values.password || 'admin123'});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admins"] });
@@ -229,7 +223,7 @@ export default function AdminsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {admins?.map((admin: any) => (
+          {admins?.map((admin) => (
             <TableRow key={admin.id}>
               <TableCell>{admin.name}</TableCell>
               <TableCell>{admin.email}</TableCell>
