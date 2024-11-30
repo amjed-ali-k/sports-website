@@ -5,19 +5,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sports/ui';
-import { Avatar, AvatarFallback, AvatarImage } from '@sports/ui';
-import { formatDate } from '@/lib/utils';
-import { Participant, Section } from '@/types/participant';
+} from "@sports/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@sports/ui";
+import { formatDate } from "@/lib/utils";
+import { Participant, Section } from "@/types/participant";
 
 interface ParticipantListProps {
   participants: Participant[];
   sections: Section[];
 }
 
-export function ParticipantList({ participants, sections }: ParticipantListProps) {
+export function ParticipantList({
+  participants,
+  sections,
+}: ParticipantListProps) {
   const getSectionName = (sectionId: number) => {
-    return sections.find(s => s.id === sectionId)?.name || 'Unknown';
+    return sections.find((s) => s.id === sectionId)?.name || "Unknown";
   };
 
   return (

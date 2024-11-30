@@ -1,17 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@sports/ui';
-import { Toaster } from '@sports/ui';
-import Layout from './components/layout';
-import LoginPage from './pages/login';
-import DashboardPage from './pages/dashboard';
-import ParticipantsPage from './pages/participants';
-import ItemsPage from './pages/items';
-import RegistrationsPage from './pages/registrations';
-import ResultsPage from './pages/results';
-import SettingsPage from './pages/settings';
-import AdminsPage from './pages/admins';
-import { AuthProvider, ProtectedRoute } from './lib/auth';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "@sports/ui";
+import { Toaster } from "@sports/ui";
+import Layout from "./components/layout";
+import LoginPage from "./pages/login";
+import DashboardPage from "./pages/dashboard";
+import ParticipantsPage from "./pages/participants";
+import ItemsPage from "./pages/items";
+import RegistrationsPage from "./pages/registrations";
+import ResultsPage from "./pages/results";
+import SettingsPage from "./pages/settings";
+import AdminsPage from "./pages/admins";
+import { AuthProvider, ProtectedRoute } from "./lib/auth";
 
 const queryClient = new QueryClient();
 

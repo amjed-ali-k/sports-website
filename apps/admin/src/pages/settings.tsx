@@ -1,12 +1,12 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@sports/ui';
-import { Button } from '@sports/ui';
+} from "@sports/ui";
+import { Button } from "@sports/ui";
 import {
   Form,
   FormControl,
@@ -15,26 +15,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@sports/ui';
-import { Input } from '@sports/ui';
-import { Textarea } from '@sports/ui';
-import { useToast } from '@sports/ui';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+} from "@sports/ui";
+import { Input } from "@sports/ui";
+import { Textarea } from "@sports/ui";
+import { useToast } from "@sports/ui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const settingsSchema = z.object({
-  collegeName: z.string().min(1, 'College name is required'),
-  year: z.string().min(1, 'Year is required'),
-  eventName: z.string().min(1, 'Event name is required'),
+  collegeName: z.string().min(1, "College name is required"),
+  year: z.string().min(1, "Year is required"),
+  eventName: z.string().min(1, "Event name is required"),
   sponsors: z.array(z.string()),
   certificateTemplate: z.string().optional(),
   participationCertificateTemplate: z.string().optional(),
-  assignedStaff: z.array(z.object({
-    name: z.string(),
-    role: z.string(),
-    contact: z.string(),
-  })),
+  assignedStaff: z.array(
+    z.object({
+      name: z.string(),
+      role: z.string(),
+      contact: z.string(),
+    }),
+  ),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
@@ -51,10 +53,10 @@ export default function SettingsPage() {
   });
 
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['settings'],
+    queryKey: ["settings"],
     queryFn: async () => {
-      const response = await fetch('/api/settings');
-      if (!response.ok) throw new Error('Failed to fetch settings');
+      const response = await fetch("/api/settings");
+      if (!response.ok) throw new Error("Failed to fetch settings");
       return response.json();
     },
     onSuccess: (data) => {
@@ -64,25 +66,25 @@ export default function SettingsPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: SettingsFormValues) => {
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      if (!response.ok) throw new Error('Failed to update settings');
+      if (!response.ok) throw new Error("Failed to update settings");
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: 'Success',
-        description: 'Settings updated successfully',
+        title: "Success",
+        description: "Settings updated successfully",
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -112,7 +114,10 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="collegeName"
@@ -165,13 +170,13 @@ export default function SettingsPage() {
                       <FormLabel>Sponsors</FormLabel>
                       <FormControl>
                         <Textarea
-                          value={field.value?.join('\n')}
+                          value={field.value?.join("\n")}
                           onChange={(e) =>
                             field.onChange(
                               e.target.value
-                                .split('\n')
+                                .split("\n")
                                 .map((s) => s.trim())
-                                .filter(Boolean)
+                                .filter(Boolean),
                             )
                           }
                           placeholder="Enter sponsors (one per line)"
@@ -226,7 +231,9 @@ export default function SettingsPage() {
                           {field.value && (
                             <Button
                               variant="outline"
-                              onClick={() => window.open(`/api/certificates/preview/winner`)}
+                              onClick={() =>
+                                window.open(`/api/certificates/preview/winner`)
+                              }
                             >
                               Preview
                             </Button>
@@ -267,7 +274,9 @@ export default function SettingsPage() {
                             <Button
                               variant="outline"
                               onClick={() =>
-                                window.open(`/api/certificates/preview/participation`)
+                                window.open(
+                                  `/api/certificates/preview/participation`,
+                                )
                               }
                             >
                               Preview
@@ -276,7 +285,8 @@ export default function SettingsPage() {
                         </div>
                       </FormControl>
                       <FormDescription>
-                        Upload an HTML or Pug template for participation certificates
+                        Upload an HTML or Pug template for participation
+                        certificates
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -347,7 +357,7 @@ export default function SettingsPage() {
                                 variant="destructive"
                                 onClick={() => {
                                   const newStaff = field.value.filter(
-                                    (_, i) => i !== index
+                                    (_, i) => i !== index,
                                   );
                                   field.onChange(newStaff);
                                 }}
@@ -363,7 +373,7 @@ export default function SettingsPage() {
                           onClick={() => {
                             field.onChange([
                               ...(field.value || []),
-                              { name: '', role: '', contact: '' },
+                              { name: "", role: "", contact: "" },
                             ]);
                           }}
                         >

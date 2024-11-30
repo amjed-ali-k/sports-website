@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet } from "react-router-dom";
 import {
   Button,
   DropdownMenu,
@@ -7,8 +7,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@sports/ui';
-import { useAuth } from '../lib/auth';
+} from "@sports/ui";
+import { useAuth } from "../lib/auth";
 
 export default function Layout() {
   const { admin, logout } = useAuth();
@@ -21,42 +21,42 @@ export default function Layout() {
             <span className="font-bold">Sports Admin</span>
           </Link>
           <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
-            <Link 
-              to="/participants" 
+            <Link
+              to="/participants"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               Participants
             </Link>
-            {admin?.role !== 'rep' && (
-              <Link 
-                to="/items" 
+            {admin?.role !== "rep" && (
+              <Link
+                to="/items"
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
                 Items
               </Link>
             )}
-            <Link 
-              to="/registrations" 
+            <Link
+              to="/registrations"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               Registrations
             </Link>
-            <Link 
-              to="/results" 
+            <Link
+              to="/results"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
               Results
             </Link>
-            {admin?.role === 'controller' && (
+            {admin?.role === "controller" && (
               <>
-                <Link 
-                  to="/settings" 
+                <Link
+                  to="/settings"
                   className="transition-colors hover:text-foreground/80 text-foreground/60"
                 >
                   Settings
                 </Link>
-                <Link 
-                  to="/admins" 
+                <Link
+                  to="/admins"
                   className="transition-colors hover:text-foreground/80 text-foreground/60"
                 >
                   Admins
@@ -76,7 +76,9 @@ export default function Layout() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{admin?.name}</p>
+                  <p className="text-sm font-medium leading-none">
+                    {admin?.name}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {admin?.email}
                   </p>

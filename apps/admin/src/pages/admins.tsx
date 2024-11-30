@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -7,15 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sports/ui';
-import { Button } from '@sports/ui';
+} from "@sports/ui";
+import { Button } from "@sports/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Form,
   FormControl,
@@ -23,80 +23,85 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@sports/ui';
-import { Input } from '@sports/ui';
-import { useToast } from '@sports/ui';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Badge } from '@sports/ui';
-import { useAuth, useRequireAuth } from '../lib/auth';
+} from "@sports/ui";
+import { Input } from "@sports/ui";
+import { useToast } from "@sports/ui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Badge } from "@sports/ui";
+import { useAuth, useRequireAuth } from "../lib/auth";
 
 const adminSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
-  name: z.string().min(1, 'Name is required'),
-  role: z.enum(['rep', 'manager', 'controller']),
+  email: z.string().email("Invalid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional(),
+  name: z.string().min(1, "Name is required"),
+  role: z.enum(["rep", "manager", "controller"]),
 });
 
 type AdminFormValues = z.infer<typeof adminSchema>;
 
 export default function AdminsPage() {
-  useRequireAuth('controller');
+  useRequireAuth("controller");
   const { admin: currentAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [editingAdmin, setEditingAdmin] = useState<AdminFormValues | null>(null);
+  const [editingAdmin, setEditingAdmin] = useState<AdminFormValues | null>(
+    null,
+  );
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const form = useForm<AdminFormValues>({
     resolver: zodResolver(adminSchema),
     defaultValues: {
-      role: 'rep',
+      role: "rep",
     },
   });
 
   const { data: admins, isLoading } = useQuery({
-    queryKey: ['admins'],
+    queryKey: ["admins"],
     queryFn: async () => {
-      const response = await fetch('/api/admins');
-      if (!response.ok) throw new Error('Failed to fetch admins');
+      const response = await fetch("/api/admins");
+      if (!response.ok) throw new Error("Failed to fetch admins");
       return response.json();
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: AdminFormValues) => {
-      const response = await fetch('/api/admins', {
-        method: editingAdmin ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/admins", {
+        method: editingAdmin ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      if (!response.ok) throw new Error('Failed to save admin');
+      if (!response.ok) throw new Error("Failed to save admin");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admins'] });
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
       setIsOpen(false);
       setEditingAdmin(null);
       form.reset();
       toast({
-        title: 'Success',
-        description: `Admin ${editingAdmin ? 'updated' : 'created'} successfully`,
+        title: "Success",
+        description: `Admin ${editingAdmin ? "updated" : "created"} successfully`,
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -109,12 +114,12 @@ export default function AdminsPage() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'controller':
-        return 'default';
-      case 'manager':
-        return 'secondary';
+      case "controller":
+        return "default";
+      case "manager":
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -128,10 +133,15 @@ export default function AdminsPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingAdmin ? 'Edit Admin' : 'Add Admin'}</DialogTitle>
+              <DialogTitle>
+                {editingAdmin ? "Edit Admin" : "Add Admin"}
+              </DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="email"
@@ -182,7 +192,10 @@ export default function AdminsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -198,7 +211,7 @@ export default function AdminsPage() {
                 />
 
                 <Button type="submit" className="w-full">
-                  {editingAdmin ? 'Update' : 'Create'} Admin
+                  {editingAdmin ? "Update" : "Create"} Admin
                 </Button>
               </form>
             </Form>

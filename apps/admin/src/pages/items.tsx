@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -7,15 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from'@sports/ui';
-import { Button } from '@sports/ui';
+} from "@sports/ui";
+import { Button } from "@sports/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Form,
   FormControl,
@@ -23,30 +23,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@sports/ui';
-import { Input } from '@sports/ui';
-import { Switch } from '@sports/ui';
-import { useToast } from '@sports/ui';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+} from "@sports/ui";
+import { Input } from "@sports/ui";
+import { Switch } from "@sports/ui";
+import { useToast } from "@sports/ui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const itemSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, "Name is required"),
   categoryId: z.number(),
   isGroup: z.boolean(),
-  gender: z.enum(['male', 'female', 'any']),
+  gender: z.enum(["male", "female", "any"]),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
   pointsThird: z.number().min(0),
-  status: z.enum(['yet_to_begin', 'active', 'completed', 'cancelled', 'hidden']),
+  status: z.enum([
+    "yet_to_begin",
+    "active",
+    "completed",
+    "cancelled",
+    "hidden",
+  ]),
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
@@ -61,57 +67,57 @@ export default function ItemsPage() {
     resolver: zodResolver(itemSchema),
     defaultValues: {
       isGroup: false,
-      gender: 'any',
+      gender: "any",
       pointsFirst: 5,
       pointsSecond: 3,
       pointsThird: 1,
-      status: 'yet_to_begin',
+      status: "yet_to_begin",
     },
   });
 
   const { data: items, isLoading } = useQuery({
-    queryKey: ['items'],
+    queryKey: ["items"],
     queryFn: async () => {
-      const response = await fetch('/api/items');
-      if (!response.ok) throw new Error('Failed to fetch items');
+      const response = await fetch("/api/items");
+      if (!response.ok) throw new Error("Failed to fetch items");
       return response.json();
     },
   });
 
   const { data: categories } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ["categories"],
     queryFn: async () => {
-      const response = await fetch('/api/categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
+      const response = await fetch("/api/categories");
+      if (!response.ok) throw new Error("Failed to fetch categories");
       return response.json();
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (values: ItemFormValues) => {
-      const response = await fetch('/api/items', {
-        method: editingItem ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/items", {
+        method: editingItem ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      if (!response.ok) throw new Error('Failed to save item');
+      if (!response.ok) throw new Error("Failed to save item");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ["items"] });
       setIsOpen(false);
       setEditingItem(null);
       form.reset();
       toast({
-        title: 'Success',
-        description: `Item ${editingItem ? 'updated' : 'created'} successfully`,
+        title: "Success",
+        description: `Item ${editingItem ? "updated" : "created"} successfully`,
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -132,10 +138,15 @@ export default function ItemsPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingItem ? 'Edit Item' : 'Add New Item'}</DialogTitle>
+              <DialogTitle>
+                {editingItem ? "Edit Item" : "Add New Item"}
+              </DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -149,7 +160,7 @@ export default function ItemsPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -157,7 +168,9 @@ export default function ItemsPage() {
                     <FormItem>
                       <FormLabel>Category</FormLabel>
                       <Select
-                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        onValueChange={(value) =>
+                          field.onChange(parseInt(value))
+                        }
                         value={field.value?.toString()}
                       >
                         <SelectTrigger>
@@ -165,7 +178,10 @@ export default function ItemsPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {categories?.map((category: any) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
                               {category.name}
                             </SelectItem>
                           ))}
@@ -198,7 +214,10 @@ export default function ItemsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Gender</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -224,7 +243,9 @@ export default function ItemsPage() {
                           <Input
                             type="number"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -242,7 +263,9 @@ export default function ItemsPage() {
                           <Input
                             type="number"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -260,7 +283,9 @@ export default function ItemsPage() {
                           <Input
                             type="number"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -275,12 +300,17 @@ export default function ItemsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="yet_to_begin">Yet to Begin</SelectItem>
+                          <SelectItem value="yet_to_begin">
+                            Yet to Begin
+                          </SelectItem>
                           <SelectItem value="active">Active</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                           <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -293,7 +323,7 @@ export default function ItemsPage() {
                 />
 
                 <Button type="submit" className="w-full">
-                  {editingItem ? 'Update' : 'Create'} Item
+                  {editingItem ? "Update" : "Create"} Item
                 </Button>
               </form>
             </Form>
@@ -320,13 +350,13 @@ export default function ItemsPage() {
               <TableCell>
                 {categories?.find((c: any) => c.id === item.categoryId)?.name}
               </TableCell>
-              <TableCell>{item.isGroup ? 'Group' : 'Individual'}</TableCell>
+              <TableCell>{item.isGroup ? "Group" : "Individual"}</TableCell>
               <TableCell className="capitalize">{item.gender}</TableCell>
               <TableCell>
                 {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
               </TableCell>
               <TableCell className="capitalize">
-                {item.status.replace(/_/g, ' ')}
+                {item.status.replace(/_/g, " ")}
               </TableCell>
               <TableCell>
                 <Button

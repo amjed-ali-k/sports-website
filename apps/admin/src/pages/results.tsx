@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -7,15 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sports/ui';
-import { Button } from '@sports/ui';
+} from "@sports/ui";
+import { Button } from "@sports/ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Form,
   FormControl,
@@ -23,22 +23,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@sports/ui';
-import { useToast } from '@sports/ui';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+} from "@sports/ui";
+import { useToast } from "@sports/ui";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const resultSchema = z.object({
   itemId: z.number(),
-  position: z.enum(['first', 'second', 'third']),
+  position: z.enum(["first", "second", "third"]),
   registrationId: z.number(),
   points: z.number().min(0),
 });
@@ -56,31 +56,31 @@ export default function ResultsPage() {
   });
 
   const { data: items, isLoading: itemsLoading } = useQuery({
-    queryKey: ['items'],
+    queryKey: ["items"],
     queryFn: async () => {
-      const response = await fetch('/api/items');
-      if (!response.ok) throw new Error('Failed to fetch items');
+      const response = await fetch("/api/items");
+      if (!response.ok) throw new Error("Failed to fetch items");
       return response.json();
     },
   });
 
   const { data: registrations, isLoading: registrationsLoading } = useQuery({
-    queryKey: ['registrations', selectedItem],
+    queryKey: ["registrations", selectedItem],
     queryFn: async () => {
       if (!selectedItem) return [];
       const response = await fetch(`/api/registrations?itemId=${selectedItem}`);
-      if (!response.ok) throw new Error('Failed to fetch registrations');
+      if (!response.ok) throw new Error("Failed to fetch registrations");
       return response.json();
     },
     enabled: !!selectedItem,
   });
 
   const { data: results, isLoading: resultsLoading } = useQuery({
-    queryKey: ['results', selectedItem],
+    queryKey: ["results", selectedItem],
     queryFn: async () => {
       if (!selectedItem) return [];
       const response = await fetch(`/api/results?itemId=${selectedItem}`);
-      if (!response.ok) throw new Error('Failed to fetch results');
+      if (!response.ok) throw new Error("Failed to fetch results");
       return response.json();
     },
     enabled: !!selectedItem,
@@ -88,28 +88,28 @@ export default function ResultsPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: ResultFormValues) => {
-      const response = await fetch('/api/results', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      if (!response.ok) throw new Error('Failed to save result');
+      if (!response.ok) throw new Error("Failed to save result");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results'] });
+      queryClient.invalidateQueries({ queryKey: ["results"] });
       setIsOpen(false);
       form.reset();
       toast({
-        title: 'Success',
-        description: 'Result added successfully',
+        title: "Success",
+        description: "Result added successfully",
       });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -134,7 +134,10 @@ export default function ResultsPage() {
               <DialogTitle>Add Result</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="itemId"
@@ -153,7 +156,10 @@ export default function ResultsPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {items?.map((item: any) => (
-                            <SelectItem key={item.id} value={item.id.toString()}>
+                            <SelectItem
+                              key={item.id}
+                              value={item.id.toString()}
+                            >
                               {item.name}
                             </SelectItem>
                           ))}
@@ -170,7 +176,10 @@ export default function ResultsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Position</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select position" />
                         </SelectTrigger>
@@ -192,7 +201,9 @@ export default function ResultsPage() {
                     <FormItem>
                       <FormLabel>Participant</FormLabel>
                       <Select
-                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        onValueChange={(value) =>
+                          field.onChange(parseInt(value))
+                        }
                         value={field.value?.toString()}
                       >
                         <SelectTrigger>
@@ -201,7 +212,8 @@ export default function ResultsPage() {
                         <SelectContent>
                           {registrations?.map((reg: any) => (
                             <SelectItem key={reg.id} value={reg.id.toString()}>
-                              {reg.participant.fullName} ({reg.participant.chestNo})
+                              {reg.participant.fullName} (
+                              {reg.participant.chestNo})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -249,15 +261,11 @@ export default function ResultsPage() {
           <TableBody>
             {results?.map((result: any) => (
               <TableRow key={result.id}>
-                <TableCell className="capitalize">
-                  {result.position}
-                </TableCell>
+                <TableCell className="capitalize">{result.position}</TableCell>
                 <TableCell>
                   {result.registration.participant.fullName}
                 </TableCell>
-                <TableCell>
-                  {result.registration.participant.chestNo}
-                </TableCell>
+                <TableCell>{result.registration.participant.chestNo}</TableCell>
                 <TableCell>
                   {result.registration.participant.section.name}
                 </TableCell>

@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -18,12 +18,12 @@ import {
   CardDescription,
   CardContent,
   useToast,
-} from '@sports/ui';
-import { useAuth } from '../lib/auth';
+} from "@sports/ui";
+import { useAuth } from "../lib/auth";
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -42,12 +42,12 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       await login(values.email, values.password);
-      navigate('/');
+      navigate("/");
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Login failed',
-        variant: 'destructive',
+        title: "Error",
+        description: error instanceof Error ? error.message : "Login failed",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -58,7 +58,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            Welcome back
+          </CardTitle>
           <CardDescription className="text-center">
             Sign in to manage sports events
           </CardDescription>
@@ -104,12 +106,8 @@ export default function LoginPage() {
                 )}
               />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>

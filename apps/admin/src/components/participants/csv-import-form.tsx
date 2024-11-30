@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react';
-import { Button } from '@sports/ui';
-import { Input } from '@sports/ui';
-import { Alert, AlertDescription } from '@sports/ui';
-import { Upload } from 'lucide-react';
-import Papa from 'papaparse';
+import { useRef, useState } from "react";
+import { Button } from "@sports/ui";
+import { Input } from "@sports/ui";
+import { Alert, AlertDescription } from "@sports/ui";
+import { Upload } from "lucide-react";
+import Papa from "papaparse";
 
 interface CSVRow {
   fullName: string;
@@ -20,7 +20,7 @@ interface CSVImportFormProps {
 
 export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -30,15 +30,15 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const requiredFields = ['fullName', 'sectionId', 'semester', 'gender'];
+        const requiredFields = ["fullName", "sectionId", "semester", "gender"];
         const headers = Object.keys(results.data[0] || {});
-        
+
         const missingFields = requiredFields.filter(
-          field => !headers.includes(field)
+          (field) => !headers.includes(field),
         );
 
         if (missingFields.length > 0) {
-          setError(`Missing required fields: ${missingFields.join(', ')}`);
+          setError(`Missing required fields: ${missingFields.join(", ")}`);
           return;
         }
 
@@ -47,20 +47,20 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
             row.fullName &&
             row.sectionId &&
             row.semester &&
-            ['male', 'female'].includes(row.gender.toLowerCase())
+            ["male", "female"].includes(row.gender.toLowerCase())
           );
         });
 
         if (validData.length === 0) {
-          setError('No valid data found in CSV');
+          setError("No valid data found in CSV");
           return;
         }
 
-        setError('');
+        setError("");
         onImport(validData as CSVRow[]);
       },
       error: () => {
-        setError('Failed to parse CSV file');
+        setError("Failed to parse CSV file");
       },
     });
   };
@@ -80,7 +80,7 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
           disabled={isLoading}
         >
           <Upload className="mr-2 h-4 w-4" />
-          {isLoading ? 'Importing...' : 'Select CSV File'}
+          {isLoading ? "Importing..." : "Select CSV File"}
         </Button>
       </div>
 

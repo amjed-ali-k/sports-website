@@ -5,7 +5,7 @@ export interface Participant {
   sectionId: number;
   avatar?: string;
   semester: number;
-  gender: 'male' | 'female';
+  gender: "male" | "female";
   createdAt: string;
   updatedAt: string;
 }

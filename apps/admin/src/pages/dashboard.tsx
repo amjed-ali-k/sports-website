@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@sports/ui';
-import { api } from '@/lib/api';
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@sports/ui";
+import { api } from "@/lib/api";
 
 export default function DashboardPage() {
   const { data: leaderboard } = useQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ["leaderboard"],
     queryFn: () => api.results.getLeaderboard(),
   });
 
@@ -26,9 +26,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Events
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Events</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
@@ -48,9 +46,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Events
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">78</div>

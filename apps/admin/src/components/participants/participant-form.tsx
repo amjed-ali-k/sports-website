@@ -1,6 +1,6 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -8,25 +8,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@sports/ui';
+} from "@sports/ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@sports/ui';
-import { Input } from '@sports/ui';
-import { Button } from '@sports/ui';
-import { Section } from '@/types/participant';
+} from "@sports/ui";
+import { Input } from "@sports/ui";
+import { Button } from "@sports/ui";
+import { Section } from "@/types/participant";
 
 const formSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
-  sectionId: z.string().min(1, 'Section is required'),
-  semester: z.string()
-    .transform(val => parseInt(val))
-    .refine(val => val >= 1 && val <= 8, 'Semester must be between 1 and 8'),
-  gender: z.enum(['male', 'female']),
+  fullName: z.string().min(1, "Full name is required"),
+  sectionId: z.string().min(1, "Section is required"),
+  semester: z
+    .string()
+    .transform((val) => parseInt(val))
+    .refine((val) => val >= 1 && val <= 8, "Semester must be between 1 and 8"),
+  gender: z.enum(["male", "female"]),
   avatar: z.string().optional(),
 });
 
@@ -36,15 +37,19 @@ interface ParticipantFormProps {
   isLoading?: boolean;
 }
 
-export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFormProps) {
+export function ParticipantForm({
+  sections,
+  onSubmit,
+  isLoading,
+}: ParticipantFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: '',
-      sectionId: '',
+      fullName: "",
+      sectionId: "",
       semester: 1,
-      gender: 'male',
-      avatar: '',
+      gender: "male",
+      avatar: "",
     },
   });
 
@@ -97,7 +102,10 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Semester</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value.toString()}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value.toString()}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select semester" />
@@ -122,7 +130,10 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
@@ -146,7 +157,10 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
             <FormItem>
               <FormLabel>Avatar URL (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/avatar.jpg" {...field} />
+                <Input
+                  placeholder="https://example.com/avatar.jpg"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +168,7 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Creating...' : 'Create Participant'}
+          {isLoading ? "Creating..." : "Create Participant"}
         </Button>
       </form>
     </Form>

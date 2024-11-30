@@ -4,14 +4,14 @@ import {
   useEffect,
   useState,
   ReactNode,
-} from 'react';
-import { useNavigate } from 'react-router-dom';
+} from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Admin {
   id: number;
   email: string;
   name: string;
-  role: 'rep' | 'manager' | 'controller';
+  role: "rep" | "manager" | "controller";
 }
 
 interface AuthContextType {
@@ -34,39 +34,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch("/api/auth/me");
       if (response.ok) {
         const data = await response.json();
         setAdmin(data);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Login failed');
+      throw new Error(error.message || "Login failed");
     }
 
     const data = await response.json();
     setAdmin(data);
-    navigate('/');
+    navigate("/");
   };
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch("/api/auth/logout", { method: "POST" });
     setAdmin(null);
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -79,18 +79,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
 
-export function useRequireAuth(requiredRole?: 'rep' | 'manager' | 'controller') {
+export function useRequireAuth(
+  requiredRole?: "rep" | "manager" | "controller",
+) {
   const { admin, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && !admin) {
-      navigate('/login');
+      navigate("/login");
     }
 
     if (!isLoading && admin && requiredRole) {
@@ -101,7 +103,7 @@ export function useRequireAuth(requiredRole?: 'rep' | 'manager' | 'controller') 
       };
 
       if (roleLevel[admin.role] < roleLevel[requiredRole]) {
-        navigate('/');
+        navigate("/");
       }
     }
   }, [admin, isLoading, navigate, requiredRole]);
@@ -111,10 +113,13 @@ export function useRequireAuth(requiredRole?: 'rep' | 'manager' | 'controller') 
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: 'rep' | 'manager' | 'controller';
+  requiredRole?: "rep" | "manager" | "controller";
 }
 
-export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRole,
+}: ProtectedRouteProps) {
   const { admin, isLoading } = useRequireAuth(requiredRole);
 
   if (isLoading) {

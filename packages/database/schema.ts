@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
-import { 
-  sqliteTable, 
-  text, 
+import {
+  sqliteTable,
+  text,
   integer,
-  uniqueIndex 
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 export const sections = sqliteTable("sections", {
@@ -13,19 +13,23 @@ export const sections = sqliteTable("sections", {
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const participants = sqliteTable("participants", {
-  id: integer("id").primaryKey(),
-  chestNo: text("chest_no").notNull(),
-  fullName: text("full_name").notNull(),
-  sectionId: integer("section_id").references(() => sections.id),
-  avatar: text("avatar"),
-  semester: integer("semester").notNull(),
-  gender: text("gender", { enum: ["male", "female"] }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
-}, (table) => ({
-  chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
-}));
+export const participants = sqliteTable(
+  "participants",
+  {
+    id: integer("id").primaryKey(),
+    chestNo: text("chest_no").notNull(),
+    fullName: text("full_name").notNull(),
+    sectionId: integer("section_id").references(() => sections.id),
+    avatar: text("avatar"),
+    semester: integer("semester").notNull(),
+    gender: text("gender", { enum: ["male", "female"] }).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
+  }),
+);
 
 export const categories = sqliteTable("categories", {
   id: integer("id").primaryKey(),
@@ -43,9 +47,11 @@ export const items = sqliteTable("items", {
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
-  status: text("status", { 
-    enum: ["yet_to_begin", "active", "completed", "cancelled", "hidden"] 
-  }).notNull().default("yet_to_begin"),
+  status: text("status", {
+    enum: ["yet_to_begin", "active", "completed", "cancelled", "hidden"],
+  })
+    .notNull()
+    .default("yet_to_begin"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
@@ -56,7 +62,11 @@ export const registrations = sqliteTable("registrations", {
   participantId: integer("participant_id").references(() => participants.id),
   groupId: integer("group_id"),
   metaInfo: text("meta_info"),
-  status: text("status", { enum: ["registered", "participated", "not_participated"] }).notNull().default("registered"),
+  status: text("status", {
+    enum: ["registered", "participated", "not_participated"],
+  })
+    .notNull()
+    .default("registered"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
@@ -71,14 +81,18 @@ export const results = sqliteTable("results", {
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const admins = sqliteTable("admins", {
-  id: integer("id").primaryKey(),
-  email: text("email").notNull(),
-  password: text("password").notNull(),
-  name: text("name").notNull(),
-  role: text("role", { enum: ["rep", "manager", "controller"] }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
-}, (table) => ({
-  emailIdx: uniqueIndex("email_idx").on(table.email),
-}));
+export const admins = sqliteTable(
+  "admins",
+  {
+    id: integer("id").primaryKey(),
+    email: text("email").notNull(),
+    password: text("password").notNull(),
+    name: text("name").notNull(),
+    role: text("role", { enum: ["rep", "manager", "controller"] }).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    emailIdx: uniqueIndex("email_idx").on(table.email),
+  }),
+);
