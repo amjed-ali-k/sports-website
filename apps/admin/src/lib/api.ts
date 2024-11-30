@@ -1,5 +1,5 @@
 import { hc } from "hono/client";
-import type { AppType } from "@sports/api";
+import { AppType } from "@sports/api";
 
 class ApiClient {
   private client: ReturnType<typeof hc<AppType>>;
@@ -26,7 +26,13 @@ class ApiClient {
     return response.json();
   }
 
-  async createParticipant(data: unknown) {
+  async createParticipant(data: {
+    fullName: string;
+    sectionId: number;
+    semester: number;
+    gender: "male" | "female";
+    avatar?: string | undefined;
+  }) {
     const response = await this.client.api.participants.$post({
       json: data,
     });
@@ -131,7 +137,7 @@ class ApiClient {
     return response.json();
   }
 
-  async createResult(data: unknown) {
+  async createResult(data: { itemId: number; position: "first" | "second" | "third"; registrationId: number; points: number; }) {
     const response = await this.client.api.results.$post({
       json: data,
     });

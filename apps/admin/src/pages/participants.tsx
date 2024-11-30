@@ -30,11 +30,11 @@ export default function ParticipantsPage() {
 
   const { data: participants = [] } = useQuery({
     queryKey: ["participants"],
-    queryFn: api.participants.list,
+    queryFn: api.getParticipants,
   });
 
   const createParticipant = useMutation({
-    mutationFn: api.participants.create,
+    mutationFn: api.createParticipant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
       setIsDialogOpen(false);
@@ -55,7 +55,7 @@ export default function ParticipantsPage() {
   const importParticipants = useMutation({
     mutationFn: (data: any[]) =>
       Promise.all(
-        data.map((participant) => api.participants.create(participant)),
+        data.map((participant) => api.createParticipant(participant)),
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });

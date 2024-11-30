@@ -1,15 +1,18 @@
 {
   "name": "@sports/api",
+  "version": "0.0.0",
   "private": true,
-  "main": "src/index.ts",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy src/index.ts",
     "setup-db": "tsx scripts/setup-db.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "build": "tsc",
+    "generate:types": "tsc --emitDeclarationOnly --outDir dist"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",

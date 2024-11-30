@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 export default function DashboardPage() {
   const { data: leaderboard } = useQuery({
     queryKey: ["leaderboard"],
-    queryFn: () => api.results.getLeaderboard(),
+    queryFn: () => api.getLeaderboard(),
   });
 
   return (
