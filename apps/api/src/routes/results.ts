@@ -1,18 +1,9 @@
-import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { DrizzleD1Database } from "drizzle-orm/d1";
 import { results, items, registrations, participants } from "@sports/database";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
+import { hono } from "../lib/api";
 
-const router = new Hono<{
-  Bindings: {
-    DB: D1Database;
-  };
-  Variables: {
-    db: DrizzleD1Database;
-  };
-}>();
 
 const createResultSchema = z.object({
   itemId: z.number(),
@@ -21,7 +12,7 @@ const createResultSchema = z.object({
   points: z.number(),
 });
 
-router.post("/", zValidator("json", createResultSchema), async (c) => {
+const router = hono().post("/", zValidator("json", createResultSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
 
@@ -62,9 +53,7 @@ router.post("/", zValidator("json", createResultSchema), async (c) => {
     .run();
 
   return c.json(result, 201);
-});
-
-router.get("/item/:itemId", async (c) => {
+}).get("/item/:itemId", async (c) => {
   const itemId = parseInt(c.req.param("itemId"));
   const db = c.get("db");
 
@@ -81,9 +70,7 @@ router.get("/item/:itemId", async (c) => {
     .all();
 
   return c.json(itemResults);
-});
-
-router.get("/participant/:participantId", async (c) => {
+}).get("/participant/:participantId", async (c) => {
   const participantId = parseInt(c.req.param("participantId"));
   const db = c.get("db");
 
@@ -100,9 +87,7 @@ router.get("/participant/:participantId", async (c) => {
     .all();
 
   return c.json(participantResults);
-});
-
-router.get("/leaderboard", async (c) => {
+}).get("/leaderboard", async (c) => {
   const db = c.get("db");
 
   const leaderboard = await db

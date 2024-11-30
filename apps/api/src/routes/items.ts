@@ -1,18 +1,8 @@
-import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { DrizzleD1Database } from "drizzle-orm/d1";
 import { items } from "@sports/database";
 import { eq } from "drizzle-orm";
-
-const router = new Hono<{
-  Bindings: {
-    DB: D1Database;
-  };
-  Variables: {
-    db: DrizzleD1Database;
-  };
-}>();
+import { hono } from "../lib/api";
 
 const createItemSchema = z.object({
   name: z.string().min(1),
@@ -24,31 +14,30 @@ const createItemSchema = z.object({
   pointsThird: z.number(),
 });
 
-router.post("/", zValidator("json", createItemSchema), async (c) => {
-  const data = c.req.valid("json");
-  const db = c.get("db");
+const router = hono()
+  .post("/", zValidator("json", createItemSchema), async (c) => {
+    const data = c.req.valid("json");
+    const db = c.get("db");
 
-  const item = await db.insert(items).values(data).returning().get();
-  return c.json(item, 201);
-});
+    const item = await db.insert(items).values(data).returning().get();
+    return c.json(item, 201);
+  })
+  .get("/", async (c) => {
+    const db = c.get("db");
+    const allItems = await db.select().from(items).all();
+    return c.json(allItems);
+  })
+  .get("/:id", async (c) => {
+    const id = parseInt(c.req.param("id"));
+    const db = c.get("db");
 
-router.get("/", async (c) => {
-  const db = c.get("db");
-  const allItems = await db.select().from(items).all();
-  return c.json(allItems);
-});
+    const item = await db.select().from(items).where(eq(items.id, id)).get();
 
-router.get("/:id", async (c) => {
-  const id = parseInt(c.req.param("id"));
-  const db = c.get("db");
+    if (!item) {
+      return c.json({ error: "Item not found" }, 404);
+    }
 
-  const item = await db.select().from(items).where(eq(items.id, id)).get();
-
-  if (!item) {
-    return c.json({ error: "Item not found" }, 404);
-  }
-
-  return c.json(item);
-});
+    return c.json(item);
+  });
 
 export default router;
