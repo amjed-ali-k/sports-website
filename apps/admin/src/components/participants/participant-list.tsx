@@ -42,7 +42,7 @@ export function ParticipantList({
             <TableRow key={participant.id}>
               <TableCell>
                 <Avatar>
-                  <AvatarImage src={participant.avatar} />
+                  <AvatarImage src={participant.avatar || ''} />
                   <AvatarFallback>
                     {participant.fullName.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
@@ -50,10 +50,10 @@ export function ParticipantList({
               </TableCell>
               <TableCell>{participant.chestNo}</TableCell>
               <TableCell>{participant.fullName}</TableCell>
-              <TableCell>{getSectionName(participant.sectionId)}</TableCell>
+              <TableCell>{participant.sectionId &&getSectionName(participant.sectionId)}</TableCell>
               <TableCell>{participant.semester}</TableCell>
               <TableCell className="capitalize">{participant.gender}</TableCell>
-              <TableCell>{formatDate(participant.createdAt)}</TableCell>
+              <TableCell>{participant.createdAt && formatDate(participant.createdAt)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

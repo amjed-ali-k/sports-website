@@ -2,12 +2,12 @@ export interface Participant {
   id: number;
   chestNo: string;
   fullName: string;
-  sectionId: number;
-  avatar?: string;
+  sectionId: number | null;
+  avatar?: string | null;
   semester: number;
   gender: "male" | "female";
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | null;
+  updatedAt: string | null;
 }
 
 export interface Section {

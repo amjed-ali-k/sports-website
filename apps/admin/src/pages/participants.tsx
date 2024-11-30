@@ -98,7 +98,7 @@ export default function ParticipantsPage() {
               <TabsContent value="single">
                 <ParticipantForm
                   sections={sections}
-                  onSubmit={createParticipant.mutate}
+                  onSubmit={(data) => createParticipant.mutate(data)}
                   isLoading={createParticipant.isPending}
                 />
               </TabsContent>

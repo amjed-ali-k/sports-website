@@ -22,7 +22,7 @@ import { Section } from "@/types/participant";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  sectionId: z.string().min(1, "Section is required"),
+  sectionId: z.number().min(1, "Section is required"),
   semester: z
     .string()
     .transform((val) => parseInt(val))
@@ -46,7 +46,7 @@ export function ParticipantForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      sectionId: "",
+      sectionId: 1,
       semester: 1,
       gender: "male",
       avatar: "",
@@ -76,7 +76,7 @@ export function ParticipantForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Section</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value.toString()}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a section" />
