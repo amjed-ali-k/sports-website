@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
-    "drizzle-orm": "^0.29.3"
+    "drizzle-orm": "^0.36.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.28.1",
     "typescript": "^5.3.3"
   }
 }
