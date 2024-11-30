@@ -1,16 +1,27 @@
 import { z } from "zod";
-import { items } from "@sports/database";
+import { items, categories } from "@sports/database";
 import { eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createItemSchema = z.object({
   name: z.string().min(1),
   categoryId: z.number(),
-  isGroup: z.boolean(),
+  maxParticipants: z.number().min(1),
+  description: z.string().optional().nullable(),
+  pointsFirst: z.number().min(0),
+  pointsSecond: z.number().min(0),
   gender: z.enum(["male", "female", "any"]),
-  pointsFirst: z.number(),
-  pointsSecond: z.number(),
-  pointsThird: z.number(),
+  pointsThird: z.number().min(0),
+});
+
+const updateItemSchema = z.object({
+  name: z.string().min(1).optional(),
+  categoryId: z.number().optional(),
+  maxParticipants: z.number().min(1).optional(),
+  description: z.string().optional().nullable(),
+  pointsFirst: z.number().min(0).optional(),
+  pointsSecond: z.number().min(0).optional(),
+  pointsThird: z.number().min(0).optional(),
 });
 
 const router = hono()
@@ -18,25 +29,117 @@ const router = hono()
     const data = c.req.valid("json");
     const db = c.get("db");
 
+    // Check if category exists
+    const category = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.id, data.categoryId))
+      .get();
+
+    if (!category) {
+      return c.json({ error: "Category not found" }, 404);
+    }
+
     const item = await db.insert(items).values(data).returning().get();
     return c.json(item, 201);
   })
   .get("/", async (c) => {
     const db = c.get("db");
-    const allItems = await db.select().from(items).all();
+
+    const allItems = await db
+      .select({
+        item: items,
+        category: {
+          id: categories.id,
+          name: categories.name,
+        },
+      })
+      .from(items)
+      .innerJoin(categories, eq(items.categoryId, categories.id))
+      .all();
+
     return c.json(allItems);
   })
   .get("/:id", async (c) => {
-    const id = parseInt(c.req.param("id"));
+    const id = Number(c.req.param("id"));
     const db = c.get("db");
 
-    const item = await db.select().from(items).where(eq(items.id, id)).get();
+    const item = await db
+      .select({
+        item: items,
+        category: {
+          id: categories.id,
+          name: categories.name,
+        },
+      })
+      .from(items)
+      .where(eq(items.id, id))
+      .innerJoin(categories, eq(items.categoryId, categories.id))
+      .get();
 
     if (!item) {
       return c.json({ error: "Item not found" }, 404);
     }
 
     return c.json(item);
+  })
+  .put("/:id", zodValidator(updateItemSchema), async (c) => {
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+    const db = c.get("db");
+
+    // Check if item exists
+    const existingItem = await db
+      .select()
+      .from(items)
+      .where(eq(items.id, id))
+      .get();
+
+    if (!existingItem) {
+      return c.json({ error: "Item not found" }, 404);
+    }
+    if (data.categoryId) {
+      // Check if category exists
+      const category = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, data.categoryId))
+        .get();
+
+      if (!category) {
+        return c.json({ error: "Category not found" }, 404);
+      }
+    }
+
+    const updatedItem = await db
+      .update(items)
+      .set(data)
+      .where(eq(items.id, id))
+      .returning()
+      .get();
+
+    return c.json(updatedItem);
+  })
+  .delete("/:id", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    // Check if item exists
+    const existingItem = await db
+      .select()
+      .from(items)
+      .where(eq(items.id, id))
+      .get();
+
+    if (!existingItem) {
+      return c.json({ error: "Item not found" }, 404);
+    }
+
+    // TODO: You might want to check if item has any registrations
+    // and handle that case appropriately (either prevent deletion or cascade delete)
+
+    await db.delete(items).where(eq(items.id, id));
+    return c.json({ success: true });
   });
 
 export default router;

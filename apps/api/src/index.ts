@@ -4,6 +4,7 @@ import participantsRouter from "./routes/participants";
 import itemsRouter from "./routes/items";
 import registrationsRouter from "./routes/registrations";
 import resultsRouter from "./routes/results";
+import categoriesRouter from "./routes/categories";
 import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
@@ -15,7 +16,8 @@ const api = hono()
   .route("/participants", participantsRouter)
   .route("/items", itemsRouter)
   .route("/registrations", registrationsRouter)
-  .route("/results", resultsRouter);
+  .route("/results", resultsRouter)
+  .route("/categories", categoriesRouter);
 
 const app = hono()
   .use("*", cors())
