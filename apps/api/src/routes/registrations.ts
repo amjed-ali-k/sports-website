@@ -6,8 +6,8 @@ import { hono, zodValidator } from "../lib/api";
 const createRegistrationSchema = z.object({
   itemId: z.number(),
   participantId: z.number(),
-  groupId: z.number().optional(),
-  metaInfo: z.string().optional(),
+  groupId: z.number().optional().nullable(),
+  metaInfo: z.string().optional().nullable(),
 });
 
 const updateRegistrationStatusSchema = z.object({

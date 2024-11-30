@@ -8,6 +8,8 @@ import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
 
+export * from "./types";
+
 const api = hono()
   .use("*", authMiddleware)
   .route("/participants", participantsRouter)
@@ -27,4 +29,5 @@ const app = hono()
   // Protected routes
   .route("/api", api);
 
+export type AppType = typeof app;
 export default app;

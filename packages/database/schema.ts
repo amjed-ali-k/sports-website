@@ -19,12 +19,12 @@ export const participants = sqliteTable(
     id: integer("id").primaryKey(),
     chestNo: text("chest_no").notNull(),
     fullName: text("full_name").notNull(),
-    sectionId: integer("section_id").references(() => sections.id),
+    sectionId: integer("section_id").references(() => sections.id).notNull(),
     avatar: text("avatar"),
     semester: integer("semester").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
   },
   (table) => ({
     chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
@@ -41,7 +41,7 @@ export const categories = sqliteTable("categories", {
 export const items = sqliteTable("items", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
-  categoryId: integer("category_id").references(() => categories.id),
+  categoryId: integer("category_id").references(() => categories.id).notNull(),
   isGroup: integer("is_group", { mode: "boolean" }).notNull().default(false),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsFirst: integer("points_first").notNull(),
@@ -58,8 +58,8 @@ export const items = sqliteTable("items", {
 
 export const registrations = sqliteTable("registrations", {
   id: integer("id").primaryKey(),
-  itemId: integer("item_id").references(() => items.id),
-  participantId: integer("participant_id").references(() => participants.id),
+  itemId: integer("item_id").references(() => items.id).notNull(),
+  participantId: integer("participant_id").references(() => participants.id).notNull(),
   groupId: integer("group_id"),
   metaInfo: text("meta_info"),
   status: text("status", {
@@ -73,9 +73,9 @@ export const registrations = sqliteTable("registrations", {
 
 export const results = sqliteTable("results", {
   id: integer("id").primaryKey(),
-  itemId: integer("item_id").references(() => items.id),
+  itemId: integer("item_id").references(() => items.id).notNull(),
   position: text("position", { enum: ["first", "second", "third"] }).notNull(),
-  registrationId: integer("registration_id").references(() => registrations.id),
+  registrationId: integer("registration_id").references(() => registrations.id).notNull(),
   points: integer("points").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),

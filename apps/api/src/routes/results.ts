@@ -10,6 +10,12 @@ const createResultSchema = z.object({
   points: z.number(),
 });
 
+const updateResultSchema = z.object({
+  position: z.enum(["first", "second", "third"]),
+  registrationId: z.number(),
+  points: z.number(),
+});
+
 const router = hono()
   .post("/", zodValidator(createResultSchema), async (c) => {
     const data = c.req.valid("json");
@@ -49,30 +55,37 @@ const router = hono()
     }
 
     const result = await db.insert(results).values(data).returning().get();
-
-    // Update registration status
-    await db
-      .update(registrations)
-      .set({ status: "participated" })
-      .where(eq(registrations.id, data.registrationId))
-      .run();
-
     return c.json(result, 201);
   })
+  .get("/", async (c) => {
+    const db = c.get("db");
+    const allResults = await db.select().from(results).all();
+    return c.json(allResults);
+  })
   .get("/item/:itemId", async (c) => {
-    const itemId = parseInt(c.req.param("itemId"));
+    const itemId = Number(c.req.param("itemId"));
     const db = c.get("db");
 
     const itemResults = await db
       .select({
-        result: results,
-        registration: registrations,
-        participant: participants,
+        id: results.id,
+        itemId: results.itemId,
+        position: results.position,
+        registrationId: results.registrationId,
+        points: results.points,
+        createdAt: results.createdAt,
+        updatedAt: results.updatedAt,
+        participant: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+          sectionId: participants.sectionId,
+        },
       })
       .from(results)
-      .leftJoin(registrations, eq(results.registrationId, registrations.id))
-      .leftJoin(participants, eq(registrations.participantId, participants.id))
       .where(eq(results.itemId, itemId))
+      .innerJoin(registrations, eq(results.registrationId, registrations.id))
+      .innerJoin(participants, eq(registrations.participantId, participants.id))
       .all();
 
     return c.json(itemResults);
@@ -111,6 +124,80 @@ const router = hono()
       .all();
 
     return c.json(leaderboard);
+  })
+  .put("/:id", zodValidator(updateResultSchema), async (c) => {
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+    const db = c.get("db");
+
+    // Check if result exists
+    const existingResult = await db
+      .select()
+      .from(results)
+      .where(eq(results.id, id))
+      .get();
+
+    if (!existingResult) {
+      return c.json({ error: "Result not found" }, 404);
+    }
+
+    // Check if registration exists
+    const registration = await db
+      .select()
+      .from(registrations)
+      .where(eq(registrations.id, data.registrationId))
+      .get();
+
+    if (!registration) {
+      return c.json({ error: "Registration not found" }, 404);
+    }
+
+    // Check if position is already taken by another result
+    const positionTaken = await db
+      .select()
+      .from(results)
+      .where(
+        and(
+          eq(results.itemId, existingResult.itemId),
+          eq(results.position, data.position),
+          sql`${results.id} != ${id}`
+        )
+      )
+      .get();
+
+    if (positionTaken) {
+      return c.json(
+        { error: "Position already taken for this item" },
+        400
+      );
+    }
+
+    const updatedResult = await db
+      .update(results)
+      .set(data)
+      .where(eq(results.id, id))
+      .returning()
+      .get();
+
+    return c.json(updatedResult);
+  })
+  .delete("/:id", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    // Check if result exists
+    const existingResult = await db
+      .select()
+      .from(results)
+      .where(eq(results.id, id))
+      .get();
+
+    if (!existingResult) {
+      return c.json({ error: "Result not found" }, 404);
+    }
+
+    await db.delete(results).where(eq(results.id, id));
+    return c.json({ success: true });
   });
 
 export default router;
