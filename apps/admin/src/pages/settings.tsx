@@ -5,8 +5,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../components/ui/card';
-import { Button } from '../components/ui/button';
+} from '@sports/ui';
+import { Button } from '@sports/ui';
 import {
   Form,
   FormControl,
@@ -15,10 +15,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../components/ui/form';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
-import { useToast } from '../components/ui/use-toast';
+} from '@sports/ui';
+import { Input } from '@sports/ui';
+import { Textarea } from '@sports/ui';
+import { useToast } from '@sports/ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

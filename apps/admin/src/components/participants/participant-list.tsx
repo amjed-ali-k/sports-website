@@ -5,8 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from '@sports/ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@sports/ui';
 import { formatDate } from '@/lib/utils';
 import { Participant, Section } from '@/types/participant';
 

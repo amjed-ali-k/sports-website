@@ -6,14 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+} from '@sports/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@sports/ui';
+import { Button } from '@sports/ui';
 import { ParticipantForm } from '@/components/participants/participant-form';
 import { ParticipantList } from '@/components/participants/participant-list';
 import { CSVImportForm } from '@/components/participants/csv-import-form';
 import { api } from '@/lib/api';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@sports/ui';
 import { Plus } from 'lucide-react';
 
 const sections = [

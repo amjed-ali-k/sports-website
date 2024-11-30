@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@sports/ui';
+import { Input } from '@sports/ui';
+import { Alert, AlertDescription } from '@sports/ui';
 import { Upload } from 'lucide-react';
 import Papa from 'papaparse';
 

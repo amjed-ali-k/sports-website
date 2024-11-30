@@ -8,16 +8,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@sports/ui';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from '@sports/ui';
+import { Input } from '@sports/ui';
+import { Button } from '@sports/ui';
 import { Section } from '@/types/participant';
 
 const formSchema = z.object({

@@ -7,15 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../components/ui/table';
-import { Button } from '../components/ui/button';
+} from'@sports/ui';
+import { Button } from '@sports/ui';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../components/ui/dialog';
+} from '@sports/ui';
 import {
   Form,
   FormControl,
@@ -23,17 +23,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../components/ui/form';
+} from '@sports/ui';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select';
-import { Input } from '../components/ui/input';
-import { Switch } from '../components/ui/switch';
-import { useToast } from '../components/ui/use-toast';
+} from '@sports/ui';
+import { Input } from '@sports/ui';
+import { Switch } from '@sports/ui';
+import { useToast } from '@sports/ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
