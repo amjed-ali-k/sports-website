@@ -1,0 +1,135 @@
+i want a monorepo using turborepo and frontend in vite,shadcn and backend in hono for displaying scores of sports, games, arts in engineering college.
+A single contestent details contains Chest No, Full Name, Section, avatar, semester, gender
+Currently there are 4 sections. [ Civil Engineering, Mechanical Engineering, Electrical Engineering, Electronics Engineering ]
+Entire webiste is strictly mobile only. If user visits from pc, it should have max-width of mobile.
+This website and backend are going to be hosted on cloudflare. 
+User cloudflare D1 as database, and drizzle as orm.
+
+It sports website contains:
+- Home page 
+	- Latest updated scores ticker.
+	- Results view button
+	- sports Items Button
+	- Participants Score button
+	- Get certificate button
+
+- Results view page.
+	- Here we need to display all the sports items and the results
+	- Results will only include 1st, 2nd, 3rd.
+	- For group items like Relay, result contains morethan 1 participants.
+	- For undeclared results it should display last with undeclared text.
+
+- sports Items page.
+	- Here we need to display all registered contestents for each item. 
+	- Some Registared contestents might not participate the event, so we need to display the status of that also.
+	- Highlight the winners also if result is declared.
+
+- Participants score page.
+	- Here we list all participants according to the score they earned. So top scorer will be displayed first.
+
+- Get Certificates.
+	- This page contains options to generate 2 certificates.
+	- 1. Result certificate for winners (1st, 2nd, 3rd), 2. Participation certificate.
+	- Certificates should be generated in pdf format.
+	- Each certificates should have an unique link.
+
+Similarly we need websites for games and arts.
+
+Also admin website should be like this. (This will be responsive website) 
+- Login page for admin.
+- Items page.
+	- Admins should have an option to create, edit a item.
+	- Each items will be fall into following category. 1. sports 2. Sports, 3. Arts.
+	- Items can be group or individual
+	- Scores can be added for each item. 
+	- Some items are gender specific. (Men, Women)
+	- In group item, scores will be divided indivudually. Eg. If a group item has 10 points for first price, and 5 participants in each group. Then the score is divided into 2 for each participant.
+	- Item also need to have status - [Yet to begin, active, completed, cancelled, hidden]
+
+- Results Page
+	- Here admin will add results for each item. 
+	- There will be first, second and third prizes for each item.
+	- Some items can have 2 first prices or second prices, in case of tie.
+	- Once admin add result, scores should be awarded to each participant
+
+- Registration Page
+	- Here admin will enroll participant to each item.
+	- If participant doesn't exist, admin can create new participant and enroll
+	- In group item, admin can also create group and add participant to each item.
+	- There is also an option meta field for each participant added to each item, there admin type the custom value, such as in football, position of participant (eg, Midfielder, center forward etc)
+	
+- Add participant page
+	- Here admin will add participant to server.
+	- Every added participant will have a chest no generated.
+	- Chest No, Full Name, Section, avatar, semester, gender.
+	- Participant list can be imported in bulk using csv.
+
+- Add section page
+	- Here admin can add sections for participants.
+	- Currently there are 4 sections. [ Civil Engineering, Mechanical Engineering, Electrical Engineering, Electronics Engineering ]
+
+- Participant list page.
+	- Here admin can see all participants and edit their details.
+
+- Certificates page.
+	- Here admin also can generate certificates in bulk and download it as pdf.
+
+- Settings page.
+	- Here admin can change the meta values. like college name, year, sponsors, assigned stafs.
+	
+- Admins page.
+	- Here admin can view other admins and assign roles to them.
+	- there are 3 types of roles. 1. Rep [Can only create participants, edit created participant details], 2. Manager [rep +, enroll participants to items], 3. Controller [Manager +, can add/edit results]
+	
+
+- Profile page. 
+	- Here admin can edit his details, and change password, email etc.
+	
+
+Here are the lists of items to seed the db:
+Sports
+	- Men
+		1. 100m Run
+		2. 200m Run
+		3. 400m Run
+		4. 800m Run
+		5. 1500m Run
+		6. 5000m Run
+		7. 10000m Run
+		8. Long Jump,
+		9. High jump
+		10. Tripple Jumb
+		11. Pole Vault
+		12. Shotput
+		13. Discus Throw
+		14. Javelin Throw
+		15. Hammer Throw
+		16. 4 x 100m Relay
+		17. 4 x 400m Relay
+	- Women
+		1. 100m Run
+		2. 200m Run
+		3. 400m Run
+		4. 800m Run
+		5. 1500m Run
+		6. Long Jump
+		7. High Jump
+		8. Shot Put
+		9. Discus Throw
+		10. Javelin Throw
+		11. 4 x 100m Relay
+		12. 4 x 400m Relay
+Games
+	- Men
+		1. Football
+		2. Cricket
+		3. Volley ball
+		4. Basketball
+		5. Shuttle badminton
+		6. Ball Badminton
+		7. Table tennis
+	- Women
+		1. Shuttle badminton
+		2. Ball Badminton
+		3. Table Tennis
+		
