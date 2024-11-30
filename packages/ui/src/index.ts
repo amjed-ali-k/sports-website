@@ -18,6 +18,8 @@ export * from "./components/ui/textarea";
 export * from "./components/ui/alert";
 export * from "./components/ui/switch";
 export * from "./components/ui/avatar";
+export * from "./components/ui/popover";
+export * from "./components/ui/color-picker"
 
 // Export styles
 import "./styles.css";

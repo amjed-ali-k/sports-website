@@ -54,7 +54,7 @@ export function ParticipantForm({
   });
   const { data: sections = [] } = useQuery({
     queryKey: ["sections"],
-    queryFn: apiClient.getSections,
+    queryFn: () => apiClient.getSections(),
   });
   return (
     <Form {...form}>

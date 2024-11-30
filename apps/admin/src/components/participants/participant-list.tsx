@@ -20,7 +20,7 @@ interface ParticipantListProps {
 export function ParticipantList({ participants }: ParticipantListProps) {
   const { data: sections = [] } = useQuery({
     queryKey: ["sections"],
-    queryFn: apiClient.getSections,
+    queryFn: () => apiClient.getSections(),
   });
   const getSectionName = (sectionId: number) => {
     return sections.find((s) => s.id === sectionId)?.name || "Unknown";

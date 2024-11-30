@@ -9,6 +9,9 @@ import {
 export const sections = sqliteTable("sections", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
+  logo: text("logo"),
+  color: text("color"),
+  description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });

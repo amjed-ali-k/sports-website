@@ -11,6 +11,7 @@ import RegistrationsPage from "./pages/registrations";
 import ResultsPage from "./pages/results";
 import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
+import SectionsPage from "./pages/sections"; // added import statement
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/sections" element={<SectionsPage />} />
               </Route>
             </Routes>
           </AuthProvider>

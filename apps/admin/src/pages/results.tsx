@@ -29,6 +29,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
+import { EmptyState } from "@/components/empty-state";
+import { Award } from "lucide-react";
 
 const resultSchema = z.object({
   itemId: z.number(),
@@ -254,7 +256,19 @@ export default function ResultsPage() {
                 </TableCell>
                 <TableCell>{result.points}</TableCell>
               </TableRow>
-            ))}
+            ))} {
+              results?.length === 0 && (
+                <TableRow>
+                <TableCell colSpan={5} className="h-96">
+                  <EmptyState
+                    icon={Award}
+                    title="No results found"
+                    description="Get started by creating your first section."
+                  />
+                </TableCell>
+              </TableRow>
+              )
+            }
           </TableBody>
         </Table>
       )}

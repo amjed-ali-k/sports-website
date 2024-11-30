@@ -13,6 +13,11 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-sans)', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

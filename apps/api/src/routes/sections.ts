@@ -5,6 +5,9 @@ import { hono, zodValidator } from "../lib/api";
 
 const createSectionSchema = z.object({
   name: z.string().min(1),
+  logo: z.string().optional().nullable(),
+  color: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
 });
 
 const router = hono()
@@ -14,7 +17,7 @@ const router = hono()
     return c.json(allSections);
   })
   .post("/", zodValidator(createSectionSchema), async (c) => {
-    const { name } = c.req.valid("json");
+    const { name, logo, color, description } = c.req.valid("json");
     const db = c.get("db");
 
     // Check if section with same name exists
@@ -30,7 +33,12 @@ const router = hono()
 
     const section = await db
       .insert(sections)
-      .values({ name })
+      .values({
+        name,
+        logo,
+        color,
+        description,
+      })
       .returning()
       .get();
 

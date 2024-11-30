@@ -15,6 +15,13 @@
       "when": 1732985856050,
       "tag": "0001_stiff_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1732994747169,
+      "tag": "0002_high_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }

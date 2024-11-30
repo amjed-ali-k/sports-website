@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-UFhI9q/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-kNS8a5/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-UFhI9q/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-kNS8a5/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -3176,7 +3176,6 @@ async function authMiddleware(c, next) {
     return next();
   }
   const authHeader = c.req.header("Authorization");
-  console.log("Auth header:", authHeader);
   if (!authHeader?.startsWith("Bearer ")) {
     throw new HTTPException(401, { message: "Unauthorized" });
   }
@@ -12545,6 +12544,9 @@ __publicField(SQLiteTransaction, _a102, "SQLiteTransaction");
 var sections = sqliteTable("sections", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
+  logo: text("logo"),
+  color: text("color"),
+  description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
 });
@@ -14253,20 +14255,28 @@ var auth_default = auth;
 // src/routes/sections.ts
 init_modules_watch_stub();
 var createSectionSchema = z.object({
-  name: z.string().min(1)
+  name: z.string().min(1),
+  logo: z.string().optional().nullable(),
+  color: z.string().optional().nullable(),
+  description: z.string().optional().nullable()
 });
 var router7 = hono().get("/", async (c) => {
   const db = c.get("db");
   const allSections = await db.select().from(sections).all();
   return c.json(allSections);
 }).post("/", zodValidator(createSectionSchema), async (c) => {
-  const { name } = c.req.valid("json");
+  const { name, logo, color, description } = c.req.valid("json");
   const db = c.get("db");
   const existingSection = await db.select().from(sections).where(eq(sections.name, name)).get();
   if (existingSection) {
     return c.json({ error: "Section already exists" }, 400);
   }
-  const section = await db.insert(sections).values({ name }).returning().get();
+  const section = await db.insert(sections).values({
+    name,
+    logo,
+    color,
+    description
+  }).returning().get();
   return c.json(section, 201);
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
@@ -14677,7 +14687,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-UFhI9q/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-kNS8a5/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14710,7 +14720,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-UFhI9q/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-kNS8a5/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
