@@ -8,6 +8,13 @@
       "when": 1732971937055,
       "tag": "0000_young_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1732985856050,
+      "tag": "0001_stiff_vampiro",
+      "breakpoints": true
     }
   ]
 }
