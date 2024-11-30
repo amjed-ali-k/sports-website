@@ -42,7 +42,7 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
     defaultValues: {
       fullName: '',
       sectionId: '',
-      semester: '1',
+      semester: 1,
       gender: 'male',
       avatar: '',
     },
@@ -97,7 +97,7 @@ export function ParticipantForm({ sections, onSubmit, isLoading }: ParticipantFo
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Semester</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value.toString()}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select semester" />
