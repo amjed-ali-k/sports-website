@@ -27,7 +27,7 @@ export default function ParticipantsPage() {
   });
 
   const createParticipant = useMutation({
-    mutationFn: apiClient.createParticipant,
+    mutationFn: (values: any) => apiClient.createParticipant(values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
       setIsDialogOpen(false);

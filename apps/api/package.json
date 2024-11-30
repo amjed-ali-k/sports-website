@@ -12,6 +12,7 @@
     "db:migrate": "bun run wrangler -- d1 migrations apply gptc-sports-db",
     "db:generate": "drizzle-kit generate",
     "db:push": "bun run wrangler -- d1 migrations apply gptc-sports-db",
+    "db:studio": "drizzle-kit studio",
     "build": "tsc",
     "generate:types": "tsc --emitDeclarationOnly --outDir dist"
   },

@@ -36,7 +36,7 @@ export const participants = sqliteTable(
 
 export const categories = sqliteTable("categories", {
   id: integer("id").primaryKey(),
-  name: text("name", { enum: ["sports", "games", "arts"] }).notNull(),
+  name: text("name", { enum: ["sports", "games", "arts"] }).notNull().unique(),
   certificateTemplate: text("certificate_template"),
   participationCertificateTemplate: text("participation_certificate_template"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),

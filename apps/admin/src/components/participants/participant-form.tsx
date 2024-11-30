@@ -33,7 +33,6 @@ const formSchema = z.object({
 });
 
 interface ParticipantFormProps {
- 
   onSubmit: (data: z.infer<typeof formSchema>) => void;
   isLoading?: boolean;
 }
@@ -42,20 +41,24 @@ export function ParticipantForm({
   onSubmit,
   isLoading,
 }: ParticipantFormProps) {
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => apiClient.getSections().then(s => {
+      s.length && form.setValue("sectionId", s[0].id)
+      return s
+    }),
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      sectionId: 1,
-      semester: 1,
+      sectionId: sections[0]?.id || 1,
       gender: "male",
       avatar: "",
     },
   });
-  const { data: sections = [] } = useQuery({
-    queryKey: ["sections"],
-    queryFn: () => apiClient.getSections(),
-  });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -107,7 +110,7 @@ export function ParticipantForm({
                 <FormLabel>Semester</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value.toString()}
+                  value={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -116,7 +119,7 @@ export function ParticipantForm({
                   </FormControl>
                   <SelectContent>
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                      <SelectItem key={sem} value={sem.toString()}>
+                      <SelectItem key={sem} value={sem?.toString()}>
                         {sem}
                       </SelectItem>
                     ))}
