@@ -16,13 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@sports/ui";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sports/ui";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "@sports/ui";
 import {
   Select,
   SelectContent,
@@ -34,6 +28,7 @@ import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { apiClient } from "@/lib/api";
 
 const resultSchema = z.object({
   itemId: z.number(),
@@ -54,46 +49,35 @@ export default function ResultsPage() {
     resolver: zodResolver(resultSchema),
   });
 
-  const { data: items, isLoading: itemsLoading } = useQuery({
+  const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["items"],
-    queryFn: async () => {
-      const response = await fetch("/api/items");
-      if (!response.ok) throw new Error("Failed to fetch items");
-      return response.json();
-    },
+    queryFn: () => apiClient.getItems(),
   });
 
-  const { data: registrations, isLoading: registrationsLoading } = useQuery({
-    queryKey: ["registrations", selectedItem],
-    queryFn: async () => {
-      if (!selectedItem) return [];
-      const response = await fetch(`/api/registrations?itemId=${selectedItem}`);
-      if (!response.ok) throw new Error("Failed to fetch registrations");
-      return response.json();
-    },
-    enabled: !!selectedItem,
-  });
+  const { data: registrations = [], isLoading: registrationsLoading } =
+    useQuery({
+      queryKey: ["registrations", selectedItem],
+      queryFn: () => {
+        if (!selectedItem) return [];
+        return apiClient.getRegistrations();
+      },
+      enabled: !!selectedItem,
+    });
 
   const { data: results, isLoading: resultsLoading } = useQuery({
     queryKey: ["results", selectedItem],
-    queryFn: async () => {
-      if (!selectedItem) return [];
-      const response = await fetch(`/api/results?itemId=${selectedItem}`);
-      if (!response.ok) throw new Error("Failed to fetch results");
-      return response.json();
-    },
+    queryFn: () => apiClient.getResults(),
     enabled: !!selectedItem,
   });
 
   const mutation = useMutation({
     mutationFn: async (values: ResultFormValues) => {
-      const response = await fetch("/api/results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!response.ok) throw new Error("Failed to save result");
-      return response.json();
+      const res = await apiClient.createResult(values);
+      if ("error" in res) {
+        throw new Error("Failed to save result");
+      } else {
+        return res;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["results"] });

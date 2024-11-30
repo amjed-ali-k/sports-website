@@ -18,7 +18,8 @@ import {
 } from "@sports/ui";
 import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
-import type { Section } from  "@sports/api/dist/src/types";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -32,13 +33,12 @@ const formSchema = z.object({
 });
 
 interface ParticipantFormProps {
-  sections: Section[];
+ 
   onSubmit: (data: z.infer<typeof formSchema>) => void;
   isLoading?: boolean;
 }
 
 export function ParticipantForm({
-  sections,
   onSubmit,
   isLoading,
 }: ParticipantFormProps) {
@@ -52,7 +52,10 @@ export function ParticipantForm({
       avatar: "",
     },
   });
-
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: apiClient.getSections,
+  });
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

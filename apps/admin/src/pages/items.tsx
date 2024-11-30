@@ -37,8 +37,10 @@ import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { apiClient } from "@/lib/api";
 
 const itemSchema = z.object({
+  id: z.number().optional(),
   name: z.string().min(1, "Name is required"),
   categoryId: z.number(),
   isGroup: z.boolean(),
@@ -66,6 +68,7 @@ export default function ItemsPage() {
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
+      id: undefined,
       isGroup: false,
       gender: "any",
       pointsFirst: 5,
@@ -77,31 +80,24 @@ export default function ItemsPage() {
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["items"],
-    queryFn: async () => {
-      const response = await fetch("/api/items");
-      if (!response.ok) throw new Error("Failed to fetch items");
-      return response.json();
-    },
+    queryFn: () => apiClient.getItems(),
   });
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => {
-      const response = await fetch("/api/categories");
-      if (!response.ok) throw new Error("Failed to fetch categories");
-      return response.json();
-    },
+    queryFn: () => apiClient.getCategories(),
   });
 
   const mutation = useMutation({
     mutationFn: async (values: ItemFormValues) => {
-      const response = await fetch("/api/items", {
-        method: editingItem ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!response.ok) throw new Error("Failed to save item");
-      return response.json();
+      const res = editingItem?.id
+        ? await apiClient.updateItem(editingItem.id, values)
+        : await apiClient.createItem({ ...values, maxParticipants: 100 });
+      if ("error" in res) {
+        throw new Error("Failed to save item");
+      } else {
+        return res;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
@@ -344,7 +340,7 @@ export default function ItemsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items?.map((item: any) => (
+          {items?.map(({ item }) => (
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>

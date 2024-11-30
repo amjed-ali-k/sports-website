@@ -44,6 +44,7 @@ import {
   CardTitle,
 } from "@sports/ui";
 import { Badge } from "@sports/ui";
+import { apiClient } from "@/lib/api";
 
 const registrationSchema = z.object({
   itemId: z.number(),
@@ -69,46 +70,31 @@ export default function RegistrationsPage() {
     resolver: zodResolver(registrationSchema),
   });
 
-  const { data: items, isLoading: itemsLoading } = useQuery({
+  const { data: items = [],  isLoading: itemsLoading } = useQuery({
     queryKey: ["items"],
-    queryFn: async () => {
-      const response = await fetch("/api/items");
-      if (!response.ok) throw new Error("Failed to fetch items");
-      return response.json();
-    },
+    queryFn: () => apiClient.getItems(),
   });
 
-  const { data: participants, isLoading: participantsLoading } = useQuery({
+  const { data: participants = [], isLoading: participantsLoading } = useQuery({
     queryKey: ["participants"],
-    queryFn: async () => {
-      const response = await fetch("/api/participants");
-      if (!response.ok) throw new Error("Failed to fetch participants");
-      return response.json();
-    },
+    queryFn: () => apiClient.getParticipants(),
   });
 
-  const { data: registrations, isLoading: registrationsLoading } = useQuery({
+
+  const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
     queryKey: ["registrations", selectedItem?.id],
-    queryFn: async () => {
+    queryFn: () => {
       if (!selectedItem?.id) return [];
-      const response = await fetch(
-        `/api/registrations?itemId=${selectedItem.id}`,
-      );
-      if (!response.ok) throw new Error("Failed to fetch registrations");
-      return response.json();
+      return apiClient.getRegistrations()
     },
     enabled: !!selectedItem?.id,
   });
 
   const mutation = useMutation({
     mutationFn: async (values: RegistrationFormValues) => {
-      const response = await fetch("/api/registrations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!response.ok) throw new Error("Failed to create registration");
-      return response.json();
+      await Promise.all(values.participantIds.map((participantId: number) => {
+        return apiClient.createRegistration({ ...values, participantId });
+      }))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["registrations"] });

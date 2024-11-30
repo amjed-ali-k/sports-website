@@ -16,13 +16,6 @@ import { apiClient } from "@/lib/api";
 import { useToast } from "@sports/ui";
 import { Plus } from "lucide-react";
 
-const sections = [
-  { id: 1, name: "Civil Engineering" },
-  { id: 2, name: "Mechanical Engineering" },
-  { id: 3, name: "Electrical Engineering" },
-  { id: 4, name: "Electronics Engineering" },
-];
-
 export default function ParticipantsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -30,7 +23,7 @@ export default function ParticipantsPage() {
 
   const { data: participants = [] } = useQuery({
     queryKey: ["participants"],
-    queryFn: apiClient.getParticipants,
+    queryFn: () => apiClient.getParticipants(),
   });
 
   const createParticipant = useMutation({
@@ -97,7 +90,6 @@ export default function ParticipantsPage() {
               </TabsList>
               <TabsContent value="single">
                 <ParticipantForm
-                  sections={sections}
                   onSubmit={(data) => createParticipant.mutate(data)}
                   isLoading={createParticipant.isPending}
                 />
@@ -115,7 +107,6 @@ export default function ParticipantsPage() {
 
       <ParticipantList
         participants={participants.map((p) => p.participant)}
-        sections={sections}
       />
     </div>
   );

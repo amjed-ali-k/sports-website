@@ -25,10 +25,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = 'sports_admin_token';
+export const TOKEN_KEY = 'sports_admin_token';
 
 // Function to handle 401 responses globally
-const setup401Handler = (logoutFn: () => Promise<void>) => {
+const setup401Handler = (logoutFn: () => Promise<any> | any) => {
   const originalFetch = window.fetch;
   window.fetch = async (...args) => {
     const response = await originalFetch(...args);
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up 401 handler once when component mounts
   useEffect(() => {
-    setup401Handler(logout);
+    setup401Handler(() => {console.log("401 handled"); });
   }, []);
 
   useEffect(() => {

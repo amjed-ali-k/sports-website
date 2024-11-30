@@ -8,18 +8,6 @@ import {
   Registration,
 } from "@sports/api/dist/src/types";
 
-const TOKEN_KEY = "sports_admin_token";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  return token
-    ? {
-        Authorization: `Bearer ${token}`,
-        "X-API-Key": import.meta.env.VITE_API_KEY!,
-      }
-    : undefined;
-};
-
 export const bareApiClient = hc<AppType>(import.meta.env.VITE_API_URL, {
   headers: {
     "X-API-Key": import.meta.env.VITE_API_KEY!,
@@ -30,13 +18,22 @@ class ApiClient {
   private client: ReturnType<typeof hc<AppType>>;
 
   constructor() {
-    const baseUrl = import.meta.env.VITE_API_URL;
-    console.log({ baseUrl });
-    this.client = hc<AppType>(baseUrl, {
-      headers: getAuthHeaders(),
+    this.client = hc<AppType>(import.meta.env.VITE_API_URL, {
+      headers: this.getAuthHeaders,
     });
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem("sports_admin_token");
+    return token
+      ? ({
+          Authorization: `Bearer ${token}`,
+          "X-API-Key": import.meta.env.VITE_API_KEY!,
+        } as const)
+      : ({
+          "X-API-Key": import.meta.env.VITE_API_KEY!,
+        } as const);
+  }
   // Participants
   async getParticipants() {
     const response = await this.client.api.participants.$get({});
@@ -228,6 +225,25 @@ class ApiClient {
   // Settings
   async getSettings() {
     const response = await this.client.api.settings.$get({});
+    return response.json();
+  }
+
+  async getSections() {
+    const response = await this.client.api.sections.$get({});
+    return response.json();
+  }
+
+  async addSection(data: { name: string }) {
+    const response = await this.client.api.sections.$post({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async deleteSection(id: number) {
+    const response = await this.client.api.sections[":id"].$delete({
+      param: { id: id.toString() },
+    });
     return response.json();
   }
 

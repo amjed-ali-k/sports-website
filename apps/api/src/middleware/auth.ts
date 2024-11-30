@@ -11,6 +11,7 @@ export async function authMiddleware(c: Context, next: Next) {
   }
 
   const authHeader = c.req.header("Authorization");
+  console.log("Auth header:", authHeader);
   if (!authHeader?.startsWith("Bearer ")) {
     throw new HTTPException(401, { message: "Unauthorized" });
   }

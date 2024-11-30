@@ -9,20 +9,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@sports/ui";
 import { formatDate } from "@/lib/utils";
 
-import type {
-  Participant,
- Section
-} from "@sports/api/dist/src/types";
+import type { Participant } from "@sports/api/dist/src/types";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
 
 interface ParticipantListProps {
   participants: Participant[];
-  sections: Section[];
 }
 
-export function ParticipantList({
-  participants,
-  sections,
-}: ParticipantListProps) {
+export function ParticipantList({ participants }: ParticipantListProps) {
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: apiClient.getSections,
+  });
   const getSectionName = (sectionId: number) => {
     return sections.find((s) => s.id === sectionId)?.name || "Unknown";
   };
@@ -46,7 +45,7 @@ export function ParticipantList({
             <TableRow key={participant.id}>
               <TableCell>
                 <Avatar>
-                  <AvatarImage src={participant.avatar || ''} />
+                  <AvatarImage src={participant.avatar || ""} />
                   <AvatarFallback>
                     {participant.fullName.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
@@ -54,10 +53,14 @@ export function ParticipantList({
               </TableCell>
               <TableCell>{participant.chestNo}</TableCell>
               <TableCell>{participant.fullName}</TableCell>
-              <TableCell>{participant.sectionId &&getSectionName(participant.sectionId)}</TableCell>
+              <TableCell>
+                {participant.sectionId && getSectionName(participant.sectionId)}
+              </TableCell>
               <TableCell>{participant.semester}</TableCell>
               <TableCell className="capitalize">{participant.gender}</TableCell>
-              <TableCell>{participant.createdAt && formatDate(participant.createdAt)}</TableCell>
+              <TableCell>
+                {participant.createdAt && formatDate(participant.createdAt)}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

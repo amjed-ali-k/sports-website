@@ -7,6 +7,7 @@ import resultsRouter from "./routes/results";
 import categoriesRouter from "./routes/categories";
 import settingsRouter from "./routes/settings";
 import authRouter from "./routes/auth";
+import sectionsRouter from "./routes/sections";
 import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
@@ -20,6 +21,7 @@ const api = hono()
   .route("/registrations", registrationsRouter)
   .route("/results", resultsRouter)
   .route("/categories", categoriesRouter)
+  .route("/sections", sectionsRouter)
   .route("/settings", settingsRouter);
 
 const app = hono()

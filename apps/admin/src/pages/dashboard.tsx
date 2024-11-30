@@ -20,7 +20,7 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">123</div>
+            <div className="text-2xl font-bold">{}</div>
           </CardContent>
         </Card>
 
