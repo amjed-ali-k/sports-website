@@ -8,7 +8,11 @@ import {
 } from "@sports/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@sports/ui";
 import { formatDate } from "@/lib/utils";
-import { Participant, Section } from "@/types/participant";
+
+import type {
+  Participant,
+ Section
+} from "@sports/api/dist/src/types";
 
 interface ParticipantListProps {
   participants: Participant[];

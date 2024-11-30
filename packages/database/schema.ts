@@ -34,8 +34,10 @@ export const participants = sqliteTable(
 export const categories = sqliteTable("categories", {
   id: integer("id").primaryKey(),
   name: text("name", { enum: ["sports", "games", "arts"] }).notNull(),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+  certificateTemplate: text("certificate_template"),
+  participationCertificateTemplate: text("participation_certificate_template"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const items = sqliteTable("items", {
@@ -97,3 +99,11 @@ export const admins = sqliteTable(
     emailIdx: uniqueIndex("email_idx").on(table.email),
   }),
 );
+
+export const settings = sqliteTable("settings", {
+  id: integer("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});

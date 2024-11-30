@@ -18,7 +18,7 @@ import {
 } from "@sports/ui";
 import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
-import { Section } from "@/types/participant";
+import type { Section } from  "@sports/api/dist/src/types";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -84,7 +84,7 @@ export function ParticipantForm({
                 </FormControl>
                 <SelectContent>
                   {sections.map((section) => (
-                    <SelectItem key={section.id} value={section.id.toString()}>
+                    <SelectItem key={section.id} value={section.id?.toString() || ''}>
                       {section.name}
                     </SelectItem>
                   ))}

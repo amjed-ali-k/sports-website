@@ -207,6 +207,26 @@ class ApiClient {
     const response = await this.client.api.results.leaderboard.$get();
     return response.json();
   }
+
+  // Settings
+  async getSettings() {
+    const response = await this.client.api.settings.$get();
+    return response.json();
+  }
+
+  async updateSettings(data: {
+    eventName: string;
+    eventDate: string;
+    registrationEndDate: string;
+    maxRegistrationsPerParticipant: string;
+    isRegistrationOpen: string;
+    isResultsPublished: string;
+  }) {
+    const response = await this.client.api.settings.$put({
+      json: data,
+    });
+    return response.json();
+  }
 }
 
 export const api = new ApiClient();
