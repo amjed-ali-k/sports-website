@@ -1,6 +1,8 @@
 {
   "name": "@sports/api",
   "private": true,
+  "main": "src/index.ts",
+  "types": "index.d.ts",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy src/index.ts",
