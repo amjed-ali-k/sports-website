@@ -266,22 +266,45 @@ export default function ResultsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results?.map(({ result, participant }) => (
-              <TableRow key={result.id}>
-                <TableCell className="capitalize">{result.position}</TableCell>
-                <TableCell>{participant.fullName}</TableCell>
-                <TableCell>{participant.chestNo}</TableCell>
-                <TableCell>
-                  {
-                    sections.find(
-                      (section) => section.id === participant.sectionId
-                    )?.name
-                  }
-                </TableCell>
-                <TableCell>{result.points}</TableCell>
-              </TableRow>
-            ))}{" "}
-            {results?.length === 0 && (
+            {resultsLoading ? (
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <div className="h-4 w-16 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 w-32 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 w-24 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
+            ) : results?.length ? (
+              results?.map(({ result, participant }) => (
+                <TableRow key={result.id}>
+                  <TableCell className="capitalize">{result.position}</TableCell>
+                  <TableCell>{participant.fullName}</TableCell>
+                  <TableCell>{participant.chestNo}</TableCell>
+                  <TableCell>
+                    {
+                      sections.find(
+                        (section) => section.id === participant.sectionId
+                      )?.name
+                    }
+                  </TableCell>
+                  <TableCell>{result.points}</TableCell>
+                </TableRow>
+              ))
+            ) : (
               <TableRow>
                 <TableCell colSpan={5} className="h-96">
                   <EmptyState
