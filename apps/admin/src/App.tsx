@@ -13,6 +13,8 @@ import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections"; // added import statement
 import ProfilePage from "./pages/profile";
+import GroupItemsPage from "./pages/group-items";
+import GroupRegistrationsPage from "./pages/group-registrations";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
 
@@ -99,6 +101,11 @@ function App() {
                       <ProfilePage />
                     </ProtectedRoute>
                   }
+                />
+                <Route path="/group-items" element={<GroupItemsPage />} />
+                <Route
+                  path="/group-registrations"
+                  element={<GroupRegistrationsPage />}
                 />
               </Route>
             </Routes>

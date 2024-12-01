@@ -6,7 +6,7 @@ import {
   participants,
   sections,
 } from "@sports/database";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createResultSchema = z.object({
@@ -55,6 +55,31 @@ const router = hono()
       return c.json({ error: "Position already taken for this item" }, 400);
     }
 
+    // Get registration details to check if it's a group
+    const registrationDetails = await db
+      .select({
+        registration: registrations,
+        item: items,
+        participantCount:
+          sql<number>`COUNT(DISTINCT ${registrations.participantId})`.as(
+            "participant_count"
+          ),
+      })
+      .from(registrations)
+      .innerJoin(items, eq(registrations.itemId, items.id))
+      .where(
+        and(
+          eq(registrations.id, data.registrationId),
+          eq(registrations.itemId, data.itemId)
+        )
+      )
+      .groupBy(registrations.id)
+      .get();
+
+    if (!registrationDetails) {
+      return c.json({ error: "Registration not found" }, 404);
+    }
+
     const points =
       data.position === "first"
         ? item.pointsFirst
@@ -64,7 +89,10 @@ const router = hono()
 
     const result = await db
       .insert(results)
-      .values({ ...data, points })
+      .values({
+        ...data,
+        points,
+      })
       .returning()
       .get();
     return c.json(result, 201);
@@ -160,6 +188,35 @@ const router = hono()
       .all();
 
     return c.json(leaderboard);
+  })
+  .get("/totals/section/:sectionId/:categoryId", async (c) => {
+    const sectionId = c.req.param("sectionId");
+    const categoryId = c.req.param("categoryId");
+    const db = c.get("db");
+    const totals = await db
+      .select({
+        participantId: registrations.participantId,
+        participantName: participants.fullName,
+        totalPoints: sql<number>` SUM(COALESCE(${results.points}, 0)) `,
+      })
+      .from(registrations)
+      .innerJoin(participants, eq(participants.id, registrations.participantId))
+      .innerJoin(
+        items,
+        eq(items.id, registrations.itemId)
+      )
+      .leftJoin(results, eq(results.registrationId, registrations.id))
+      .where(
+        and(
+          eq(items.categoryId, Number(categoryId)),
+          eq(participants.sectionId, Number(sectionId))
+        )
+      )
+      .groupBy(registrations.participantId, participants.fullName)
+      .orderBy(desc(sql<number>`total_points`))
+      .all();
+
+    return c.json(totals);
   })
   .put("/:id", zodValidator(updateResultSchema), async (c) => {
     const id = Number(c.req.param("id"));

@@ -23,11 +23,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc2) => {
+var __copyProps = (to, from, except2, desc3) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc2 = __getOwnPropDesc(from, key)) || desc2.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc3 = __getOwnPropDesc(from, key)) || desc3.enumerable });
   }
   return to;
 };
@@ -7200,6 +7200,9 @@ var database_exports = {};
 __export(database_exports, {
   admins: () => admins,
   categories: () => categories,
+  groupItems: () => groupItems,
+  groupRegistrations: () => groupRegistrations,
+  groupResults: () => groupResults,
   items: () => items,
   participants: () => participants,
   registrations: () => registrations,
@@ -12583,20 +12586,42 @@ var categories = sqliteTable("categories", {
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 var items = sqliteTable("items", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  categoryId: integer("category_id").references(() => categories.id).notNull(),
-  isGroup: integer("is_group", { mode: "boolean" }).notNull().default(false),
+  pointsFirst: integer("points_first").notNull(),
+  pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
-  maxParticipants: integer().default(0).notNull(),
+  pointsThird: integer("points_third").notNull(),
+  categoryId: integer("category_id").references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  maxParticipants: integer("max_participants"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
+});
+var groupItems = sqliteTable("group_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  sectionId: integer("section_id").references(() => sections.id, { onDelete: "cascade" }).notNull(),
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
-  status: text("status", {
-    enum: ["yet_to_begin", "active", "completed", "cancelled", "hidden"]
-  }).notNull().default("yet_to_begin"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
+  gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
+  categoryId: integer("category_id").references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  minParticipants: integer("min_participants").notNull(),
+  maxParticipants: integer("max_participants").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
+});
+var groupRegistrations = sqliteTable("group_registrations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  groupItemId: integer("group_item_id").references(() => groupItems.id, { onDelete: "cascade" }).notNull(),
+  participantIds: text("participant_ids").notNull(),
+  // Stored as JSON array of participant IDs
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
+});
+var groupResults = sqliteTable("group_results", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  groupRegistrationId: integer("group_registration_id").references(() => groupRegistrations.id, { onDelete: "cascade" }).notNull(),
+  position: text("position", { enum: ["first", "second", "third"] }).notNull(),
+  points: integer("points").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
 });
 var registrations = sqliteTable("registrations", {
   id: integer("id").primaryKey(),
@@ -13757,11 +13782,11 @@ var participants_default = router;
 init_modules_watch_stub();
 var createItemSchema = z.object({
   name: z.string().min(1),
-  categoryId: z.number(),
-  maxParticipants: z.number().min(1).optional().default(1),
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
+  maxParticipants: z.number().min(1).optional().default(1),
+  categoryId: z.number(),
   gender: z.enum(["male", "female", "any"]),
   pointsThird: z.number().min(0)
 });
@@ -14023,8 +14048,26 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
   if (existingResult) {
     return c.json({ error: "Position already taken for this item" }, 400);
   }
+  const registrationDetails = await db.select({
+    registration: registrations,
+    item: items,
+    participantCount: sql`COUNT(DISTINCT ${registrations.participantId})`.as(
+      "participant_count"
+    )
+  }).from(registrations).innerJoin(items, eq(registrations.itemId, items.id)).where(
+    and(
+      eq(registrations.id, data.registrationId),
+      eq(registrations.itemId, data.itemId)
+    )
+  ).groupBy(registrations.id).get();
+  if (!registrationDetails) {
+    return c.json({ error: "Registration not found" }, 404);
+  }
   const points = data.position === "first" ? item.pointsFirst : data.position === "second" ? item.pointsSecond : item.pointsThird;
-  const result = await db.insert(results).values({ ...data, points }).returning().get();
+  const result = await db.insert(results).values({
+    ...data,
+    points
+  }).returning().get();
   return c.json(result, 201);
 }).get("/", async (c) => {
   const db = c.get("db");
@@ -14081,6 +14124,24 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
     )
   }).from(sections).leftJoin(participants, eq(sections.id, participants.sectionId)).leftJoin(registrations, eq(participants.id, registrations.participantId)).leftJoin(results, eq(registrations.id, results.registrationId)).groupBy(sections.id, sections.name).orderBy(sql`total_points DESC`).all();
   return c.json(leaderboard);
+}).get("/totals/section/:sectionId/:categoryId", async (c) => {
+  const sectionId = c.req.param("sectionId");
+  const categoryId = c.req.param("categoryId");
+  const db = c.get("db");
+  const totals = await db.select({
+    participantId: registrations.participantId,
+    participantName: participants.fullName,
+    totalPoints: sql` SUM(COALESCE(${results.points}, 0)) `
+  }).from(registrations).innerJoin(participants, eq(participants.id, registrations.participantId)).innerJoin(
+    items,
+    eq(items.id, registrations.itemId)
+  ).leftJoin(results, eq(results.registrationId, registrations.id)).where(
+    and(
+      eq(items.categoryId, Number(categoryId)),
+      eq(participants.sectionId, Number(sectionId))
+    )
+  ).groupBy(registrations.participantId, participants.fullName).orderBy(desc(sql`total_points`)).all();
+  return c.json(totals);
 }).put("/:id", zodValidator(updateResultSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const data = c.req.valid("json");
@@ -14690,11 +14751,159 @@ var router9 = hono().put("/profile", zodValidator(updateProfileSchema), async (c
 });
 var profile_default = router9;
 
+// src/routes/groups.ts
+init_modules_watch_stub();
+var createGroupItemSchema = z.object({
+  name: z.string(),
+  sectionId: z.number(),
+  pointsFirst: z.number(),
+  pointsSecond: z.number(),
+  pointsThird: z.number(),
+  minParticipants: z.number(),
+  maxParticipants: z.number(),
+  categoryId: z.number(),
+  gender: z.enum(["male", "female", "any"])
+});
+var createGroupRegistrationSchema = z.object({
+  groupItemId: z.number(),
+  participantIds: z.array(z.number())
+});
+var createGroupResultSchema = z.object({
+  groupRegistrationId: z.number(),
+  position: z.enum(["first", "second", "third"])
+});
+var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const item = await db.insert(groupItems).values(data).returning().get();
+  return c.json(item, 201);
+}).get("/items", async (c) => {
+  const db = c.get("db");
+  const items2 = await db.select().from(groupItems).all();
+  return c.json(items2);
+}).get("/items/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const db = c.get("db");
+  const item = await db.select().from(groupItems).where(eq(groupItems.id, id)).get();
+  if (!item) {
+    return c.json({ error: "Group item not found" }, 404);
+  }
+  return c.json(item);
+}).post("/registrations", zodValidator(createGroupRegistrationSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const groupItem = await db.select().from(groupItems).where(eq(groupItems.id, data.groupItemId)).get();
+  if (!groupItem) {
+    return c.json({ error: "Group item not found" }, 404);
+  }
+  if (data.participantIds.length < groupItem.minParticipants || data.participantIds.length > groupItem.maxParticipants) {
+    return c.json({
+      error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`
+    }, 400);
+  }
+  const registration = await db.insert(groupRegistrations).values({
+    groupItemId: data.groupItemId,
+    participantIds: JSON.stringify(data.participantIds)
+  }).returning().get();
+  const fullRegistration = await db.select({
+    registration: groupRegistrations,
+    item: groupItems,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).where(eq(groupRegistrations.id, registration.id)).groupBy(groupRegistrations.id).get();
+  return c.json(fullRegistration, 201);
+}).get("/registrations", async (c) => {
+  const db = c.get("db");
+  const registrations2 = await db.select({
+    registration: groupRegistrations,
+    item: groupItems,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).groupBy(groupRegistrations.id).all();
+  return c.json(registrations2);
+}).post("/results", zodValidator(createGroupResultSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const registration = await db.select({
+    registration: groupRegistrations,
+    item: groupItems
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).where(eq(groupRegistrations.id, data.groupRegistrationId)).get();
+  if (!registration) {
+    return c.json({ error: "Group registration not found" }, 404);
+  }
+  const points = data.position === "first" ? registration.item.pointsFirst : data.position === "second" ? registration.item.pointsSecond : registration.item.pointsThird;
+  const result = await db.insert(groupResults).values({
+    groupRegistrationId: data.groupRegistrationId,
+    position: data.position,
+    points
+  }).returning().get();
+  return c.json(result, 201);
+}).get("/results", async (c) => {
+  const db = c.get("db");
+  const results2 = await db.select({
+    result: groupResults,
+    registration: groupRegistrations,
+    item: groupItems,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupResults).innerJoin(
+    groupRegistrations,
+    eq(groupRegistrations.id, groupResults.groupRegistrationId)
+  ).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).groupBy(groupResults.id).all();
+  return c.json(results2);
+}).get("/results/section/:sectionId", async (c) => {
+  const sectionId = c.req.param("sectionId");
+  const db = c.get("db");
+  const results2 = await db.select({
+    item: groupItems,
+    registration: groupRegistrations,
+    result: groupResults,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupResults).innerJoin(
+    groupRegistrations,
+    eq(groupRegistrations.id, groupResults.groupRegistrationId)
+  ).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).where(eq(groupItems.sectionId, Number(sectionId))).groupBy(groupResults.id).all();
+  return c.json(results2);
+});
+
 // src/types.ts
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default);
+var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();

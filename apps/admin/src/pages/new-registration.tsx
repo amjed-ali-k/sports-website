@@ -31,7 +31,6 @@ import { useMemo } from "react";
 
 const registrationSchema = z.object({
   itemId: z.number(),
-  groupName: z.string().optional(),
   metaInfo: z.string().optional(),
 });
 
@@ -147,7 +146,7 @@ export default function NewRegistrationPage() {
       startIndex + itemsPerPage
     );
   }, [filteredAndSearchedParticipants, page]);
-  
+
   if (isLoading) return <div>Loading...</div>;
   const totalPages = Math.ceil(
     (filteredAndSearchedParticipants?.length || 0) / itemsPerPage
@@ -212,22 +211,6 @@ export default function NewRegistrationPage() {
                   </FormItem>
                 )}
               />
-
-              {selectedItem?.isGroup && (
-                <FormField
-                  control={form.control}
-                  name="groupName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Group Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter group name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
 
               <FormField
                 control={form.control}

@@ -44,22 +44,62 @@ export const categories = sqliteTable("categories", {
 });
 
 export const items = sqliteTable("items", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  categoryId: integer("category_id").references(() => categories.id).notNull(),
-  isGroup: integer("is_group", { mode: "boolean" }).notNull().default(false),
+  pointsFirst: integer("points_first").notNull(),
+  pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
-  maxParticipants: integer().default(0).notNull(),
+  pointsThird: integer("points_third").notNull(),
+  categoryId: integer("category_id")
+    .references(() => categories.id, { onDelete: "cascade" })
+    .notNull(),
+  maxParticipants: integer("max_participants"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$default(() => new Date()),
+});
+
+export const groupItems = sqliteTable("group_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  sectionId: integer("section_id")
+    .references(() => sections.id, { onDelete: "cascade" })
+    .notNull(),
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
-  status: text("status", {
-    enum: ["yet_to_begin", "active", "completed", "cancelled", "hidden"],
-  })
+  gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
+  categoryId: integer("category_id")
+  .references(() => categories.id, { onDelete: "cascade" })
+  .notNull(),
+  minParticipants: integer("min_participants").notNull(),
+  maxParticipants: integer("max_participants").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default("yet_to_begin"),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+    .$default(() => new Date()),
+});
+
+export const groupRegistrations = sqliteTable("group_registrations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  groupItemId: integer("group_item_id")
+    .references(() => groupItems.id, { onDelete: "cascade" })
+    .notNull(),
+  participantIds: text("participant_ids").notNull(), // Stored as JSON array of participant IDs
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$default(() => new Date()),
+});
+
+export const groupResults = sqliteTable("group_results", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  groupRegistrationId: integer("group_registration_id")
+    .references(() => groupRegistrations.id, { onDelete: "cascade" })
+    .notNull(),
+  position: text("position", { enum: ["first", "second", "third"] }).notNull(),
+  points: integer("points").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$default(() => new Date()),
 });
 
 export const registrations = sqliteTable("registrations", {

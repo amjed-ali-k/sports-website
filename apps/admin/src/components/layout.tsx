@@ -30,6 +30,16 @@ const roleConfig = {
   },
 } as const;
 
+const navigation = [
+  { name: "Dashboard", href: "/" },
+  { name: "Participants", href: "/participants" },
+  { name: "Registrations", href: "/registrations" },
+  { name: "Results", href: "/results" },
+  { name: "Sections", href: "/sections" },
+  { name: "Group Items", href: "/group-items" },
+  { name: "Group Registrations", href: "/group-registrations" },
+];
+
 export default function Layout() {
   const { admin, logout } = useAuth();
   const roleSettings = admin ? roleConfig[admin.role] : roleConfig.rep;
@@ -43,40 +53,15 @@ export default function Layout() {
             <span className="font-bold">Sports Admin</span>
           </Link>
           <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
-            <Link
-              to="/participants"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Participants
-            </Link>
-            {admin?.role !== "rep" && (
-              <>
-                <Link
-                  to="/items"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Items
-                </Link>
-                <Link
-                  to="/sections"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  Sections
-                </Link>
-              </>
-            )}
-            <Link
-              to="/registrations"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Registrations
-            </Link>
-            <Link
-              to="/results"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              Results
-            </Link>
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                {item.name}
+              </Link>
+            ))}
             {admin?.role === "controller" && (
               <>
                 <Link

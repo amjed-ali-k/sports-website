@@ -13,6 +13,7 @@ import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
 import profileRouter from "./routes/profile";
+import { groupsRouter } from "./routes/groups";
 
 export * from "./types";
 
@@ -26,7 +27,8 @@ const api = hono()
   .route("/categories", categoriesRouter)
   .route("/sections", sectionsRouter)
   .route("/admins", adminsRouter)
-  .route("/settings", settingsRouter);
+  .route("/settings", settingsRouter)
+  .route("/groups", groupsRouter);
 
 const app = hono()
   .use("*", cors())
