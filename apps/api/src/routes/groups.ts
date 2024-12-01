@@ -152,7 +152,7 @@ export const groupsRouter = hono()
       .select({
         registration: groupRegistrations,
         item: groupItems,
-        participants: sql<any>`json_group_array(json_object(
+        participants: sql<{id: number, name: string}[]>`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants"),
@@ -179,7 +179,7 @@ export const groupsRouter = hono()
       .select({
         registration: groupRegistrations,
         item: groupItems,
-        participants: sql<any>`json_group_array(json_object(
+        participants: sql<{id: number, name: string}[]>`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants"),

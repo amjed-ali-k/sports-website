@@ -37,22 +37,6 @@ const createGroupRegistrationSchema = z.object({
     .min(1, "At least one participant is required"),
 });
 
-type GroupRegistration = {
-  id: number;
-  groupItemId: number;
-  participantIds: number[];
-  item: {
-    name: string;
-    sectionId: number;
-    minParticipants: number;
-    maxParticipants: number;
-  };
-  participants: Array<{
-    id: number;
-    name: string;
-  }>;
-};
-
 export default function GroupRegistrationsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();

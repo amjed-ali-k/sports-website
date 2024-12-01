@@ -314,6 +314,11 @@ class ApiClient {
     return response.json();
   }
 
+  async getSettings() {
+    const response = await this.client.api.settings.$get();
+    return response.json();
+  }
+
   // Sections
   async getSections() {
     const response = await this.client.api.sections.$get({});
