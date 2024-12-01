@@ -9,6 +9,12 @@ type Bindings = {
 
 type Variables = {
   db: ReturnType<typeof createDb>;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+  };
 };
 
 export const hono = <Path extends string = "/">() =>
@@ -18,7 +24,9 @@ export const hono = <Path extends string = "/">() =>
     Path: Path;
   }>();
 
-export const zodValidator = <T extends {}>(schema: { parse: (value: unknown) => T }) =>
+export const zodValidator = <T extends {}>(schema: {
+  parse: (value: unknown) => T;
+}) =>
   validator("json", (value, c) => {
     const parsed = schema.parse(value);
     if (!parsed) {

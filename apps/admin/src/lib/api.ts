@@ -247,8 +247,6 @@ class ApiClient {
     return response.json();
   }
 
-  
-
   async updateSettings(data: {
     eventName: string;
     eventDate: string;
@@ -291,6 +289,27 @@ class ApiClient {
   async deleteAdmin(id: number) {
     const response = await this.client.api.admins[":id"].$delete({
       param: { id: id.toString() },
+    });
+    return response.json();
+  }
+
+  async updateProfile(data: { fullName: string; email: string }) {
+    const response = await this.client.auth.profile.$put({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async updatePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) {
+    const response = await this.client.auth.password.$put({
+      json: {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      },
     });
     return response.json();
   }

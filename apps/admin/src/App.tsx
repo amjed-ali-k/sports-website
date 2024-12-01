@@ -12,6 +12,7 @@ import ResultsPage from "./pages/results";
 import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections"; // added import statement
+import ProfilePage from "./pages/profile";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
 
@@ -91,6 +92,14 @@ function App() {
                 />
 
                 <Route path="/sections" element={<SectionsPage />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
             </Routes>
           </AuthProvider>

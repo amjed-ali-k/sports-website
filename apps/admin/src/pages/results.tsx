@@ -62,7 +62,7 @@ export default function ResultsPage() {
 
   const { data: registrations = [] } =
     useQuery({
-      queryKey: ["registrations", selectedItem],
+      queryKey: ["registrations"],
       queryFn: () => {
         if (!selectedItem) return [];
         return apiClient.getRegistrations();
@@ -71,7 +71,7 @@ export default function ResultsPage() {
     });
 
   const { data: results, isLoading: resultsLoading } = useQuery({
-    queryKey: ["results", selectedItem],
+    queryKey: ["results"],
     queryFn: () => apiClient.getResults(),
     enabled: !!selectedItem,
   });
@@ -247,7 +247,9 @@ export default function ResultsPage() {
           <SelectContent>
             {items?.map(({ item }) => (
               <SelectItem key={item.id} value={item.id.toString()}>
-                {item.name}
+                {item.name}  <Badge variant="outline" className="capitalize mx-2 text-xs">
+                  {item.gender}
+                </Badge>
               </SelectItem>
             ))}
           </SelectContent>
@@ -289,7 +291,7 @@ export default function ResultsPage() {
                 ))}
               </>
             ) : results?.length ? (
-              results?.map(({ result, participant }) => (
+              results?.filter(({ result }) => result.itemId === selectedItem).map(({ result, participant }) => (
                 <TableRow key={result.id}>
                   <TableCell className="capitalize">{result.position}</TableCell>
                   <TableCell>{participant.fullName}</TableCell>

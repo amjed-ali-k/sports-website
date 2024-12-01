@@ -116,6 +116,7 @@ export default function AdminsPage() {
         return "outline";
     }
   };
+  console.log()
 
   return (
     <div className="container mx-auto py-6">

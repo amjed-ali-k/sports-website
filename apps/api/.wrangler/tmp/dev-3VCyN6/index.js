@@ -14191,39 +14191,43 @@ var createAdminSchema = z.object({
   name: z.string(),
   role: z.enum(["rep", "manager", "controller"])
 });
-var auth = hono().post(
-  "/login",
-  zodValidator(loginSchema),
-  async (c) => {
-    const { email, password } = c.req.valid("json");
-    const admin = await c.get("db").select().from(admins).where(eq(admins.email, email)).get();
-    if (!admin) {
-      return c.json({ message: "Invalid credentials" }, 401);
-    }
-    const isValidPassword = await import_bcryptjs.default.compare(password, admin.password);
-    if (!isValidPassword) {
-      return c.json({ message: "Invalid credentials" }, 401);
-    }
-    const exp = Math.floor(Date.now() / 1e3) + 24 * 60 * 60;
-    console.log("Admin logged in:", {
+var updateProfileSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email()
+});
+var updatePasswordSchema = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(6)
+});
+var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
+  const { email, password } = c.req.valid("json");
+  const admin = await c.get("db").select().from(admins).where(eq(admins.email, email)).get();
+  if (!admin) {
+    return c.json({ message: "Invalid credentials" }, 401);
+  }
+  const isValidPassword = await import_bcryptjs.default.compare(password, admin.password);
+  if (!isValidPassword) {
+    return c.json({ message: "Invalid credentials" }, 401);
+  }
+  const exp = Math.floor(Date.now() / 1e3) + 24 * 60 * 60;
+  console.log("Admin logged in:", {
+    id: admin.id,
+    email: admin.email,
+    name: admin.name,
+    role: admin.role
+  });
+  const token = await sign2(
+    {
       id: admin.id,
       email: admin.email,
       name: admin.name,
-      role: admin.role
-    });
-    const token = await sign2(
-      {
-        id: admin.id,
-        email: admin.email,
-        name: admin.name,
-        role: admin.role,
-        exp
-      },
-      c.env.JWT_SECRET
-    );
-    return c.json({ token });
-  }
-).post("/setup", zodValidator(createAdminSchema), async (c) => {
+      role: admin.role,
+      exp
+    },
+    c.env.JWT_SECRET
+  );
+  return c.json({ token });
+}).post("/setup", zodValidator(createAdminSchema), async (c) => {
   const existingAdmins = await c.get("db").select().from(admins).limit(1);
   if (existingAdmins.length > 0) {
     return c.json({ message: "Setup already completed" }, 400);
@@ -14260,6 +14264,34 @@ var auth = hono().post(
   } catch {
     return c.json({ message: "Invalid token" }, 401);
   }
+}).put("/profile", zodValidator(updateProfileSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const { id: userId } = c.get("user");
+  const existingUser = await db.select().from(admins).where(and(eq(admins.email, data.email), ne(admins.id, userId))).get();
+  if (existingUser) {
+    return c.json({ error: "Email already taken" }, 400);
+  }
+  const user = await db.update(admins).set({
+    name: data.fullName,
+    email: data.email
+  }).where(eq(admins.id, userId)).returning().get();
+  return c.json(user);
+}).put("/password", zodValidator(updatePasswordSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const { id: userId } = c.get("user");
+  const user = await db.select().from(admins).where(eq(admins.id, userId)).get();
+  if (!user) {
+    return c.json({ error: "User not found" }, 404);
+  }
+  const isValid2 = await import_bcryptjs.default.compare(data.currentPassword, user.password);
+  if (!isValid2) {
+    return c.json({ error: "Current password is incorrect" }, 400);
+  }
+  const hashedPassword = await import_bcryptjs.default.hash(data.newPassword, 10);
+  await db.update(admins).set({ password: hashedPassword }).where(eq(admins.id, userId)).run();
+  return c.json({ message: "Password updated successfully" });
 });
 var auth_default = auth;
 
