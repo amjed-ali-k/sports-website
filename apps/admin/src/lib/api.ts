@@ -294,7 +294,7 @@ class ApiClient {
   }
 
   async updateProfile(data: { fullName: string; email: string }) {
-    const response = await this.client.auth.profile.$put({
+    const response = await this.client.api.profile.profile.$put({
       json: data,
     });
     return response.json();
@@ -305,7 +305,7 @@ class ApiClient {
     newPassword: string;
     confirmPassword: string;
   }) {
-    const response = await this.client.auth.password.$put({
+    const response = await this.client.api.profile.password.$put({
       json: {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,

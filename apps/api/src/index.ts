@@ -12,11 +12,13 @@ import adminsRouter from "./routes/admins";
 import { hono } from "./lib/api";
 import { createDb } from "./db/index";
 import { logger } from "hono/logger";
+import profileRouter from "./routes/profile";
 
 export * from "./types";
 
 const api = hono()
   .use("*", authMiddleware)
+  .route("/profile", profileRouter)
   .route("/participants", participantsRouter)
   .route("/items", itemsRouter)
   .route("/registrations", registrationsRouter)

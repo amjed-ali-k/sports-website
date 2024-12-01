@@ -71,7 +71,7 @@ var require_bcrypt = __commonJS({
         (global["dcodeIO"] = global["dcodeIO"] || {})["bcrypt"] = factory();
     })(exports, function() {
       "use strict";
-      var bcrypt3 = {};
+      var bcrypt4 = {};
       var randomFallback = null;
       function random(len) {
         if (typeof module !== "undefined" && module && module["exports"])
@@ -97,10 +97,10 @@ var require_bcrypt = __commonJS({
       } catch (e) {
       }
       randomFallback = null;
-      bcrypt3.setRandomFallback = function(random2) {
+      bcrypt4.setRandomFallback = function(random2) {
         randomFallback = random2;
       };
-      bcrypt3.genSaltSync = function(rounds, seed_length) {
+      bcrypt4.genSaltSync = function(rounds, seed_length) {
         rounds = rounds || GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof rounds !== "number")
           throw Error("Illegal arguments: " + typeof rounds + ", " + typeof seed_length);
@@ -117,7 +117,7 @@ var require_bcrypt = __commonJS({
         salt.push(base64_encode(random(BCRYPT_SALT_LEN), BCRYPT_SALT_LEN));
         return salt.join("");
       };
-      bcrypt3.genSalt = function(rounds, seed_length, callback) {
+      bcrypt4.genSalt = function(rounds, seed_length, callback) {
         if (typeof seed_length === "function")
           callback = seed_length, seed_length = void 0;
         if (typeof rounds === "function")
@@ -129,7 +129,7 @@ var require_bcrypt = __commonJS({
         function _async(callback2) {
           nextTick(function() {
             try {
-              callback2(null, bcrypt3.genSaltSync(rounds));
+              callback2(null, bcrypt4.genSaltSync(rounds));
             } catch (err) {
               callback2(err);
             }
@@ -151,19 +151,19 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt3.hashSync = function(s, salt) {
+      bcrypt4.hashSync = function(s, salt) {
         if (typeof salt === "undefined")
           salt = GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof salt === "number")
-          salt = bcrypt3.genSaltSync(salt);
+          salt = bcrypt4.genSaltSync(salt);
         if (typeof s !== "string" || typeof salt !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof salt);
         return _hash(s, salt);
       };
-      bcrypt3.hash = function(s, salt, callback, progressCallback) {
+      bcrypt4.hash = function(s, salt, callback, progressCallback) {
         function _async(callback2) {
           if (typeof s === "string" && typeof salt === "number")
-            bcrypt3.genSalt(salt, function(err, salt2) {
+            bcrypt4.genSalt(salt, function(err, salt2) {
               _hash(s, salt2, callback2, progressCallback);
             });
           else if (typeof s === "string" && typeof salt === "string")
@@ -200,14 +200,14 @@ var require_bcrypt = __commonJS({
         return wrong === 0;
       }
       __name(safeStringCompare, "safeStringCompare");
-      bcrypt3.compareSync = function(s, hash) {
+      bcrypt4.compareSync = function(s, hash) {
         if (typeof s !== "string" || typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof hash);
         if (hash.length !== 60)
           return false;
-        return safeStringCompare(bcrypt3.hashSync(s, hash.substr(0, hash.length - 31)), hash);
+        return safeStringCompare(bcrypt4.hashSync(s, hash.substr(0, hash.length - 31)), hash);
       };
-      bcrypt3.compare = function(s, hash, callback, progressCallback) {
+      bcrypt4.compare = function(s, hash, callback, progressCallback) {
         function _async(callback2) {
           if (typeof s !== "string" || typeof hash !== "string") {
             nextTick(callback2.bind(this, Error("Illegal arguments: " + typeof s + ", " + typeof hash)));
@@ -217,7 +217,7 @@ var require_bcrypt = __commonJS({
             nextTick(callback2.bind(this, null, false));
             return;
           }
-          bcrypt3.hash(s, hash.substr(0, 29), function(err, comp) {
+          bcrypt4.hash(s, hash.substr(0, 29), function(err, comp) {
             if (err)
               callback2(err);
             else
@@ -240,12 +240,12 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt3.getRounds = function(hash) {
+      bcrypt4.getRounds = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         return parseInt(hash.split("$")[2], 10);
       };
-      bcrypt3.getSalt = function(hash) {
+      bcrypt4.getSalt = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         if (hash.length !== 60)
@@ -1882,17 +1882,17 @@ var require_bcrypt = __commonJS({
         }
       }
       __name(_hash, "_hash");
-      bcrypt3.encodeBase64 = base64_encode;
-      bcrypt3.decodeBase64 = base64_decode;
-      return bcrypt3;
+      bcrypt4.encodeBase64 = base64_encode;
+      bcrypt4.decodeBase64 = base64_decode;
+      return bcrypt4;
     });
   }
 });
 
-// .wrangler/tmp/bundle-v9KsmI/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-4Man24/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-v9KsmI/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-4Man24/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -3195,6 +3195,13 @@ async function authMiddleware(c, next) {
       name: payload.name,
       role: payload.role
     });
+    console.log("Authenticated user:", {
+      id: payload.id,
+      email: payload.email,
+      name: payload.name,
+      role: payload.role
+    });
+    console.log("state", c.get("user"));
     await next();
   } catch (e) {
     throw new HTTPException(401, { message: "Invalid token" });
@@ -13331,20 +13338,20 @@ var SmartRouter = /* @__PURE__ */ __name(class {
     let i = 0;
     let res;
     for (; i < len; i++) {
-      const router9 = routers[i];
+      const router10 = routers[i];
       try {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
-          router9.add(...routes[i2]);
+          router10.add(...routes[i2]);
         }
-        res = router9.match(method, path);
+        res = router10.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
         }
         throw e;
       }
-      this.match = router9.match.bind(router9);
-      this.#routers = [router9];
+      this.match = router10.match.bind(router10);
+      this.#routers = [router10];
       this.#routes = void 0;
       break;
     }
@@ -14191,14 +14198,6 @@ var createAdminSchema = z.object({
   name: z.string(),
   role: z.enum(["rep", "manager", "controller"])
 });
-var updateProfileSchema = z.object({
-  fullName: z.string().min(1),
-  email: z.string().email()
-});
-var updatePasswordSchema = z.object({
-  currentPassword: z.string().min(6),
-  newPassword: z.string().min(6)
-});
 var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
   const { email, password } = c.req.valid("json");
   const admin = await c.get("db").select().from(admins).where(eq(admins.email, email)).get();
@@ -14264,34 +14263,6 @@ var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
   } catch {
     return c.json({ message: "Invalid token" }, 401);
   }
-}).put("/profile", zodValidator(updateProfileSchema), async (c) => {
-  const data = c.req.valid("json");
-  const db = c.get("db");
-  const { id: userId } = c.get("user");
-  const existingUser = await db.select().from(admins).where(and(eq(admins.email, data.email), ne(admins.id, userId))).get();
-  if (existingUser) {
-    return c.json({ error: "Email already taken" }, 400);
-  }
-  const user = await db.update(admins).set({
-    name: data.fullName,
-    email: data.email
-  }).where(eq(admins.id, userId)).returning().get();
-  return c.json(user);
-}).put("/password", zodValidator(updatePasswordSchema), async (c) => {
-  const data = c.req.valid("json");
-  const db = c.get("db");
-  const { id: userId } = c.get("user");
-  const user = await db.select().from(admins).where(eq(admins.id, userId)).get();
-  if (!user) {
-    return c.json({ error: "User not found" }, 404);
-  }
-  const isValid2 = await import_bcryptjs.default.compare(data.currentPassword, user.password);
-  if (!isValid2) {
-    return c.json({ error: "Current password is incorrect" }, 400);
-  }
-  const hashedPassword = await import_bcryptjs.default.hash(data.newPassword, 10);
-  await db.update(admins).set({ password: hashedPassword }).where(eq(admins.id, userId)).run();
-  return c.json({ message: "Password updated successfully" });
 });
 var auth_default = auth;
 
@@ -14676,11 +14647,54 @@ var logger = /* @__PURE__ */ __name((fn = console.log) => {
   }, "logger2");
 }, "logger");
 
+// src/routes/profile.ts
+init_modules_watch_stub();
+var import_bcryptjs3 = __toESM(require_bcrypt());
+var updateProfileSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email()
+});
+var updatePasswordSchema = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(6)
+});
+var router9 = hono().put("/profile", zodValidator(updateProfileSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const { id: userId } = c.get("user");
+  console.log({ userId });
+  const existingUser = await db.select().from(admins).where(and(eq(admins.email, data.email), ne(admins.id, userId))).get();
+  if (existingUser) {
+    return c.json({ error: "Email already taken" }, 400);
+  }
+  const user = await db.update(admins).set({
+    name: data.fullName,
+    email: data.email
+  }).where(eq(admins.id, userId)).returning().get();
+  return c.json(user);
+}).put("/password", zodValidator(updatePasswordSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const { id: userId } = c.get("user");
+  const user = await db.select().from(admins).where(eq(admins.id, userId)).get();
+  if (!user) {
+    return c.json({ error: "User not found" }, 404);
+  }
+  const isValid2 = await import_bcryptjs3.default.compare(data.currentPassword, user.password);
+  if (!isValid2) {
+    return c.json({ error: "Current password is incorrect" }, 400);
+  }
+  const hashedPassword = await import_bcryptjs3.default.hash(data.newPassword, 10);
+  await db.update(admins).set({ password: hashedPassword }).where(eq(admins.id, userId)).run();
+  return c.json({ message: "Password updated successfully" });
+});
+var profile_default = router9;
+
 // src/types.ts
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default);
+var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();
@@ -14730,7 +14744,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-v9KsmI/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-4Man24/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -14763,7 +14777,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-v9KsmI/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-4Man24/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

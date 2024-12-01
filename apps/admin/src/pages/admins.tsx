@@ -77,9 +77,18 @@ export default function AdminsPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: AdminFormValues) => {
-      editingAdmin?.id
+      const res = editingAdmin?.id
         ? await apiClient.updateAdmin(editingAdmin.id, values)
-        : await apiClient.createAdmin({...values, password: values.password || 'admin123'});
+        : await apiClient.createAdmin({
+            ...values,
+            password: values.password || "admin123",
+          });
+
+      if ("error" in res) {
+        throw new Error(res.error);
+      } else {
+        return res;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admins"] });
@@ -116,7 +125,7 @@ export default function AdminsPage() {
         return "outline";
     }
   };
-  console.log()
+  console.log();
 
   return (
     <div className="container mx-auto py-6">
