@@ -20,6 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  FormMessage,
 } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { useForm } from "react-hook-form";
@@ -31,23 +32,25 @@ import { useToast } from "@sports/ui";
 
 const createGroupItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  sectionId: z.number(),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
   pointsThird: z.number().min(0),
   minParticipants: z.number().min(1),
   maxParticipants: z.number().min(1),
+  categoryId: z.number(),
+  gender: z.enum(["male", "female", "any"]),
 });
 
 type GroupItem = {
   id: number;
   name: string;
-  sectionId: number;
   pointsFirst: number;
   pointsSecond: number;
   pointsThird: number;
   minParticipants: number;
   maxParticipants: number;
+  categoryId: number;
+  gender: "male" | "female" | "any";
 };
 
 export default function GroupItemsPage() {
@@ -55,32 +58,27 @@ export default function GroupItemsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof createGroupItemSchema>>({
     resolver: zodResolver(createGroupItemSchema),
     defaultValues: {
       name: "",
-      sectionId: 0,
       pointsFirst: 5,
       pointsSecond: 3,
       pointsThird: 1,
       minParticipants: 2,
       maxParticipants: 4,
+      categoryId: 1,
     },
   });
 
-  const { data: sections } = useQuery({
-    queryKey: ["sections"],
-    queryFn: () => apiClient.get("/sections").json(),
-  });
-
-  const { data: groupItems, isLoading } = useQuery({
+  const { data: groupItems } = useQuery({
     queryKey: ["group-items"],
-    queryFn: () => apiClient.get("/groups/items").json<GroupItem[]>(),
+    queryFn: () => apiClient.getGroupItems(),
   });
 
   const createMutation = useMutation({
     mutationFn: (data: z.infer<typeof createGroupItemSchema>) =>
-      apiClient.post("/groups/items", { json: data }).json(),
+      apiClient.createGroupItem(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["group-items"] });
       setIsOpen(false);
@@ -96,14 +94,6 @@ export default function GroupItemsPage() {
     {
       accessorKey: "name",
       header: "Name",
-    },
-    {
-      accessorKey: "sectionId",
-      header: "Section",
-      cell: ({ row }) => {
-        const section = sections?.find((s) => s.id === row.original.sectionId);
-        return section?.name || row.original.sectionId;
-      },
     },
     {
       accessorKey: "pointsFirst",
@@ -146,7 +136,7 @@ export default function GroupItemsPage() {
           </DialogHeader>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit((data) => createMutation.mutate(data))}
+              onSubmit={form.handleSubmit((d) => createMutation.mutate(d))}
               className="space-y-4"
             >
               <FormField
@@ -162,36 +152,6 @@ export default function GroupItemsPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="sectionId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Section</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      value={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a section" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {sections?.map((section) => (
-                          <SelectItem
-                            key={section.id}
-                            value={section.id.toString()}
-                          >
-                            {section.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
               <div className="grid grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -203,7 +163,9 @@ export default function GroupItemsPage() {
                         <Input
                           type="number"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>
@@ -220,7 +182,9 @@ export default function GroupItemsPage() {
                         <Input
                           type="number"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>
@@ -237,7 +201,9 @@ export default function GroupItemsPage() {
                         <Input
                           type="number"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>
@@ -256,7 +222,9 @@ export default function GroupItemsPage() {
                         <Input
                           type="number"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>
@@ -273,13 +241,42 @@ export default function GroupItemsPage() {
                         <Input
                           type="number"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>
                   )}
                 />
               </div>
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="any">Any</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <Button type="submit" className="w-full">
                 Create Group Item

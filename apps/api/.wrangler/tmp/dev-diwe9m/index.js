@@ -12599,7 +12599,6 @@ var items = sqliteTable("items", {
 var groupItems = sqliteTable("group_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  sectionId: integer("section_id").references(() => sections.id, { onDelete: "cascade" }).notNull(),
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
@@ -14339,6 +14338,14 @@ var router7 = hono().get("/", async (c) => {
   const db = c.get("db");
   const allSections = await db.select().from(sections).all();
   return c.json(allSections);
+}).get("/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const db = c.get("db");
+  const section = await db.select().from(sections).where(eq(sections.id, id)).get();
+  if (!section) {
+    return c.json({ error: "Section not found" }, 404);
+  }
+  return c.json(section);
 }).post("/", zodValidator(createSectionSchema), async (c) => {
   const { name, logo, color, description } = c.req.valid("json");
   const db = c.get("db");
@@ -14755,7 +14762,6 @@ var profile_default = router9;
 init_modules_watch_stub();
 var createGroupItemSchema = z.object({
   name: z.string(),
-  sectionId: z.number(),
   pointsFirst: z.number(),
   pointsSecond: z.number(),
   pointsThird: z.number(),
@@ -14763,6 +14769,16 @@ var createGroupItemSchema = z.object({
   maxParticipants: z.number(),
   categoryId: z.number(),
   gender: z.enum(["male", "female", "any"])
+});
+var updateGroupItemSchema = z.object({
+  name: z.string().optional(),
+  pointsFirst: z.number().optional(),
+  pointsSecond: z.number().optional(),
+  pointsThird: z.number().optional(),
+  minParticipants: z.number().optional(),
+  maxParticipants: z.number().optional(),
+  categoryId: z.number().optional(),
+  gender: z.enum(["male", "female", "any"]).optional()
 });
 var createGroupRegistrationSchema = z.object({
   groupItemId: z.number(),
@@ -14785,6 +14801,23 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
   const id = Number(c.req.param("id"));
   const db = c.get("db");
   const item = await db.select().from(groupItems).where(eq(groupItems.id, id)).get();
+  if (!item) {
+    return c.json({ error: "Group item not found" }, 404);
+  }
+  return c.json(item);
+}).put("/items/:id", zodValidator(updateGroupItemSchema), async (c) => {
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  const data = c.req.valid("json");
+  const item = await db.update(groupItems).set(data).where(eq(groupItems.id, id)).returning().get();
+  if (!item) {
+    return c.json({ error: "Group item not found" }, 404);
+  }
+  return c.json(item);
+}).delete("/items/:id", async (c) => {
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  const item = await db.delete(groupItems).where(eq(groupItems.id, id)).returning().get();
   if (!item) {
     return c.json({ error: "Group item not found" }, 404);
   }
@@ -14895,7 +14928,7 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-  ).where(eq(groupItems.sectionId, Number(sectionId))).groupBy(groupResults.id).all();
+  ).where(eq(participants.sectionId, Number(sectionId))).groupBy(groupResults.id).all();
   return c.json(results2);
 });
 

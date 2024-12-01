@@ -62,9 +62,6 @@ export const items = sqliteTable("items", {
 export const groupItems = sqliteTable("group_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  sectionId: integer("section_id")
-    .references(() => sections.id, { onDelete: "cascade" })
-    .notNull(),
   pointsFirst: integer("points_first").notNull(),
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),

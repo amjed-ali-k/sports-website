@@ -16,6 +16,22 @@ const router = hono()
     const allSections = await db.select().from(sections).all();
     return c.json(allSections);
   })
+  .get("/:id", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    const section = await db
+      .select()
+      .from(sections)
+      .where(eq(sections.id, id))
+      .get();
+
+    if (!section) {
+      return c.json({ error: "Section not found" }, 404);
+    }
+
+    return c.json(section);
+  })
   .post("/", zodValidator(createSectionSchema), async (c) => {
     const { name, logo, color, description } = c.req.valid("json");
     const db = c.get("db");

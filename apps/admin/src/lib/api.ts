@@ -222,14 +222,62 @@ class ApiClient {
     return response.json();
   }
 
-  // Settings
-  async getSettings() {
-    const response = await this.client.api.settings.$get({});
+  // Group Items
+  async getGroupItems() {
+    const response = await this.client.api.groups.items.$get({});
     return response.json();
   }
 
+  async createGroupItem(data: {
+    name: string;
+    pointsFirst: number;
+    pointsSecond: number;
+    pointsThird: number;
+    minParticipants: number;
+    maxParticipants: number;
+    categoryId: number;
+    gender: "male" | "female" | "any";
+  }) {
+    const response = await this.client.api.groups.items.$post({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async updateGroupItem(id: number, data: {
+    name?: string;
+    pointsFirst?: number;
+    pointsSecond?: number;
+    pointsThird?: number;
+    minParticipants?: number;
+    maxParticipants?: number;
+    categoryId?: number;
+    gender?: "male" | "female" | "any";
+  }) {
+    const response = await this.client.api.groups.items[":id"].$put({
+      param: { id: id.toString() },
+      json: data,
+    });
+    return response.json();
+  }
+
+  async deleteGroupItem(id: number) {
+    const response = await this.client.api.groups.items[":id"].$delete({
+      param: { id: id.toString() },
+    });
+    return response.json();
+  }
+
+  // Sections
   async getSections() {
     const response = await this.client.api.sections.$get({});
+    return response.json();
+  }
+
+  async getSection(id: number) {
+    const response = await this.client.api.sections[":id"].$get({
+      param: { id: id.toString() },
+    });
     return response.json();
   }
 

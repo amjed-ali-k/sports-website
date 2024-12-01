@@ -10,7 +10,6 @@ import { hono, zodValidator } from "../lib/api";
 
 const createGroupItemSchema = z.object({
   name: z.string(),
-  sectionId: z.number(),
   pointsFirst: z.number(),
   pointsSecond: z.number(),
   pointsThird: z.number(),
@@ -18,6 +17,17 @@ const createGroupItemSchema = z.object({
   maxParticipants: z.number(),
   categoryId: z.number(),
   gender: z.enum(["male", "female", "any"]),
+});
+
+const updateGroupItemSchema = z.object({
+  name: z.string().optional(),
+  pointsFirst: z.number().optional(),
+  pointsSecond: z.number().optional(),
+  pointsThird: z.number().optional(),
+  minParticipants: z.number().optional(),
+  maxParticipants: z.number().optional(),
+  categoryId: z.number().optional(),
+  gender: z.enum(["male", "female", "any"]).optional(),
 });
 
 const createGroupRegistrationSchema = z.object({
@@ -52,6 +62,40 @@ export const groupsRouter = hono()
       .select()
       .from(groupItems)
       .where(eq(groupItems.id, id))
+      .get();
+
+    if (!item) {
+      return c.json({ error: "Group item not found" }, 404);
+    }
+
+    return c.json(item);
+  })
+  .put("/items/:id", zodValidator(updateGroupItemSchema), async (c) => {
+    const db = c.get("db");
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+
+    const item = await db
+      .update(groupItems)
+      .set(data)
+      .where(eq(groupItems.id, id))
+      .returning()
+      .get();
+
+    if (!item) {
+      return c.json({ error: "Group item not found" }, 404);
+    }
+
+    return c.json(item);
+  })
+  .delete("/items/:id", async (c) => {
+    const db = c.get("db");
+    const id = Number(c.req.param("id"));
+
+    const item = await db
+      .delete(groupItems)
+      .where(eq(groupItems.id, id))
+      .returning()
       .get();
 
     if (!item) {
@@ -248,7 +292,7 @@ export const groupsRouter = hono()
           FROM json_each(${groupRegistrations.participantIds})
         )`
       )
-      .where(eq(groupItems.sectionId, Number(sectionId)))
+      .where(eq(participants.sectionId, Number(sectionId)))
       .groupBy(groupResults.id)
       .all();
 
