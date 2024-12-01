@@ -17,7 +17,7 @@ const createItemSchema = z.object({
 const updateItemSchema = z.object({
   name: z.string().min(1).optional(),
   categoryId: z.number().optional(),
-  maxParticipants: z.number().min(1).optional(),
+  maxParticipants: z.number().min(1).optional().nullable(),
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),

@@ -32,7 +32,6 @@ import {
   SelectValue,
 } from "@sports/ui";
 import { Input } from "@sports/ui";
-import { Switch } from "@sports/ui";
 import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,18 +42,10 @@ const itemSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Name is required"),
   categoryId: z.number(),
-  isGroup: z.boolean(),
   gender: z.enum(["male", "female", "any"]),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
   pointsThird: z.number().min(0),
-  status: z.enum([
-    "yet_to_begin",
-    "active",
-    "completed",
-    "cancelled",
-    "hidden",
-  ]),
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
@@ -69,12 +60,11 @@ export default function ItemsPage() {
     resolver: zodResolver(itemSchema),
     defaultValues: {
       id: undefined,
-      isGroup: false,
       gender: "any",
       pointsFirst: 5,
       pointsSecond: 3,
       pointsThird: 1,
-      status: "yet_to_begin",
+      // status: "yet_to_begin",
     },
   });
 
@@ -190,22 +180,6 @@ export default function ItemsPage() {
 
                 <FormField
                   control={form.control}
-                  name="isGroup"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between">
-                      <FormLabel>Is Group Event</FormLabel>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="gender"
                   render={({ field }) => (
                     <FormItem>
@@ -290,7 +264,7 @@ export default function ItemsPage() {
                   />
                 </div>
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="status"
                   render={({ field }) => (
@@ -316,7 +290,7 @@ export default function ItemsPage() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 <Button type="submit" className="w-full">
                   {editingItem ? "Update" : "Create"} Item
@@ -332,7 +306,6 @@ export default function ItemsPage() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Category</TableHead>
-            <TableHead>Type</TableHead>
             <TableHead>Gender</TableHead>
             <TableHead>Points (1st/2nd/3rd)</TableHead>
             <TableHead>Status</TableHead>
@@ -346,14 +319,11 @@ export default function ItemsPage() {
               <TableCell>
                 {categories?.find((c: any) => c.id === item.categoryId)?.name}
               </TableCell>
-              <TableCell>{item.isGroup ? "Group" : "Individual"}</TableCell>
               <TableCell className="capitalize">{item.gender}</TableCell>
               <TableCell>
                 {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
               </TableCell>
-              <TableCell className="capitalize">
-                {item.status.replace(/_/g, " ")}
-              </TableCell>
+  
               <TableCell>
                 <Button
                   variant="outline"
