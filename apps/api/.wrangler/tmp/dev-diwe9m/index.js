@@ -14784,6 +14784,11 @@ var createGroupRegistrationSchema = z.object({
   groupItemId: z.number(),
   participantIds: z.array(z.number())
 });
+var updateGroupRegistrationSchema = z.object({
+  groupItemId: z.number().optional(),
+  participantIds: z.array(z.number()).optional(),
+  metaInfo: z.string().optional()
+});
 var createGroupResultSchema = z.object({
   groupRegistrationId: z.number(),
   position: z.enum(["first", "second", "third"])
@@ -14870,6 +14875,75 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
         )`
   ).groupBy(groupRegistrations.id).all();
   return c.json(registrations2);
+}).get("/registrations/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const db = c.get("db");
+  const registration = await db.select({
+    registration: groupRegistrations,
+    item: groupItems,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).where(eq(groupRegistrations.id, id)).groupBy(groupRegistrations.id).get();
+  if (!registration) {
+    return c.json({ error: "Group registration not found" }, 404);
+  }
+  return c.json(registration);
+}).put("/registrations/:id", zodValidator(updateGroupRegistrationSchema), async (c) => {
+  const id = Number(c.req.param("id"));
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  if (data.groupItemId || data.participantIds) {
+    const groupItem = await db.select().from(groupItems).where(eq(groupItems.id, data.groupItemId || 0)).get();
+    if (data.groupItemId && !groupItem) {
+      return c.json({ error: "Group item not found" }, 404);
+    }
+    if (data.participantIds && groupItem) {
+      if (data.participantIds.length < groupItem.minParticipants || data.participantIds.length > groupItem.maxParticipants) {
+        return c.json({
+          error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`
+        }, 400);
+      }
+    }
+  }
+  const updateData = { ...data };
+  if (data.participantIds) {
+    updateData.participantIds = JSON.stringify(data.participantIds);
+  }
+  const registration = await db.update(groupRegistrations).set(updateData).where(eq(groupRegistrations.id, id)).returning().get();
+  if (!registration) {
+    return c.json({ error: "Group registration not found" }, 404);
+  }
+  const updatedRegistration = await db.select({
+    registration: groupRegistrations,
+    item: groupItems,
+    participants: sql`json_group_array(json_object(
+          'id', ${participants.id},
+          'name', ${participants.fullName}
+        ))`.as("participants")
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    participants,
+    sql`${participants.id} IN (
+          SELECT value 
+          FROM json_each(${groupRegistrations.participantIds})
+        )`
+  ).where(eq(groupRegistrations.id, id)).groupBy(groupRegistrations.id).get();
+  return c.json(updatedRegistration);
+}).delete("/registrations/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const db = c.get("db");
+  const registration = await db.delete(groupRegistrations).where(eq(groupRegistrations.id, id)).returning().get();
+  if (!registration) {
+    return c.json({ error: "Group registration not found" }, 404);
+  }
+  return c.json(registration);
 }).post("/results", zodValidator(createGroupResultSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");

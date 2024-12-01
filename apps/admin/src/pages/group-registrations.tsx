@@ -19,7 +19,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  MultiSelect,
+  MultiCombobox,
+  FormMessage,
 } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { useForm } from "react-hook-form";
@@ -31,7 +32,9 @@ import { useToast } from "@sports/ui";
 
 const createGroupRegistrationSchema = z.object({
   groupItemId: z.number(),
-  participantIds: z.array(z.number()).min(1, "At least one participant is required"),
+  participantIds: z
+    .array(z.number())
+    .min(1, "At least one participant is required"),
 });
 
 type GroupRegistration = {
@@ -63,24 +66,24 @@ export default function GroupRegistrationsPage() {
     },
   });
 
-  const { data: groupItems } = useQuery({
+  const { data: groupItems = [] } = useQuery({
     queryKey: ["group-items"],
-    queryFn: () => apiClient.get("/groups/items").json(),
+    queryFn: () => apiClient.getGroupItems(),
   });
 
-  const { data: participants = [], isLoading: participantsLoading } = useQuery({
+  const { data: participants = [] } = useQuery({
     queryKey: ["participants"],
     queryFn: () => apiClient.getParticipants(),
   });
 
-  const { data: registrations, isLoading } = useQuery({
+  const { data: registrations = [] } = useQuery({
     queryKey: ["group-registrations"],
-    queryFn: () => apiClient.get("/groups/registrations").json<GroupRegistration[]>(),
+    queryFn: () => apiClient.getGroupRegistrations(),
   });
 
   const createMutation = useMutation({
     mutationFn: (data: z.infer<typeof createGroupRegistrationSchema>) =>
-      apiClient.post("/groups/registrations", { json: data }).json(),
+      apiClient.createGroupRegistration(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["group-registrations"] });
       setIsOpen(false);
@@ -92,7 +95,7 @@ export default function GroupRegistrationsPage() {
     },
   });
 
-  const columns: ColumnDef<GroupRegistration>[] = [
+  const columns: ColumnDef<typeof registrations[0]>[] = [
     {
       accessorKey: "item.name",
       header: "Item",
@@ -101,16 +104,16 @@ export default function GroupRegistrationsPage() {
       accessorKey: "participants",
       header: "Participants",
       cell: ({ row }) => {
-        return row.original.participants
-          .map((p) => p.name)
-          .join(", ");
+        return row.original.participants.map((p) => p.name).join(", ");
       },
     },
   ];
 
   // Watch the selected group item to enforce participant limits
   const selectedGroupItem = form.watch("groupItemId");
-  const selectedItem = groupItems?.find((item) => item.id === selectedGroupItem);
+  const selectedItem = groupItems?.find(
+    (item) => item.id === selectedGroupItem
+  );
 
   return (
     <div className="container mx-auto py-10">
@@ -131,7 +134,9 @@ export default function GroupRegistrationsPage() {
           </DialogHeader>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit((data) => createMutation.mutate(data))}
+              onSubmit={form.handleSubmit((data) =>
+                createMutation.mutate(data)
+              )}
               className="space-y-4"
             >
               <FormField
@@ -151,10 +156,7 @@ export default function GroupRegistrationsPage() {
                       </FormControl>
                       <SelectContent>
                         {groupItems?.map((item) => (
-                          <SelectItem
-                            key={item.id}
-                            value={item.id.toString()}
-                          >
+                          <SelectItem key={item.id} value={item.id.toString()}>
                             {item.name}
                           </SelectItem>
                         ))}
@@ -178,20 +180,25 @@ export default function GroupRegistrationsPage() {
                         </span>
                       )}
                     </FormLabel>
-                    <MultiSelect
-                      value={field.value.map(String)}
-                      onValueChange={(values) =>
-                        field.onChange(values.map(Number))
-                      }
-                      options={
-                        participants?.map((p) => ({
-                          label: p.name,
-                          value: String(p.id),
-                        })) || []
-                      }
-                      placeholder="Select participants"
-                      className="w-full"
-                    />
+                    <FormControl>
+                      <MultiCombobox
+                        value={field.value.map(String)}
+                        onValueChange={(values) =>
+                          field.onChange(values.map(Number))
+                        }
+                        options={
+                          participants?.map(({participant: p}) => ({
+                            label: p.fullName,
+                            value: String(p.id),
+                          })) || []
+                        }
+                        placeholder="Search and select participants"
+                        emptyText="No participants found"
+                        className="w-full"
+                        disabled={!selectedItem}
+                      />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

@@ -268,6 +268,52 @@ class ApiClient {
     return response.json();
   }
 
+  // Group Registrations
+  async getGroupRegistrations() {
+    const response = await this.client.api.groups.registrations.$get({});
+    return response.json();
+  }
+
+  async getGroupRegistration(id: number) {
+    const response = await this.client.api.groups.registrations[":id"].$get({
+      param: { id: id.toString() },
+    });
+    return response.json();
+  }
+
+  async createGroupRegistration(data: {
+    groupItemId: number;
+    participantIds: number[];
+    metaInfo?: string;
+  }) {
+    const response = await this.client.api.groups.registrations.$post({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async updateGroupRegistration(
+    id: number,
+    data: {
+      groupItemId?: number;
+      participantIds?: number[];
+      metaInfo?: string;
+    }
+  ) {
+    const response = await this.client.api.groups.registrations[":id"].$put({
+      param: { id: id.toString() },
+      json: data,
+    });
+    return response.json();
+  }
+
+  async deleteGroupRegistration(id: number) {
+    const response = await this.client.api.groups.registrations[":id"].$delete({
+      param: { id: id.toString() },
+    });
+    return response.json();
+  }
+
   // Sections
   async getSections() {
     const response = await this.client.api.sections.$get({});
