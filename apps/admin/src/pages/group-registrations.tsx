@@ -88,7 +88,8 @@ export default function GroupRegistrationsPage() {
       accessorKey: "participants",
       header: "Participants",
       cell: ({ row }) => {
-        return row.original.participants.map((p) => p.name).join(", ");
+        const p = JSON.parse(row.original.participants) as {name: string}[];
+        return p.map((p) => p.name).join(", ");
       },
     },
   ];

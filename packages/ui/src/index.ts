@@ -23,6 +23,7 @@ export * from "./components/ui/color-picker"
 export * from "./components/ui/scroll-area";
 export * from "./components/ui/data-table";
 export * from "./components/ui/multi-combobox";
+export * from "./components/ui/navigation-menu"
 
 // Export styles
 import "./styles.css";
