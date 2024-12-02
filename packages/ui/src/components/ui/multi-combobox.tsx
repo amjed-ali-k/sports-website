@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { Button } from './button';
+import * as React from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "./button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from './command';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { Badge } from './badge';
-import { ScrollArea } from './scroll-area';
+} from "./command";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { Badge } from "./badge";
+import { ScrollArea } from "./scroll-area";
 
 interface Option {
   label: string;
@@ -34,13 +34,13 @@ export function MultiCombobox({
   options,
   value = [],
   onValueChange,
-  placeholder = 'Select items...',
-  emptyText = 'No items found.',
+  placeholder = "Select items...",
+  emptyText = "No items found.",
   className,
   disabled = false,
 }: MultiComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -69,8 +69,8 @@ export function MultiCombobox({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            'w-full justify-between hover:bg-transparent',
-            disabled && 'opacity-50 cursor-not-allowed',
+            "w-full justify-between hover:bg-transparent",
+            disabled && "opacity-50 cursor-not-allowed",
             className
           )}
           disabled={disabled}
@@ -84,8 +84,9 @@ export function MultiCombobox({
                   className="mr-1 mb-1"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const optionValue = options.find((opt) => opt.label === label)
-                      ?.value;
+                    const optionValue = options.find(
+                      (opt) => opt.label === label
+                    )?.value;
                     if (optionValue) removeValue(optionValue);
                   }}
                 >
@@ -109,20 +110,16 @@ export function MultiCombobox({
           />
           <CommandEmpty>{emptyText}</CommandEmpty>
           <CommandGroup>
-            <ScrollArea className="h-60">
+            <ScrollArea className="min-h-60 min-w-96">
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   onSelect={() => toggleOption(option.value)}
+                  className={cn(
+                    "cursor-pointer",
+                    value.includes(option.value) && "bg-accent"
+                  )}
                 >
-                  <Check
-                    className={cn(
-                      'mr-2 h-4 w-4',
-                      value.includes(option.value)
-                        ? 'opacity-100'
-                        : 'opacity-0'
-                    )}
-                  />
                   {option.label}
                 </CommandItem>
               ))}

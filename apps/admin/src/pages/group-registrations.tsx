@@ -79,7 +79,7 @@ export default function GroupRegistrationsPage() {
     },
   });
 
-  const columns: ColumnDef<typeof registrations[0]>[] = [
+  const columns: ColumnDef<(typeof registrations)[0]>[] = [
     {
       accessorKey: "item.name",
       header: "Item",
@@ -88,7 +88,7 @@ export default function GroupRegistrationsPage() {
       accessorKey: "participants",
       header: "Participants",
       cell: ({ row }) => {
-        const p = JSON.parse(row.original.participants) as {name: string}[];
+        const p = JSON.parse(row.original.participants) as { name: string }[];
         return p.map((p) => p.name).join(", ");
       },
     },
@@ -172,10 +172,17 @@ export default function GroupRegistrationsPage() {
                           field.onChange(values.map(Number))
                         }
                         options={
-                          participants?.map(({participant: p}) => ({
-                            label: p.fullName,
-                            value: String(p.id),
-                          })) || []
+                          participants
+                            ?.filter(
+                              (p) =>
+                                selectedItem &&
+                                selectedItem.gender !== "any" &&
+                                p.participant.gender === selectedItem?.gender
+                            )
+                            .map(({ participant: p, section }) => ({
+                              label: `${p.chestNo} - ${p.fullName} - [${section.name}]`,
+                              value: String(p.id),
+                            })) || []
                         }
                         placeholder="Search and select participants"
                         emptyText="No participants found"
