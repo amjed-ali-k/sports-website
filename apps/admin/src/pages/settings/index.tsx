@@ -1,9 +1,9 @@
 import OrganizationsEditForm from "./organizations";
-import SettingsEditForm from "./settings";
+// import SettingsEditForm from "./settings";
 
 export default function Settings() {
     return <div>
-        <SettingsEditForm />
+        {/* <SettingsEditForm /> */}
         <OrganizationsEditForm />
     </div>;
 }

@@ -210,7 +210,7 @@ export default function EventsPage() {
                   )}
                 />
                 <Button type="submit" className="w-full">
-                  {editingEvent ? "Update" : "Create"} Item
+                  {editingEvent ? "Update" : "Create"} event
                 </Button>
               </form>
             </Form>
