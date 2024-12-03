@@ -5,8 +5,9 @@ import {
   registrations,
   participants,
   sections,
+  events,
 } from "@sports/database";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, ne } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createResultSchema = z.object({
@@ -27,7 +28,21 @@ const router = hono()
 
     // Verify if item and registration exist
     const [item, registration] = await Promise.all([
-      db.select().from(items).where(eq(items.id, data.itemId)).get(),
+      db
+        .select({
+          pointsFirst: items.pointsFirst,
+          pointsSecond: items.pointsSecond,
+          pointsThird: items.pointsThird,
+        })
+        .from(items)
+        .where(
+          and(
+            eq(items.id, data.itemId),
+            eq(events.organizationId, c.get("user").organizationId)
+          )
+        )
+        .leftJoin(events, eq(items.eventId, events.id))
+        .get(),
       db
         .select()
         .from(registrations)
@@ -189,9 +204,9 @@ const router = hono()
 
     return c.json(leaderboard);
   })
-  .get("/totals/section/:sectionId/:categoryId", async (c) => {
+  .get("/totals/section/:sectionId/:eventId", async (c) => {
     const sectionId = c.req.param("sectionId");
-    const categoryId = c.req.param("categoryId");
+    const eventId = c.req.param("eventId");
     const db = c.get("db");
     const totals = await db
       .select({
@@ -201,14 +216,11 @@ const router = hono()
       })
       .from(registrations)
       .innerJoin(participants, eq(participants.id, registrations.participantId))
-      .innerJoin(
-        items,
-        eq(items.id, registrations.itemId)
-      )
+      .innerJoin(items, eq(items.id, registrations.itemId))
       .leftJoin(results, eq(results.registrationId, registrations.id))
       .where(
         and(
-          eq(items.categoryId, Number(categoryId)),
+          eq(items.eventId, Number(eventId)),
           eq(participants.sectionId, Number(sectionId))
         )
       )
@@ -233,12 +245,20 @@ const router = hono()
     if (!existingResult) {
       return c.json({ error: "Result not found" }, 404);
     }
+    const organizationId = c.get("user").organizationId;
 
     // Check if registration exists
     const registration = await db
       .select()
       .from(registrations)
-      .where(eq(registrations.id, data.registrationId))
+      .where(
+        and(
+          eq(registrations.id, data.registrationId),
+          eq(events.organizationId, organizationId)
+        )
+      )
+      .leftJoin(items, eq(registrations.itemId, items.id))
+      .leftJoin(events, eq(items.eventId, events.id))
       .get();
 
     if (!registration) {
@@ -253,7 +273,7 @@ const router = hono()
         and(
           eq(results.itemId, existingResult.itemId),
           eq(results.position, data.position),
-          sql`${results.id} != ${id}`
+          ne(results.id, id)
         )
       )
       .get();
@@ -274,12 +294,14 @@ const router = hono()
   .delete("/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
-
+    const organizationId = c.get("user").organizationId;
     // Check if result exists
     const existingResult = await db
       .select()
       .from(results)
-      .where(eq(results.id, id))
+      .where(and(eq(events.organizationId, organizationId), eq(results.id, id)))
+      .leftJoin(items, eq(items.id, results.itemId))
+      .leftJoin(events, eq(events.id, items.eventId))
       .get();
 
     if (!existingResult) {

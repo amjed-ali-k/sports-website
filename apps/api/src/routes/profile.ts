@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 const updateProfileSchema = z.object({
     fullName: z.string().min(1),
     email: z.string().email(),
+    description: z.string().nullish(),
+    avatar: z.string().nullish(),
   });
   
   const updatePasswordSchema = z.object({
@@ -19,7 +21,6 @@ const router = hono().put("/profile", zodValidator(updateProfileSchema), async (
     const data = c.req.valid("json");
     const db = c.get("db");
     const { id: userId } = c.get("user");
-    console.log({userId})
     // Check if email is already taken by another user
     const existingUser = await db
       .select()
@@ -36,6 +37,8 @@ const router = hono().put("/profile", zodValidator(updateProfileSchema), async (
       .set({
         name: data.fullName,
         email: data.email,
+        description: data.description,
+        avatar: data.avatar,
       })
       .where(eq(admins.id, userId))
       .returning()

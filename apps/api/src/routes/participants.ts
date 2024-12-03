@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { participants, sections } from "@sports/database";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createParticipantSchema = z.object({
@@ -23,6 +23,7 @@ const router = hono()
   .post("/", zodValidator(createParticipantSchema), async (c) => {
     const data = c.req.valid("json");
     const db = c.get("db");
+    const organizationId = c.get("user").organizationId;
 
     // Check if section exists
     const section = await db
@@ -51,6 +52,7 @@ const router = hono()
       .insert(participants)
       .values({
         ...data,
+        organizationId,
         chestNo: chestNo.toString(),
       })
       .returning()
@@ -102,12 +104,18 @@ const router = hono()
     const id = Number(c.req.param("id"));
     const data = c.req.valid("json");
     const db = c.get("db");
+    const user = c.get("user");
 
     // Check if participant exists
     const existingParticipant = await db
       .select()
       .from(participants)
-      .where(eq(participants.id, id))
+      .where(
+        and(
+          eq(participants.id, id),
+          eq(participants.organizationId, user.organizationId)
+        )
+      )
       .get();
 
     if (!existingParticipant) {
@@ -137,12 +145,18 @@ const router = hono()
   .delete("/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
+    const user = c.get("user");
 
     // Check if participant exists
     const existingParticipant = await db
       .select()
       .from(participants)
-      .where(eq(participants.id, id))
+      .where(
+        and(
+          eq(participants.id, id),
+          eq(participants.organizationId, user.organizationId)
+        )
+      )
       .get();
 
     if (!existingParticipant) {

@@ -9,14 +9,14 @@ const createItemSchema = z.object({
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
   maxParticipants: z.number().min(1).optional().default(1),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
   pointsThird: z.number().min(0),
 });
 
 const updateItemSchema = z.object({
   name: z.string().min(1).optional(),
-  categoryId: z.number().optional(),
+  eventId: z.number().optional(),
   maxParticipants: z.number().min(1).optional().nullable(),
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0).optional(),
@@ -33,7 +33,7 @@ const router = hono()
     const category = await db
       .select()
       .from(events)
-      .where(eq(events.id, data.categoryId))
+      .where(eq(events.id, data.eventId))
       .get();
 
     if (!category) {
@@ -55,7 +55,7 @@ const router = hono()
         },
       })
       .from(items)
-      .innerJoin(events, eq(items.categoryId, events.id))
+      .innerJoin(events, eq(items.eventId, events.id))
       .all();
 
     return c.json(allItems);
@@ -74,7 +74,7 @@ const router = hono()
       })
       .from(items)
       .where(eq(items.id, id))
-      .innerJoin(events, eq(items.categoryId, events.id))
+      .innerJoin(events, eq(items.eventId, events.id))
       .get();
 
     if (!item) {
@@ -98,12 +98,12 @@ const router = hono()
     if (!existingItem) {
       return c.json({ error: "Item not found" }, 404);
     }
-    if (data.categoryId) {
+    if (data.eventId) {
       // Check if category exists
       const category = await db
         .select()
         .from(events)
-        .where(eq(events.id, data.categoryId))
+        .where(eq(events.id, data.eventId))
         .get();
 
       if (!category) {

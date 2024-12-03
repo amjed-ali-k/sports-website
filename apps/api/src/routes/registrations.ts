@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { registrations, items, participants, sections } from "@sports/database";
+import {
+  registrations,
+  items,
+  participants,
+  sections,
+  events,
+} from "@sports/database";
 import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -15,7 +21,10 @@ const updateRegistrationSchema = z.object({
   participantId: z.number(),
   groupId: z.number().optional().nullable(),
   metaInfo: z.string().optional().nullable(),
-  status: z.enum(["registered", "participated", "not_participated"]).optional().default("registered"),
+  status: z
+    .enum(["registered", "participated", "not_participated"])
+    .optional()
+    .default("registered"),
 });
 
 const router = hono()
@@ -140,7 +149,17 @@ const router = hono()
 
     // Verify if item and participant exist
     const [item, participant] = await Promise.all([
-      db.select().from(items).where(eq(items.id, data.itemId)).get(),
+      db
+        .select({
+          id: items.id,
+          name: items.name,
+          eventId: items.eventId,
+          organizationId: events.organizationId,
+        })
+        .from(items)
+        .where(eq(items.id, data.itemId))
+        .leftJoin(events, eq(items.eventId, events.id))
+        .get(),
       db
         .select()
         .from(participants)
@@ -150,6 +169,17 @@ const router = hono()
 
     if (!item || !participant) {
       return c.json({ error: "Item or participant not found" }, 404);
+    }
+
+    const organizationId = c.get("user").organizationId;
+    if (
+      item.organizationId !== participant.organizationId ||
+      organizationId !== item.organizationId
+    ) {
+      return c.json(
+        { error: "Item and participant must be from the same organization" },
+        400
+      );
     }
 
     // Check if another registration exists for the same participant and item
@@ -185,14 +215,23 @@ const router = hono()
     const id = Number(c.req.param("id"));
     const db = c.get("db");
 
+    const organizationId = c.get("user").organizationId;
+
     // Check if registration exists
     const existingRegistration = await db
-      .select()
+      .select({
+        organizationId: events.organizationId,
+      })
       .from(registrations)
       .where(eq(registrations.id, id))
+      .leftJoin(items, eq(registrations.itemId, items.id))
+      .leftJoin(events, eq(items.eventId, events.id))
       .get();
 
-    if (!existingRegistration) {
+    if (
+      !existingRegistration ||
+      existingRegistration.organizationId !== organizationId
+    ) {
       return c.json({ error: "Registration not found" }, 404);
     }
 
@@ -201,16 +240,17 @@ const router = hono()
   })
   .patch(
     "/:id/status",
-    zodValidator(z.object({
-      status: z
-        .enum(["registered", "participated", "not_participated"])
-       
-    })),
+    zodValidator(
+      z.object({
+        status: z.enum(["registered", "participated", "not_participated"]),
+      })
+    ),
     async (c) => {
       const id = parseInt(c.req.param("id"));
       const { status } = c.req.valid("json");
       const db = c.get("db");
-
+      
+      // TODO: Add organiizationId check
       const registration = await db
         .update(registrations)
         .set({ status })

@@ -128,7 +128,6 @@ export const registrations = sqliteTable("registrations", {
   id: integer("id").primaryKey(),
   itemId: integer("item_id").references(() => items.id).notNull(),
   participantId: integer("participant_id").references(() => participants.id).notNull(),
-  groupId: integer("group_id"),
   metaInfo: text("meta_info"),
   status: text("status", {
     enum: ["registered", "participated", "not_participated"],
@@ -156,6 +155,7 @@ export const admins = sqliteTable(
     email: text("email").notNull(),
     password: text("password").notNull(),
     description: text("description"),
+    avatar: text("avatar"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),

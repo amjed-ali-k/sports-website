@@ -35,14 +35,8 @@ export async function authMiddleware(c: Context, next: Next) {
       email: payload.email,
       name: payload.name,
       role: payload.role,
+      organizationId: payload.organizationId
     });
-    console.log("Authenticated user:", {
-      id: payload.id,
-      email: payload.email,
-      name: payload.name,
-      role: payload.role,
-    });
-    console.log("state",c.get("user"))
     await next();
   } catch (e) {
     throw new HTTPException(401, { message: "Invalid token" });

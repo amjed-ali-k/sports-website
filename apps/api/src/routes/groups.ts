@@ -15,7 +15,7 @@ const createGroupItemSchema = z.object({
   pointsThird: z.number(),
   minParticipants: z.number(),
   maxParticipants: z.number(),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
 });
 
@@ -26,7 +26,7 @@ const updateGroupItemSchema = z.object({
   pointsThird: z.number().optional(),
   minParticipants: z.number().optional(),
   maxParticipants: z.number().optional(),
-  categoryId: z.number().optional(),
+  eventId: z.number().optional(),
   gender: z.enum(["male", "female", "any"]).optional(),
 });
 

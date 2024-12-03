@@ -3193,15 +3193,9 @@ async function authMiddleware(c, next) {
       id: payload.id,
       email: payload.email,
       name: payload.name,
-      role: payload.role
+      role: payload.role,
+      organizationId: payload.organizationId
     });
-    console.log("Authenticated user:", {
-      id: payload.id,
-      email: payload.email,
-      name: payload.name,
-      role: payload.role
-    });
-    console.log("state", c.get("user"));
     await next();
   } catch (e) {
     throw new HTTPException(401, { message: "Invalid token" });
@@ -12644,7 +12638,6 @@ var registrations = sqliteTable("registrations", {
   id: integer("id").primaryKey(),
   itemId: integer("item_id").references(() => items.id).notNull(),
   participantId: integer("participant_id").references(() => participants.id).notNull(),
-  groupId: integer("group_id"),
   metaInfo: text("meta_info"),
   status: text("status", {
     enum: ["registered", "participated", "not_participated"]
@@ -12668,6 +12661,7 @@ var admins = sqliteTable(
     email: text("email").notNull(),
     password: text("password").notNull(),
     description: text("description"),
+    avatar: text("avatar"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
@@ -13737,6 +13731,7 @@ var updateParticipantSchema = z.object({
 var router = hono().post("/", zodValidator(createParticipantSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
+  const organizationId = c.get("user").organizationId;
   const section = await db.select().from(sections).where(eq(sections.id, data.sectionId)).get();
   if (!section) {
     return c.json({ error: "Section not found" }, 404);
@@ -13745,6 +13740,7 @@ var router = hono().post("/", zodValidator(createParticipantSchema), async (c) =
   const chestNo = latestParticipant ? Number(latestParticipant.chestNo) + 1 : section.id * 500;
   const participant = await db.insert(participants).values({
     ...data,
+    organizationId,
     chestNo: chestNo.toString()
   }).returning().get();
   return c.json(participant, 201);
@@ -13776,7 +13772,13 @@ var router = hono().post("/", zodValidator(createParticipantSchema), async (c) =
   const id = Number(c.req.param("id"));
   const data = c.req.valid("json");
   const db = c.get("db");
-  const existingParticipant = await db.select().from(participants).where(eq(participants.id, id)).get();
+  const user = c.get("user");
+  const existingParticipant = await db.select().from(participants).where(
+    and(
+      eq(participants.id, id),
+      eq(participants.organizationId, user.organizationId)
+    )
+  ).get();
   if (!existingParticipant) {
     return c.json({ error: "Participant not found" }, 404);
   }
@@ -13789,7 +13791,13 @@ var router = hono().post("/", zodValidator(createParticipantSchema), async (c) =
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingParticipant = await db.select().from(participants).where(eq(participants.id, id)).get();
+  const user = c.get("user");
+  const existingParticipant = await db.select().from(participants).where(
+    and(
+      eq(participants.id, id),
+      eq(participants.organizationId, user.organizationId)
+    )
+  ).get();
   if (!existingParticipant) {
     return c.json({ error: "Participant not found" }, 404);
   }
@@ -13806,13 +13814,13 @@ var createItemSchema = z.object({
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
   maxParticipants: z.number().min(1).optional().default(1),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
   pointsThird: z.number().min(0)
 });
 var updateItemSchema = z.object({
   name: z.string().min(1).optional(),
-  categoryId: z.number().optional(),
+  eventId: z.number().optional(),
   maxParticipants: z.number().min(1).optional().nullable(),
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0).optional(),
@@ -13822,7 +13830,7 @@ var updateItemSchema = z.object({
 var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
-  const category = await db.select().from(events).where(eq(events.id, data.categoryId)).get();
+  const category = await db.select().from(events).where(eq(events.id, data.eventId)).get();
   if (!category) {
     return c.json({ error: "Category not found" }, 404);
   }
@@ -13836,7 +13844,7 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
       id: events.id,
       name: events.name
     }
-  }).from(items).innerJoin(events, eq(items.categoryId, events.id)).all();
+  }).from(items).innerJoin(events, eq(items.eventId, events.id)).all();
   return c.json(allItems);
 }).get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
@@ -13847,7 +13855,7 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
       id: events.id,
       name: events.name
     }
-  }).from(items).where(eq(items.id, id)).innerJoin(events, eq(items.categoryId, events.id)).get();
+  }).from(items).where(eq(items.id, id)).innerJoin(events, eq(items.eventId, events.id)).get();
   if (!item) {
     return c.json({ error: "Item not found" }, 404);
   }
@@ -13860,8 +13868,8 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   if (!existingItem) {
     return c.json({ error: "Item not found" }, 404);
   }
-  if (data.categoryId) {
-    const category = await db.select().from(events).where(eq(events.id, data.categoryId)).get();
+  if (data.eventId) {
+    const category = await db.select().from(events).where(eq(events.id, data.eventId)).get();
     if (!category) {
       return c.json({ error: "Category not found" }, 404);
     }
@@ -13967,11 +13975,23 @@ var router3 = hono().post("/", zodValidator(createRegistrationSchema), async (c)
     return c.json({ error: "Registration not found" }, 404);
   }
   const [item, participant] = await Promise.all([
-    db.select().from(items).where(eq(items.id, data.itemId)).get(),
+    db.select({
+      id: items.id,
+      name: items.name,
+      eventId: items.eventId,
+      organizationId: events.organizationId
+    }).from(items).where(eq(items.id, data.itemId)).leftJoin(events, eq(items.eventId, events.id)).get(),
     db.select().from(participants).where(eq(participants.id, data.participantId)).get()
   ]);
   if (!item || !participant) {
     return c.json({ error: "Item or participant not found" }, 404);
+  }
+  const organizationId = c.get("user").organizationId;
+  if (item.organizationId !== participant.organizationId || organizationId !== item.organizationId) {
+    return c.json(
+      { error: "Item and participant must be from the same organization" },
+      400
+    );
   }
   const duplicateRegistration = await db.select().from(registrations).where(
     and(
@@ -13991,17 +14011,22 @@ var router3 = hono().post("/", zodValidator(createRegistrationSchema), async (c)
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingRegistration = await db.select().from(registrations).where(eq(registrations.id, id)).get();
-  if (!existingRegistration) {
+  const organizationId = c.get("user").organizationId;
+  const existingRegistration = await db.select({
+    organizationId: events.organizationId
+  }).from(registrations).where(eq(registrations.id, id)).leftJoin(items, eq(registrations.itemId, items.id)).leftJoin(events, eq(items.eventId, events.id)).get();
+  if (!existingRegistration || existingRegistration.organizationId !== organizationId) {
     return c.json({ error: "Registration not found" }, 404);
   }
   await db.delete(registrations).where(eq(registrations.id, id));
   return c.json({ success: true });
 }).patch(
   "/:id/status",
-  zodValidator(z.object({
-    status: z.enum(["registered", "participated", "not_participated"])
-  })),
+  zodValidator(
+    z.object({
+      status: z.enum(["registered", "participated", "not_participated"])
+    })
+  ),
   async (c) => {
     const id = parseInt(c.req.param("id"));
     const { status } = c.req.valid("json");
@@ -14053,7 +14078,16 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
   const [item, registration] = await Promise.all([
-    db.select().from(items).where(eq(items.id, data.itemId)).get(),
+    db.select({
+      pointsFirst: items.pointsFirst,
+      pointsSecond: items.pointsSecond,
+      pointsThird: items.pointsThird
+    }).from(items).where(
+      and(
+        eq(items.id, data.itemId),
+        eq(events.organizationId, c.get("user").organizationId)
+      )
+    ).leftJoin(events, eq(items.eventId, events.id)).get(),
     db.select().from(registrations).where(eq(registrations.id, data.registrationId)).get()
   ]);
   if (!item || !registration) {
@@ -14144,20 +14178,17 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
     )
   }).from(sections).leftJoin(participants, eq(sections.id, participants.sectionId)).leftJoin(registrations, eq(participants.id, registrations.participantId)).leftJoin(results, eq(registrations.id, results.registrationId)).groupBy(sections.id, sections.name).orderBy(sql`total_points DESC`).all();
   return c.json(leaderboard);
-}).get("/totals/section/:sectionId/:categoryId", async (c) => {
+}).get("/totals/section/:sectionId/:eventId", async (c) => {
   const sectionId = c.req.param("sectionId");
-  const categoryId = c.req.param("categoryId");
+  const eventId = c.req.param("eventId");
   const db = c.get("db");
   const totals = await db.select({
     participantId: registrations.participantId,
     participantName: participants.fullName,
     totalPoints: sql` SUM(COALESCE(${results.points}, 0)) `
-  }).from(registrations).innerJoin(participants, eq(participants.id, registrations.participantId)).innerJoin(
-    items,
-    eq(items.id, registrations.itemId)
-  ).leftJoin(results, eq(results.registrationId, registrations.id)).where(
+  }).from(registrations).innerJoin(participants, eq(participants.id, registrations.participantId)).innerJoin(items, eq(items.id, registrations.itemId)).leftJoin(results, eq(results.registrationId, registrations.id)).where(
     and(
-      eq(items.categoryId, Number(categoryId)),
+      eq(items.eventId, Number(eventId)),
       eq(participants.sectionId, Number(sectionId))
     )
   ).groupBy(registrations.participantId, participants.fullName).orderBy(desc(sql`total_points`)).all();
@@ -14170,7 +14201,13 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
   if (!existingResult) {
     return c.json({ error: "Result not found" }, 404);
   }
-  const registration = await db.select().from(registrations).where(eq(registrations.id, data.registrationId)).get();
+  const organizationId = c.get("user").organizationId;
+  const registration = await db.select().from(registrations).where(
+    and(
+      eq(registrations.id, data.registrationId),
+      eq(events.organizationId, organizationId)
+    )
+  ).leftJoin(items, eq(registrations.itemId, items.id)).leftJoin(events, eq(items.eventId, events.id)).get();
   if (!registration) {
     return c.json({ error: "Registration not found" }, 404);
   }
@@ -14178,7 +14215,7 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
     and(
       eq(results.itemId, existingResult.itemId),
       eq(results.position, data.position),
-      sql`${results.id} != ${id}`
+      ne(results.id, id)
     )
   ).get();
   if (positionTaken) {
@@ -14189,7 +14226,8 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingResult = await db.select().from(results).where(eq(results.id, id)).get();
+  const organizationId = c.get("user").organizationId;
+  const existingResult = await db.select().from(results).where(and(eq(events.organizationId, organizationId), eq(results.id, id))).leftJoin(items, eq(items.id, results.itemId)).leftJoin(events, eq(events.id, items.eventId)).get();
   if (!existingResult) {
     return c.json({ error: "Result not found" }, 404);
   }
@@ -14762,7 +14800,9 @@ init_modules_watch_stub();
 var import_bcryptjs3 = __toESM(require_bcrypt());
 var updateProfileSchema = z.object({
   fullName: z.string().min(1),
-  email: z.string().email()
+  email: z.string().email(),
+  description: z.string().nullish(),
+  avatar: z.string().nullish()
 });
 var updatePasswordSchema = z.object({
   currentPassword: z.string().min(6),
@@ -14772,14 +14812,15 @@ var router9 = hono().put("/profile", zodValidator(updateProfileSchema), async (c
   const data = c.req.valid("json");
   const db = c.get("db");
   const { id: userId } = c.get("user");
-  console.log({ userId });
   const existingUser = await db.select().from(admins).where(and(eq(admins.email, data.email), ne(admins.id, userId))).get();
   if (existingUser) {
     return c.json({ error: "Email already taken" }, 400);
   }
   const user = await db.update(admins).set({
     name: data.fullName,
-    email: data.email
+    email: data.email,
+    description: data.description,
+    avatar: data.avatar
   }).where(eq(admins.id, userId)).returning().get();
   return c.json(user);
 }).put("/password", zodValidator(updatePasswordSchema), async (c) => {
@@ -14809,7 +14850,7 @@ var createGroupItemSchema = z.object({
   pointsThird: z.number(),
   minParticipants: z.number(),
   maxParticipants: z.number(),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"])
 });
 var updateGroupItemSchema = z.object({
@@ -14819,7 +14860,7 @@ var updateGroupItemSchema = z.object({
   pointsThird: z.number().optional(),
   minParticipants: z.number().optional(),
   maxParticipants: z.number().optional(),
-  categoryId: z.number().optional(),
+  eventId: z.number().optional(),
   gender: z.enum(["male", "female", "any"]).optional()
 });
 var createGroupRegistrationSchema = z.object({

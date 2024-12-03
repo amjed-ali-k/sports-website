@@ -14,6 +14,7 @@ type Variables = {
     email: string;
     name: string;
     role: string;
+    organizationId: number;
   };
 };
 
