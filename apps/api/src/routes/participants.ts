@@ -6,7 +6,7 @@ import { hono, zodValidator } from "../lib/api";
 const createParticipantSchema = z.object({
   fullName: z.string().min(1),
   sectionId: z.number(),
-  semester: z.number().min(1).max(8),
+  batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable(),
 });
@@ -14,7 +14,7 @@ const createParticipantSchema = z.object({
 const updateParticipantSchema = z.object({
   fullName: z.string().min(1),
   sectionId: z.number(),
-  semester: z.number().min(1).max(8),
+  batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable(),
 });

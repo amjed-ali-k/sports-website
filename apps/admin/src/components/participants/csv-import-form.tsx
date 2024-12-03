@@ -30,7 +30,7 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const requiredFields = ["fullName", "sectionId", "semester", "gender"];
+        const requiredFields = ["fullName", "sectionId", "batch", "gender"];
         const headers = Object.keys(results.data[0] || {});
 
         const missingFields = requiredFields.filter(
@@ -95,7 +95,7 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
         <ul className="list-disc list-inside mt-2">
           <li>fullName (required)</li>
           <li>sectionId (required, number 1-4)</li>
-          <li>semester (required, number 1-8)</li>
+          <li>batch (required)</li>
           <li>gender (required, 'male' or 'female')</li>
           <li>avatar (optional, URL)</li>
         </ul>

@@ -26,7 +26,7 @@ export const participants = sqliteTable(
     sectionId: integer("section_id").references(() => sections.id).notNull(),
     avatar: text("avatar"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
-    semester: integer("semester").notNull(),
+    batch: text("batch").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),

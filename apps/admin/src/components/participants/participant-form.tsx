@@ -4,6 +4,7 @@ import * as z from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,10 +25,7 @@ import { apiClient } from "@/lib/api";
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   sectionId: z.coerce.number().min(1, "Section is required"),
-  semester: z
-    .string()
-    .transform((val) => parseInt(val))
-    .refine((val) => val >= 1 && val <= 8, "Semester must be between 1 and 8"),
+  batch: z.string(),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional(),
 });
@@ -105,65 +103,57 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
                   ))}
                 </SelectContent>
               </Select>
+              <FormDescription className="text-xs">
+                {sections.length === 0
+                  ? "No sections found!. Add new section first"
+                  : "Select a section/department/branch/trade for the participant."}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="semester"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Semester</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value?.toString()}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select semester" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                      <SelectItem key={sem} value={sem?.toString()}>
-                        {sem}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="batch"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Batch</FormLabel>
+              <FormControl>
+                <Input placeholder="EL2024" {...field} />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Enter the code of batch. Using codes with{" "}
+                <span className="font-bold">passout year </span>
+                will better. It can be used to identify participatns in later
+                events.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gender</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

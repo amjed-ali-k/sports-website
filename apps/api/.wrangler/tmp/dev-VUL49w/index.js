@@ -12566,7 +12566,7 @@ var participants = sqliteTable(
     sectionId: integer("section_id").references(() => sections.id).notNull(),
     avatar: text("avatar"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
-    semester: integer("semester").notNull(),
+    batch: text("batch").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull()
@@ -13719,14 +13719,14 @@ var zodValidator = /* @__PURE__ */ __name((schema) => validator("json", (value, 
 var createParticipantSchema = z.object({
   fullName: z.string().min(1),
   sectionId: z.number(),
-  semester: z.number().min(1).max(8),
+  batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable()
 });
 var updateParticipantSchema = z.object({
   fullName: z.string().min(1),
   sectionId: z.number(),
-  semester: z.number().min(1).max(8),
+  batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable()
 });

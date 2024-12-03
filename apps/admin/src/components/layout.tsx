@@ -98,6 +98,7 @@ export default function Layout() {
                     </div>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer" asChild>
                   <Link to="/profile">Profile</Link>
                 </DropdownMenuItem>
