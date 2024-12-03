@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { sections } from "@sports/database";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createSectionSchema = z.object({
@@ -35,7 +35,7 @@ const router = hono()
   .post("/", zodValidator(createSectionSchema), async (c) => {
     const { name, logo, color, description } = c.req.valid("json");
     const db = c.get("db");
-
+    const organizationId = c.get("user").organizationId;
     // Check if section with same name exists
     const existingSection = await db
       .select()
@@ -54,6 +54,7 @@ const router = hono()
         logo,
         color,
         description,
+        organizationId,
       })
       .returning()
       .get();
@@ -68,7 +69,12 @@ const router = hono()
     const existingSection = await db
       .select()
       .from(sections)
-      .where(eq(sections.id, id))
+      .where(
+        and(
+          eq(sections.id, id),
+          eq(sections.organizationId, c.get("user").organizationId)
+        )
+      )
       .get();
 
     if (!existingSection) {

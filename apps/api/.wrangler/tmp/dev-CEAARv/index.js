@@ -23,11 +23,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc5) => {
+var __copyProps = (to, from, except2, desc4) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc5 = __getOwnPropDesc(from, key)) || desc5.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc4 = __getOwnPropDesc(from, key)) || desc4.enumerable });
   }
   return to;
 };
@@ -12551,6 +12551,7 @@ var sections = sqliteTable("sections", {
   name: text("name").notNull(),
   logo: text("logo"),
   color: text("color"),
+  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
   description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
@@ -14244,13 +14245,13 @@ var createEventSchema = z.object({
   endDate: z.string().datetime(),
   description: z.string().nullish(),
   logo: z.string().nullish(),
-  maxRegistrationPerParticipant: z.number().int().min(1).default(3),
-  organizationId: z.number().int().min(1)
+  maxRegistrationPerParticipant: z.number().int().min(1).default(3)
 });
 var router5 = hono().post("/", zodValidator(createEventSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
-  const event = await db.insert(events).values(data).returning().get();
+  const organizationId = c.get("user").organizationId;
+  const event = await db.insert(events).values({ ...data, organizationId }).returning().get();
   return c.json(event, 201);
 }).get("/", async (c) => {
   const db = c.get("db");
@@ -14268,7 +14269,12 @@ var router5 = hono().post("/", zodValidator(createEventSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const data = c.req.valid("json");
   const db = c.get("db");
-  const existingEvent = await db.select().from(events).where(eq(events.id, id)).get();
+  const existingEvent = await db.select().from(events).where(
+    and(
+      eq(events.organizationId, c.get("user").organizationId),
+      eq(events.id, id)
+    )
+  ).get();
   if (!existingEvent) {
     return c.json({ error: "Event not found" }, 404);
   }
@@ -14277,7 +14283,12 @@ var router5 = hono().post("/", zodValidator(createEventSchema), async (c) => {
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingEvent = await db.select().from(events).where(eq(events.id, id)).get();
+  const existingEvent = await db.select().from(events).where(
+    and(
+      eq(events.organizationId, c.get("user").organizationId),
+      eq(events.id, id)
+    )
+  ).get();
   if (!existingEvent) {
     return c.json({ error: "Event not found" }, 404);
   }
@@ -14303,7 +14314,8 @@ var router6 = hono().get("/", async (c) => {
   await db.delete(settings);
   const settingsArray = Object.entries(data).map(([key, value]) => ({
     key,
-    value
+    value,
+    organizationId: c.get("user").organizationId
   }));
   await db.insert(settings).values(settingsArray);
   return c.json(data);
@@ -14423,6 +14435,7 @@ var router7 = hono().get("/", async (c) => {
 }).post("/", zodValidator(createSectionSchema), async (c) => {
   const { name, logo, color, description } = c.req.valid("json");
   const db = c.get("db");
+  const organizationId = c.get("user").organizationId;
   const existingSection = await db.select().from(sections).where(eq(sections.name, name)).get();
   if (existingSection) {
     return c.json({ error: "Section already exists" }, 400);
@@ -14431,13 +14444,19 @@ var router7 = hono().get("/", async (c) => {
     name,
     logo,
     color,
-    description
+    description,
+    organizationId
   }).returning().get();
   return c.json(section, 201);
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingSection = await db.select().from(sections).where(eq(sections.id, id)).get();
+  const existingSection = await db.select().from(sections).where(
+    and(
+      eq(sections.id, id),
+      eq(sections.organizationId, c.get("user").organizationId)
+    )
+  ).get();
   if (!existingSection) {
     return c.json({ error: "Section not found" }, 404);
   }
@@ -14459,7 +14478,6 @@ var createAdminSchema2 = z.object({
   password: z.string().min(8),
   name: z.string().min(1),
   role: z.enum(["rep", "manager", "controller", "super_admin"]),
-  organizationId: z.number().int().min(1),
   description: z.string().nullish()
 });
 var router8 = hono().get("/", async (c) => {
@@ -14467,7 +14485,7 @@ var router8 = hono().get("/", async (c) => {
   const allAdmins = await db.select().from(admins).all();
   return c.json(allAdmins);
 }).post("/", zodValidator(createAdminSchema2), async (c) => {
-  const { email, password, name, role, description, organizationId } = c.req.valid("json");
+  const { email, password, name, role, description } = c.req.valid("json");
   const db = c.get("db");
   const existingAdmin = await db.select().from(admins).where(eq(admins.email, email)).get();
   if (existingAdmin) {
@@ -14480,7 +14498,7 @@ var router8 = hono().get("/", async (c) => {
     name,
     role,
     description,
-    organizationId
+    organizationId: c.get("user").organizationId
   }).returning().get();
   const { password: _, ...adminWithoutPassword } = admin;
   return c.json(adminWithoutPassword, 201);
@@ -14910,38 +14928,54 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     return c.json({ error: "Group item not found" }, 404);
   }
   return c.json(item);
-}).post("/registrations", zodValidator(createGroupRegistrationSchema), async (c) => {
-  const data = c.req.valid("json");
-  const db = c.get("db");
-  const groupItem = await db.select().from(groupItems).where(eq(groupItems.id, data.groupItemId)).get();
-  if (!groupItem) {
-    return c.json({ error: "Group item not found" }, 404);
-  }
-  if (data.participantIds.length < groupItem.minParticipants || data.participantIds.length > groupItem.maxParticipants) {
-    return c.json({
-      error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`
-    }, 400);
-  }
-  const registration = await db.insert(groupRegistrations).values({
-    groupItemId: data.groupItemId,
-    participantIds: JSON.stringify(data.participantIds)
-  }).returning().get();
-  const fullRegistration = await db.select({
-    registration: groupRegistrations,
-    item: groupItems,
-    participants: sql`json_group_array(json_object(
+}).post(
+  "/registrations",
+  zodValidator(createGroupRegistrationSchema),
+  async (c) => {
+    const data = c.req.valid("json");
+    const db = c.get("db");
+    const res = await db.select().from(groupItems).where(
+      and(
+        eq(events.organizationId, c.get("user").organizationId),
+        eq(groupItems.id, data.groupItemId)
+      )
+    ).leftJoin(events, eq(groupItems.eventId, events.id)).get();
+    if (!res || !res.group_items) {
+      return c.json({ error: "Group item not found" }, 404);
+    }
+    const groupItem = res.group_items;
+    if (data.participantIds.length < groupItem.minParticipants || data.participantIds.length > groupItem.maxParticipants) {
+      return c.json(
+        {
+          error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`
+        },
+        400
+      );
+    }
+    const registration = await db.insert(groupRegistrations).values({
+      groupItemId: data.groupItemId,
+      participantIds: JSON.stringify(data.participantIds)
+    }).returning().get();
+    const fullRegistration = await db.select({
+      registration: groupRegistrations,
+      item: groupItems,
+      participants: sql`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants")
-  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
-    participants,
-    sql`${participants.id} IN (
+    }).from(groupRegistrations).innerJoin(
+      groupItems,
+      eq(groupItems.id, groupRegistrations.groupItemId)
+    ).innerJoin(
+      participants,
+      sql`${participants.id} IN (
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-  ).where(eq(groupRegistrations.id, registration.id)).groupBy(groupRegistrations.id).get();
-  return c.json(fullRegistration, 201);
-}).get("/registrations", async (c) => {
+    ).where(eq(groupRegistrations.id, registration.id)).groupBy(groupRegistrations.id).get();
+    return c.json(fullRegistration, 201);
+  }
+).get("/registrations", async (c) => {
   const db = c.get("db");
   const registrations2 = await db.select({
     registration: groupRegistrations,
@@ -14979,47 +15013,63 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     return c.json({ error: "Group registration not found" }, 404);
   }
   return c.json(registration);
-}).put("/registrations/:id", zodValidator(updateGroupRegistrationSchema), async (c) => {
-  const id = Number(c.req.param("id"));
-  const data = c.req.valid("json");
-  const db = c.get("db");
-  if (data.groupItemId || data.participantIds) {
-    const groupItem = await db.select().from(groupItems).where(eq(groupItems.id, data.groupItemId || 0)).get();
-    if (data.groupItemId && !groupItem) {
-      return c.json({ error: "Group item not found" }, 404);
-    }
-    if (data.participantIds && groupItem) {
-      if (data.participantIds.length < groupItem.minParticipants || data.participantIds.length > groupItem.maxParticipants) {
-        return c.json({
-          error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`
-        }, 400);
+}).put(
+  "/registrations/:id",
+  zodValidator(updateGroupRegistrationSchema),
+  async (c) => {
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+    const db = c.get("db");
+    const organizationId = c.get("user").organizationId;
+    if (data.groupItemId || data.participantIds) {
+      const groupItem = await db.select().from(groupItems).where(
+        and(
+          eq(events.organizationId, organizationId),
+          eq(groupItems.id, data.groupItemId || 0)
+        )
+      ).leftJoin(events, eq(groupItems.eventId, events.id)).get();
+      if (data.groupItemId && (!groupItem || !groupItem.group_items)) {
+        return c.json({ error: "Group item not found" }, 404);
+      }
+      if (data.participantIds && groupItem && groupItem.group_items) {
+        if (data.participantIds.length < groupItem.group_items.minParticipants || data.participantIds.length > groupItem.group_items.maxParticipants) {
+          return c.json(
+            {
+              error: `Number of participants must be between ${groupItem.group_items.minParticipants} and ${groupItem.group_items.maxParticipants}`
+            },
+            400
+          );
+        }
       }
     }
-  }
-  const updateData = { ...data };
-  if (data.participantIds) {
-    updateData.participantIds = JSON.stringify(data.participantIds);
-  }
-  const registration = await db.update(groupRegistrations).set(updateData).where(eq(groupRegistrations.id, id)).returning().get();
-  if (!registration) {
-    return c.json({ error: "Group registration not found" }, 404);
-  }
-  const updatedRegistration = await db.select({
-    registration: groupRegistrations,
-    item: groupItems,
-    participants: sql`json_group_array(json_object(
+    const updateData = { ...data };
+    if (data.participantIds) {
+      updateData.participantIds = JSON.stringify(data.participantIds);
+    }
+    const registration = await db.update(groupRegistrations).set(updateData).where(eq(groupRegistrations.id, id)).returning().get();
+    if (!registration) {
+      return c.json({ error: "Group registration not found" }, 404);
+    }
+    const updatedRegistration = await db.select({
+      registration: groupRegistrations,
+      item: groupItems,
+      participants: sql`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants")
-  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
-    participants,
-    sql`${participants.id} IN (
+    }).from(groupRegistrations).innerJoin(
+      groupItems,
+      eq(groupItems.id, groupRegistrations.groupItemId)
+    ).innerJoin(
+      participants,
+      sql`${participants.id} IN (
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-  ).where(eq(groupRegistrations.id, id)).groupBy(groupRegistrations.id).get();
-  return c.json(updatedRegistration);
-}).delete("/registrations/:id", async (c) => {
+    ).where(eq(groupRegistrations.id, id)).groupBy(groupRegistrations.id).get();
+    return c.json(updatedRegistration);
+  }
+).delete("/registrations/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
   const registration = await db.delete(groupRegistrations).where(eq(groupRegistrations.id, id)).returning().get();
@@ -15033,7 +15083,10 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
   const registration = await db.select({
     registration: groupRegistrations,
     item: groupItems
-  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).where(eq(groupRegistrations.id, data.groupRegistrationId)).get();
+  }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
+    events,
+    eq(events.organizationId, c.get("user").organizationId)
+  ).where(and(eq(groupRegistrations.id, data.groupRegistrationId), eq(groupItems.eventId, events.id))).get();
   if (!registration) {
     return c.json({ error: "Group registration not found" }, 404);
   }

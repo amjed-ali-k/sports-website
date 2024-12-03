@@ -1,4 +1,4 @@
-import { desc, sql } from "drizzle-orm";
+import { desc, or, sql } from "drizzle-orm";
 import {
   sqliteTable,
   text,
@@ -11,6 +11,7 @@ export const sections = sqliteTable("sections", {
   name: text("name").notNull(),
   logo: text("logo"),
   color: text("color"),
+  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
   description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),

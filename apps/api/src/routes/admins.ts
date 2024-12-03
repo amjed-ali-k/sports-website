@@ -15,7 +15,6 @@ const createAdminSchema = z.object({
   password: z.string().min(8),
   name: z.string().min(1),
   role: z.enum(["rep", "manager", "controller", "super_admin"]),
-  organizationId: z.number().int().min(1),
   description: z.string().nullish(),
 });
 
@@ -26,7 +25,8 @@ const router = hono()
     return c.json(allAdmins);
   })
   .post("/", zodValidator(createAdminSchema), async (c) => {
-    const { email, password, name, role, description, organizationId } =
+
+    const { email, password, name, role, description } =
       c.req.valid("json");
     const db = c.get("db");
 
@@ -53,7 +53,7 @@ const router = hono()
         name,
         role,
         description,
-        organizationId,
+        organizationId: c.get("user").organizationId,
       })
       .returning()
       .get();

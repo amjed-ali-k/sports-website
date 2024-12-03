@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { settings } from "@sports/database";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const settingsSchema = z.record(z.string(), z.string());
@@ -29,6 +29,7 @@ const router = hono()
     const settingsArray = Object.entries(data).map(([key, value]) => ({
       key,
       value,
+      organizationId: c.get("user").organizationId
     }));
     
     await db.insert(settings).values(settingsArray);

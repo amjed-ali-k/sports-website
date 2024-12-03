@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { events } from "@sports/database";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createEventSchema = z.object({
@@ -10,15 +10,18 @@ const createEventSchema = z.object({
   description: z.string().nullish(),
   logo: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
-  organizationId: z.number().int().min(1),
 });
 
 const router = hono()
   .post("/", zodValidator(createEventSchema), async (c) => {
     const data = c.req.valid("json");
     const db = c.get("db");
-
-    const event = await db.insert(events).values(data).returning().get();
+    const organizationId = c.get("user").organizationId;
+    const event = await db
+      .insert(events)
+      .values({ ...data, organizationId })
+      .returning()
+      .get();
     return c.json(event, 201);
   })
   .get("/", async (c) => {
@@ -30,11 +33,7 @@ const router = hono()
     const id = Number(c.req.param("id"));
     const db = c.get("db");
 
-    const event = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, id))
-      .get();
+    const event = await db.select().from(events).where(eq(events.id, id)).get();
 
     if (!event) {
       return c.json({ error: "Event not found" }, 404);
@@ -51,7 +50,12 @@ const router = hono()
     const existingEvent = await db
       .select()
       .from(events)
-      .where(eq(events.id, id))
+      .where(
+        and(
+          eq(events.organizationId, c.get("user").organizationId),
+          eq(events.id, id)
+        )
+      )
       .get();
 
     if (!existingEvent) {
@@ -75,7 +79,12 @@ const router = hono()
     const existingEvent = await db
       .select()
       .from(events)
-      .where(eq(events.id, id))
+      .where(
+        and(
+          eq(events.organizationId, c.get("user").organizationId),
+          eq(events.id, id)
+        )
+      )
       .get();
 
     if (!existingEvent) {

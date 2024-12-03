@@ -1,11 +1,12 @@
 import { z } from "zod";
 import {
+  events,
   groupItems,
   groupRegistrations,
   groupResults,
   participants,
 } from "@sports/database";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
 const createGroupItemSchema = z.object({
@@ -112,66 +113,86 @@ export const groupsRouter = hono()
   })
 
   // Group Registrations
-  .post("/registrations", zodValidator(createGroupRegistrationSchema), async (c) => {
-    const data = c.req.valid("json");
-    const db = c.get("db");
+  .post(
+    "/registrations",
+    zodValidator(createGroupRegistrationSchema),
+    async (c) => {
+      const data = c.req.valid("json");
+      const db = c.get("db");
 
-    // Check if group item exists and get participant limits
-    const groupItem = await db
-      .select()
-      .from(groupItems)
-      .where(eq(groupItems.id, data.groupItemId))
-      .get();
+      // Check if group item exists and get participant limits
+      const res = await db
+        .select()
+        .from(groupItems)
+        .where(
+          and(
+            eq(events.organizationId, c.get("user").organizationId),
+            eq(groupItems.id, data.groupItemId)
+          )
+        )
+        .leftJoin(events, eq(groupItems.eventId, events.id))
+        .get();
 
-    if (!groupItem) {
-      return c.json({ error: "Group item not found" }, 404);
-    }
+      if (!res || !res.group_items) {
+        return c.json({ error: "Group item not found" }, 404);
+      }
 
-    // Validate participant count
-    if (
-      data.participantIds.length < groupItem.minParticipants ||
-      data.participantIds.length > groupItem.maxParticipants
-    ) {
-      return c.json({
-        error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`,
-      }, 400);
-    }
+      const groupItem = res.group_items;
 
-    // Create group registration with participant IDs
-    const registration = await db
-      .insert(groupRegistrations)
-      .values({
-        groupItemId: data.groupItemId,
-        participantIds: JSON.stringify(data.participantIds),
-      })
-      .returning()
-      .get();
+      // Validate participant count
+      if (
+        data.participantIds.length < groupItem.minParticipants ||
+        data.participantIds.length > groupItem.maxParticipants
+      ) {
+        return c.json(
+          {
+            error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`,
+          },
+          400
+        );
+      }
 
-    // Return registration with participants
-    const fullRegistration = await db
-      .select({
-        registration: groupRegistrations,
-        item: groupItems,
-        participants: sql<{id: number, name: string}[]>`json_group_array(json_object(
+      // Create group registration with participant IDs
+      const registration = await db
+        .insert(groupRegistrations)
+        .values({
+          groupItemId: data.groupItemId,
+          participantIds: JSON.stringify(data.participantIds),
+        })
+        .returning()
+        .get();
+
+      // Return registration with participants
+      const fullRegistration = await db
+        .select({
+          registration: groupRegistrations,
+          item: groupItems,
+          participants: sql<
+            { id: number; name: string }[]
+          >`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants"),
-      })
-      .from(groupRegistrations)
-      .innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId))
-      .innerJoin(
-        participants,
-        sql`${participants.id} IN (
+        })
+        .from(groupRegistrations)
+        .innerJoin(
+          groupItems,
+          eq(groupItems.id, groupRegistrations.groupItemId)
+        )
+        .innerJoin(
+          participants,
+          sql`${participants.id} IN (
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-      )
-      .where(eq(groupRegistrations.id, registration.id))
-      .groupBy(groupRegistrations.id)
-      .get();
+        )
+        .where(eq(groupRegistrations.id, registration.id))
+        .groupBy(groupRegistrations.id)
+        .get();
 
-    return c.json(fullRegistration, 201);
-  })
+      return c.json(fullRegistration, 201);
+    }
+  )
   .get("/registrations", async (c) => {
     const db = c.get("db");
 
@@ -230,79 +251,97 @@ export const groupsRouter = hono()
 
     return c.json(registration);
   })
-  .put("/registrations/:id", zodValidator(updateGroupRegistrationSchema), async (c) => {
-    const id = Number(c.req.param("id"));
-    const data = c.req.valid("json");
-    const db = c.get("db");
+  .put(
+    "/registrations/:id",
+    zodValidator(updateGroupRegistrationSchema),
+    async (c) => {
+      const id = Number(c.req.param("id"));
+      const data = c.req.valid("json");
+      const db = c.get("db");
+      const organizationId = c.get("user").organizationId;
 
-    // If updating group item or participants, validate the new values
-    if (data.groupItemId || data.participantIds) {
-      // Get the group item to check participant limits
-      const groupItem = await db
-        .select()
-        .from(groupItems)
-        .where(eq(groupItems.id, data.groupItemId || 0))
-        .get();
+      // If updating group item or participants, validate the new values
+      if (data.groupItemId || data.participantIds) {
+        // Get the group item to check participant limits
+        const groupItem = await db
+          .select()
+          .from(groupItems)
+          .where(
+            and(
+              eq(events.organizationId, organizationId),
+              eq(groupItems.id, data.groupItemId || 0)
+            )
+          )
+          .leftJoin(events, eq(groupItems.eventId, events.id))
+          .get();
 
-      if (data.groupItemId && !groupItem) {
-        return c.json({ error: "Group item not found" }, 404);
-      }
+        if (data.groupItemId && (!groupItem || !groupItem.group_items)) {
+          return c.json({ error: "Group item not found" }, 404);
+        }
 
-      // If updating participants, validate the count
-      if (data.participantIds && groupItem) {
-        if (
-          data.participantIds.length < groupItem.minParticipants ||
-          data.participantIds.length > groupItem.maxParticipants
-        ) {
-          return c.json({
-            error: `Number of participants must be between ${groupItem.minParticipants} and ${groupItem.maxParticipants}`,
-          }, 400);
+        // If updating participants, validate the count
+        if (data.participantIds && groupItem && groupItem.group_items) {
+          if (
+            data.participantIds.length <
+              groupItem.group_items.minParticipants ||
+            data.participantIds.length > groupItem.group_items.maxParticipants
+          ) {
+            return c.json(
+              {
+                error: `Number of participants must be between ${groupItem.group_items.minParticipants} and ${groupItem.group_items.maxParticipants}`,
+              },
+              400
+            );
+          }
         }
       }
-    }
 
-    // Update the registration
-    const updateData: any = { ...data };
-    if (data.participantIds) {
-      updateData.participantIds = JSON.stringify(data.participantIds);
-    }
+      // Update the registration
+      const updateData: any = { ...data };
+      if (data.participantIds) {
+        updateData.participantIds = JSON.stringify(data.participantIds);
+      }
 
-    const registration = await db
-      .update(groupRegistrations)
-      .set(updateData)
-      .where(eq(groupRegistrations.id, id))
-      .returning()
-      .get();
+      const registration = await db
+        .update(groupRegistrations)
+        .set(updateData)
+        .where(eq(groupRegistrations.id, id))
+        .returning()
+        .get();
 
-    if (!registration) {
-      return c.json({ error: "Group registration not found" }, 404);
-    }
+      if (!registration) {
+        return c.json({ error: "Group registration not found" }, 404);
+      }
 
-    // Return the updated registration with full details
-    const updatedRegistration = await db
-      .select({
-        registration: groupRegistrations,
-        item: groupItems,
-        participants: sql<string>`json_group_array(json_object(
+      // Return the updated registration with full details
+      const updatedRegistration = await db
+        .select({
+          registration: groupRegistrations,
+          item: groupItems,
+          participants: sql<string>`json_group_array(json_object(
           'id', ${participants.id},
           'name', ${participants.fullName}
         ))`.as("participants"),
-      })
-      .from(groupRegistrations)
-      .innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId))
-      .innerJoin(
-        participants,
-        sql`${participants.id} IN (
+        })
+        .from(groupRegistrations)
+        .innerJoin(
+          groupItems,
+          eq(groupItems.id, groupRegistrations.groupItemId)
+        )
+        .innerJoin(
+          participants,
+          sql`${participants.id} IN (
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-      )
-      .where(eq(groupRegistrations.id, id))
-      .groupBy(groupRegistrations.id)
-      .get();
+        )
+        .where(eq(groupRegistrations.id, id))
+        .groupBy(groupRegistrations.id)
+        .get();
 
-    return c.json(updatedRegistration);
-  })
+      return c.json(updatedRegistration);
+    }
+  )
   .delete("/registrations/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
@@ -333,7 +372,11 @@ export const groupsRouter = hono()
       })
       .from(groupRegistrations)
       .innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId))
-      .where(eq(groupRegistrations.id, data.groupRegistrationId))
+      .innerJoin(
+        events,
+        eq(events.organizationId, c.get("user").organizationId)
+      )
+      .where(and(eq(groupRegistrations.id, data.groupRegistrationId), eq(groupItems.eventId, events.id)))
       .get();
 
     if (!registration) {
@@ -345,8 +388,8 @@ export const groupsRouter = hono()
       data.position === "first"
         ? registration.item.pointsFirst
         : data.position === "second"
-        ? registration.item.pointsSecond
-        : registration.item.pointsThird;
+          ? registration.item.pointsSecond
+          : registration.item.pointsThird;
 
     // Create result
     const result = await db
