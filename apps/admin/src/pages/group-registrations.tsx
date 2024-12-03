@@ -19,7 +19,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  MultiCombobox,
+  Input,
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Checkbox,
   FormMessage,
 } from "@sports/ui";
 import { apiClient } from "@/lib/api";
@@ -42,7 +49,7 @@ export default function GroupRegistrationsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof createGroupRegistrationSchema>>({
     resolver: zodResolver(createGroupRegistrationSchema),
     defaultValues: {
       groupItemId: 0,
@@ -99,6 +106,20 @@ export default function GroupRegistrationsPage() {
   const selectedItem = groupItems?.find(
     (item) => item.id === selectedGroupItem
   );
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredParticipants = participants
+    ?.filter(
+      (p) =>
+        selectedItem &&
+        selectedItem.gender !== "any" &&
+        p.participant.gender === selectedItem?.gender
+    )
+    .filter((p) =>
+      `${p.participant.chestNo} ${p.participant.fullName} ${p.section.name}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="container mx-auto py-10">
@@ -166,29 +187,73 @@ export default function GroupRegistrationsPage() {
                       )}
                     </FormLabel>
                     <FormControl>
-                      <MultiCombobox
-                        value={field.value.map(String)}
-                        onValueChange={(values) =>
-                          field.onChange(values.map(Number))
-                        }
-                        options={
-                          participants
-                            ?.filter(
-                              (p) =>
-                                selectedItem &&
-                                selectedItem.gender !== "any" &&
-                                p.participant.gender === selectedItem?.gender
-                            )
-                            .map(({ participant: p, section }) => ({
-                              label: `${p.chestNo} - ${p.fullName} - [${section.name}]`,
-                              value: String(p.id),
-                            })) || []
-                        }
-                        placeholder="Search and select participants"
-                        emptyText="No participants found"
-                        className="w-full"
-                        disabled={!selectedItem}
-                      />
+                      <div className="rounded-md border">
+                        <div className="p-2 flex items-center border-b gap-2">
+                          <Input
+                            placeholder="Search participants..."
+                            className="max-w-sm"
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            value={searchQuery}
+                            disabled={!selectedItem}
+                          />
+                          <div className="ml-auto text-sm text-muted-foreground">
+                            {field.value.length} selected
+                          </div>
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[50px]"></TableHead>
+                              <TableHead>Chest No</TableHead>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Section</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {filteredParticipants.slice(0, 10).map((p) => (
+                              <TableRow
+                                key={p.participant.id}
+                                className="cursor-pointer hover:bg-muted/50"
+                                onClick={() => {
+                                  const id = p.participant.id;
+                                  const newValue = field.value.includes(id)
+                                    ? field.value.filter((v) => v !== id)
+                                    : [...field.value, id];
+                                  field.onChange(newValue);
+                                }}
+                              >
+                                <TableCell>
+                                  <Checkbox
+                                    checked={field.value.includes(p.participant.id)}
+                                    onCheckedChange={() => {
+                                      const id = p.participant.id;
+                                      const newValue = field.value.includes(id)
+                                        ? field.value.filter((v) => v !== id)
+                                        : [...field.value, id];
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>{p.participant.chestNo}</TableCell>
+                                <TableCell>{p.participant.fullName}</TableCell>
+                                <TableCell>{p.section.name}</TableCell>
+                              </TableRow>
+                            ))}
+                            {filteredParticipants.length === 0 && (
+                              <TableRow>
+                                <TableCell colSpan={4} className="h-24 text-center">
+                                  No participants found
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                        {filteredParticipants.length > 10 && (
+                          <div className="p-2 text-center text-sm text-muted-foreground border-t">
+                            Showing first 10 of {filteredParticipants.length} participants
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
