@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { items, categories } from "@sports/database";
+import { items, events } from "@sports/database";
 import { eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -32,8 +32,8 @@ const router = hono()
     // Check if category exists
     const category = await db
       .select()
-      .from(categories)
-      .where(eq(categories.id, data.categoryId))
+      .from(events)
+      .where(eq(events.id, data.categoryId))
       .get();
 
     if (!category) {
@@ -50,12 +50,12 @@ const router = hono()
       .select({
         item: items,
         category: {
-          id: categories.id,
-          name: categories.name,
+          id: events.id,
+          name: events.name,
         },
       })
       .from(items)
-      .innerJoin(categories, eq(items.categoryId, categories.id))
+      .innerJoin(events, eq(items.categoryId, events.id))
       .all();
 
     return c.json(allItems);
@@ -68,13 +68,13 @@ const router = hono()
       .select({
         item: items,
         category: {
-          id: categories.id,
-          name: categories.name,
+          id: events.id,
+          name: events.name,
         },
       })
       .from(items)
       .where(eq(items.id, id))
-      .innerJoin(categories, eq(items.categoryId, categories.id))
+      .innerJoin(events, eq(items.categoryId, events.id))
       .get();
 
     if (!item) {
@@ -102,8 +102,8 @@ const router = hono()
       // Check if category exists
       const category = await db
         .select()
-        .from(categories)
-        .where(eq(categories.id, data.categoryId))
+        .from(events)
+        .where(eq(events.id, data.categoryId))
         .get();
 
       if (!category) {

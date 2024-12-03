@@ -24,6 +24,7 @@ export const participants = sqliteTable(
     fullName: text("full_name").notNull(),
     sectionId: integer("section_id").references(() => sections.id).notNull(),
     avatar: text("avatar"),
+    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     semester: integer("semester").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -34,11 +35,34 @@ export const participants = sqliteTable(
   }),
 );
 
-export const categories = sqliteTable("categories", {
+export const events = sqliteTable("events", {
   id: integer("id").primaryKey(),
-  name: text("name", { enum: ["sports", "games", "arts"] }).notNull().unique(),
-  certificateTemplate: text("certificate_template"),
-  participationCertificateTemplate: text("participation_certificate_template"),
+  name: text("name").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  description: text("description"),
+  eventStartTime: text("event_start_time"),
+  eventEndTime: text("event_end_time"),
+  registrationStartDate: text("registration_start_date"),
+  registrationEndDate: text("registration_end_date"),
+  certificateTemplates: text("certificate_templates", {mode: "json"}).$type<{
+    participation: string;
+    first: string;
+    second: string;
+    third: string;
+  }>(),
+  logo: text("logo"),
+  maxRegistrationPerParticipant: integer("max_registration_per_participant").notNull(),
+  organizationId: integer("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const organizations = sqliteTable("organizations", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -50,8 +74,8 @@ export const items = sqliteTable("items", {
   pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
-  categoryId: integer("category_id")
-    .references(() => categories.id, { onDelete: "cascade" })
+  eventId: integer("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
     .notNull(),
   maxParticipants: integer("max_participants"),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -66,8 +90,8 @@ export const groupItems = sqliteTable("group_items", {
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
-  categoryId: integer("category_id")
-  .references(() => categories.id, { onDelete: "cascade" })
+  eventId: integer("event_id")
+  .references(() => events.id, { onDelete: "cascade" })
   .notNull(),
   minParticipants: integer("min_participants").notNull(),
   maxParticipants: integer("max_participants").notNull(),
@@ -130,6 +154,7 @@ export const admins = sqliteTable(
     id: integer("id").primaryKey(),
     email: text("email").notNull(),
     password: text("password").notNull(),
+    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -144,6 +169,7 @@ export const settings = sqliteTable("settings", {
   id: integer("id").primaryKey(),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });

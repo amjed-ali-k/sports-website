@@ -7199,11 +7199,12 @@ var z = /* @__PURE__ */ Object.freeze({
 var database_exports = {};
 __export(database_exports, {
   admins: () => admins,
-  categories: () => categories,
+  events: () => events,
   groupItems: () => groupItems,
   groupRegistrations: () => groupRegistrations,
   groupResults: () => groupResults,
   items: () => items,
+  organizations: () => organizations,
   participants: () => participants,
   registrations: () => registrations,
   results: () => results,
@@ -12568,6 +12569,7 @@ var participants = sqliteTable(
     fullName: text("full_name").notNull(),
     sectionId: integer("section_id").references(() => sections.id).notNull(),
     avatar: text("avatar"),
+    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     semester: integer("semester").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -12577,11 +12579,26 @@ var participants = sqliteTable(
     chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo)
   })
 );
-var categories = sqliteTable("categories", {
+var events = sqliteTable("events", {
   id: integer("id").primaryKey(),
-  name: text("name", { enum: ["sports", "games", "arts"] }).notNull().unique(),
-  certificateTemplate: text("certificate_template"),
-  participationCertificateTemplate: text("participation_certificate_template"),
+  name: text("name").notNull(),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
+  description: text("description"),
+  eventStartTime: text("event_start_time"),
+  eventEndTime: text("event_end_time"),
+  registrationStartDate: text("registration_start_date"),
+  registrationEndDate: text("registration_end_date"),
+  certificateTemplates: text("certificate_templates", { mode: "json" }).$type(),
+  logo: text("logo"),
+  maxRegistrationPerParticipant: integer("max_registration_per_participant").notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
+});
+var organizations = sqliteTable("organizations", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
 });
@@ -12592,7 +12609,7 @@ var items = sqliteTable("items", {
   pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
-  categoryId: integer("category_id").references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
   maxParticipants: integer("max_participants"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
 });
@@ -12603,7 +12620,7 @@ var groupItems = sqliteTable("group_items", {
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
-  categoryId: integer("category_id").references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
   minParticipants: integer("min_participants").notNull(),
   maxParticipants: integer("max_participants").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -12649,6 +12666,7 @@ var admins = sqliteTable(
     id: integer("id").primaryKey(),
     email: text("email").notNull(),
     password: text("password").notNull(),
+    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -12662,6 +12680,7 @@ var settings = sqliteTable("settings", {
   id: integer("id").primaryKey(),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
 });
@@ -13801,7 +13820,7 @@ var updateItemSchema = z.object({
 var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
-  const category = await db.select().from(categories).where(eq(categories.id, data.categoryId)).get();
+  const category = await db.select().from(events).where(eq(events.id, data.categoryId)).get();
   if (!category) {
     return c.json({ error: "Category not found" }, 404);
   }
@@ -13812,10 +13831,10 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const allItems = await db.select({
     item: items,
     category: {
-      id: categories.id,
-      name: categories.name
+      id: events.id,
+      name: events.name
     }
-  }).from(items).innerJoin(categories, eq(items.categoryId, categories.id)).all();
+  }).from(items).innerJoin(events, eq(items.categoryId, events.id)).all();
   return c.json(allItems);
 }).get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
@@ -13823,10 +13842,10 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const item = await db.select({
     item: items,
     category: {
-      id: categories.id,
-      name: categories.name
+      id: events.id,
+      name: events.name
     }
-  }).from(items).where(eq(items.id, id)).innerJoin(categories, eq(items.categoryId, categories.id)).get();
+  }).from(items).where(eq(items.id, id)).innerJoin(events, eq(items.categoryId, events.id)).get();
   if (!item) {
     return c.json({ error: "Item not found" }, 404);
   }
@@ -13840,7 +13859,7 @@ var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
     return c.json({ error: "Item not found" }, 404);
   }
   if (data.categoryId) {
-    const category = await db.select().from(categories).where(eq(categories.id, data.categoryId)).get();
+    const category = await db.select().from(events).where(eq(events.id, data.categoryId)).get();
     if (!category) {
       return c.json({ error: "Category not found" }, 404);
     }
@@ -14179,44 +14198,50 @@ var results_default = router4;
 
 // src/routes/categories.ts
 init_modules_watch_stub();
-var createCategorySchema = z.object({
-  name: z.enum(["sports", "games", "arts"])
+var createEventSchema = z.object({
+  name: z.string().min(1),
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+  description: z.string().nullish(),
+  logo: z.string().nullish(),
+  maxRegistrationPerParticipant: z.number().int().min(1).default(3),
+  organizationId: z.number().int().min(1)
 });
-var router5 = hono().post("/", zodValidator(createCategorySchema), async (c) => {
+var router5 = hono().post("/", zodValidator(createEventSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
-  const category = await db.insert(categories).values(data).returning().get();
-  return c.json(category, 201);
+  const event = await db.insert(events).values(data).returning().get();
+  return c.json(event, 201);
 }).get("/", async (c) => {
   const db = c.get("db");
-  const allCategories = await db.select().from(categories).all();
+  const allCategories = await db.select().from(events).all();
   return c.json(allCategories);
 }).get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const category = await db.select().from(categories).where(eq(categories.id, id)).get();
-  if (!category) {
-    return c.json({ error: "Category not found" }, 404);
+  const event = await db.select().from(events).where(eq(events.id, id)).get();
+  if (!event) {
+    return c.json({ error: "Event not found" }, 404);
   }
-  return c.json(category);
-}).put("/:id", zodValidator(createCategorySchema), async (c) => {
+  return c.json(event);
+}).put("/:id", zodValidator(createEventSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const data = c.req.valid("json");
   const db = c.get("db");
-  const existingCategory = await db.select().from(categories).where(eq(categories.id, id)).get();
-  if (!existingCategory) {
-    return c.json({ error: "Category not found" }, 404);
+  const existingEvent = await db.select().from(events).where(eq(events.id, id)).get();
+  if (!existingEvent) {
+    return c.json({ error: "Event not found" }, 404);
   }
-  const updatedCategory = await db.update(categories).set(data).where(eq(categories.id, id)).returning().get();
-  return c.json(updatedCategory);
+  const updatedEvent = await db.update(events).set(data).where(eq(events.id, id)).returning().get();
+  return c.json(updatedEvent);
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const db = c.get("db");
-  const existingCategory = await db.select().from(categories).where(eq(categories.id, id)).get();
-  if (!existingCategory) {
-    return c.json({ error: "Category not found" }, 404);
+  const existingEvent = await db.select().from(events).where(eq(events.id, id)).get();
+  if (!existingEvent) {
+    return c.json({ error: "Event not found" }, 404);
   }
-  await db.delete(categories).where(eq(categories.id, id));
+  await db.delete(events).where(eq(events.id, id));
   return c.json({ success: true });
 });
 var categories_default = router5;

@@ -4,7 +4,7 @@ import participantsRouter from "./routes/participants";
 import itemsRouter from "./routes/items";
 import registrationsRouter from "./routes/registrations";
 import resultsRouter from "./routes/results";
-import categoriesRouter from "./routes/categories";
+import categoriesRouter from "./routes/events";
 import settingsRouter from "./routes/settings";
 import authRouter from "./routes/auth";
 import sectionsRouter from "./routes/sections";
