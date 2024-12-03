@@ -236,6 +236,7 @@ class ApiClient {
     minParticipants: number;
     maxParticipants: number;
     categoryId: number;
+    eventId: number;
     gender: "male" | "female" | "any";
   }) {
     const response = await this.client.api.groups.items.$post({
@@ -412,6 +413,18 @@ class ApiClient {
     });
     return response.json();
   }
+
+  async getOrganization() {
+    const response = await this.client.api.profile.organization.$get({});
+    return response.json();
+  }
+
+  async updateOrganization(data: { name: string; description?: string }) {
+    const response = await this.client.api.profile.organization.$put({
+      json: data,
+    });
+    return response.json();
+}
 }
 
 export const apiClient = new ApiClient();

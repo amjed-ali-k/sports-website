@@ -14826,6 +14826,10 @@ var updatePasswordSchema = z.object({
   currentPassword: z.string().min(6),
   newPassword: z.string().min(6)
 });
+var updateOrganizationSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().nullish()
+});
 var router9 = hono().put("/profile", zodValidator(updateProfileSchema), async (c) => {
   const data = c.req.valid("json");
   const db = c.get("db");
@@ -14856,6 +14860,20 @@ var router9 = hono().put("/profile", zodValidator(updateProfileSchema), async (c
   const hashedPassword = await import_bcryptjs3.default.hash(data.newPassword, 10);
   await db.update(admins).set({ password: hashedPassword }).where(eq(admins.id, userId)).run();
   return c.json({ message: "Password updated successfully" });
+}).get("/organization", async (c) => {
+  const db = c.get("db");
+  const organizationId = c.get("user").organizationId;
+  const organization = await db.select().from(organizations).where(eq(organizations.id, organizationId)).get();
+  return c.json(organization);
+}).put("/organization", zodValidator(updateOrganizationSchema), async (c) => {
+  const data = c.req.valid("json");
+  const db = c.get("db");
+  const organizationId = c.get("user").organizationId;
+  const organization = await db.update(organizations).set({
+    name: data.name,
+    description: data.description
+  }).where(eq(organizations.id, organizationId)).returning().get();
+  return c.json(organization);
 });
 var profile_default = router9;
 

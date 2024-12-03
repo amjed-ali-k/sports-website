@@ -14,7 +14,7 @@ import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { apiClient } from "../lib/api";
+import { apiClient } from "../../lib/api";
 
 const settingsSchema = z.object({
   eventName: z.string().min(1, "Event name is required"),
@@ -27,7 +27,7 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
-export default function SettingsPage() {
+export default function SettingsEditForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -56,7 +56,7 @@ export default function SettingsPage() {
     },
   });
 
-  const { data: settings, isLoading,  } = useQuery({
+  const { isLoading,  } = useQuery({
     queryKey: ["settings"],
     queryFn: () => apiClient.getSettings().then(res => {
       form.reset(res)
@@ -74,7 +74,7 @@ export default function SettingsPage() {
 
   console.log(form.formState.errors)
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto my-4">
       <Card>
         <CardHeader>
           <CardTitle>Settings</CardTitle>

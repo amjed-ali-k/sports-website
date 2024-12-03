@@ -1,4 +1,4 @@
-import { admins } from "@sports/database";
+import { admins, organizations } from "@sports/database";
 import { and, eq, ne } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 import { z } from "zod";
@@ -16,6 +16,10 @@ const updateProfileSchema = z.object({
     newPassword: z.string().min(6),
   });
 
+const updateOrganizationSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().nullish(),
+  });
   
 const router = hono().put("/profile", zodValidator(updateProfileSchema), async (c) => {
     const data = c.req.valid("json");
@@ -74,6 +78,29 @@ const router = hono().put("/profile", zodValidator(updateProfileSchema), async (
       .run();
 
     return c.json({ message: "Password updated successfully" });
+  }).get("/organization", async (c) => {
+    const db = c.get("db");
+    const organizationId = c.get("user").organizationId;
+    const organization = await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.id, organizationId))
+      .get();
+    return c.json(organization);
+  }).put("/organization", zodValidator(updateOrganizationSchema), async (c) => {
+    const data = c.req.valid("json");
+    const db = c.get("db");
+    const organizationId = c.get("user").organizationId;
+    const organization = await db
+      .update(organizations)
+      .set({
+        name: data.name,
+        description: data.description,
+      })
+      .where(eq(organizations.id, organizationId))
+      .returning()
+      .get();
+      return c.json(organization);
   });
 
   export default router
