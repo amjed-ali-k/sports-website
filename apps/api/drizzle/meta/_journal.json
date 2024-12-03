@@ -43,6 +43,13 @@
       "when": 1733206250924,
       "tag": "0005_lumpy_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1733208713017,
+      "tag": "0006_tiny_phalanx",
+      "breakpoints": true
     }
   ]
 }
