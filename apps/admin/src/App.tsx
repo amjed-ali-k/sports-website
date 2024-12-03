@@ -17,6 +17,7 @@ import GroupItemsPage from "./pages/group-items";
 import GroupRegistrationsPage from "./pages/group-registrations";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
+import EventsPage from "./pages/events";
 
 const queryClient = new QueryClient();
 
@@ -92,7 +93,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-
+                <Route
+                  path="/events"
+                  element={
+                    <ProtectedRoute requiredRole="controller">
+                      <EventsPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/sections" element={<SectionsPage />} />
                 <Route
                   path="/profile"

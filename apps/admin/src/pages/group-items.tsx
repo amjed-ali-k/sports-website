@@ -37,7 +37,7 @@ const createGroupItemSchema = z.object({
   pointsThird: z.number().min(0),
   minParticipants: z.number().min(1),
   maxParticipants: z.number().min(1),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
 });
 
@@ -49,7 +49,7 @@ type GroupItem = {
   pointsThird: number;
   minParticipants: number;
   maxParticipants: number;
-  categoryId: number;
+  eventId: number;
   gender: "male" | "female" | "any";
 };
 
@@ -67,15 +67,17 @@ export default function GroupItemsPage() {
       pointsThird: 1,
       minParticipants: 2,
       maxParticipants: 4,
-      categoryId: 1,
     },
   });
 
-  const { data: groupItems } = useQuery({
+  const { data: groupItems = [] } = useQuery({
     queryKey: ["group-items"],
     queryFn: () => apiClient.getGroupItems(),
   });
-
+  const { data: events = [] } = useQuery({
+    queryKey: ["events"],
+    queryFn: () => apiClient.getEvents(),
+  });
   const createMutation = useMutation({
     mutationFn: (data: z.infer<typeof createGroupItemSchema>) =>
       apiClient.createGroupItem(data),
@@ -118,7 +120,7 @@ export default function GroupItemsPage() {
   ];
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto my-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <h1 className="text-2xl font-bold">Group Items</h1>
@@ -148,6 +150,34 @@ export default function GroupItemsPage() {
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="eventId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Event</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                      value={field.value?.toString()}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {events?.map((category: any) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

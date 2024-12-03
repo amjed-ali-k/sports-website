@@ -15160,7 +15160,7 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", events_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
+var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/events", events_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();

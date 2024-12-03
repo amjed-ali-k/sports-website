@@ -3,10 +3,10 @@ import type { AppType } from "@sports/api";
 import {
   Participant,
   Item,
-  Category,
+  EventType,
   Result,
   Registration,
-} from "@sports/api/dist/src/types";
+} from "@sports/api";
 
 export const bareApiClient = hc<AppType>(import.meta.env.VITE_API_URL, {
   headers: {
@@ -117,20 +117,33 @@ class ApiClient {
   }
 
   // Categories
-  async getCategories() {
-    const response = await this.client.api.categories.$get({});
+  async getEvents() {
+    const response = await this.client.api.events.$get({});
     return response.json();
   }
 
-  async getCategory(id: number) {
-    const response = await this.client.api.categories[":id"].$get({
+  async getEvent(id: number) {
+    const response = await this.client.api.events[":id"].$get({
       param: { id: id.toString() },
     });
     return response.json();
   }
 
-  async createCategory(data: Omit<Category, "id" | "createdAt" | "updatedAt">) {
-    const response = await this.client.api.categories.$post({
+  async updateEvent(
+    id: number,
+    data: Omit<EventType, "id" | "createdAt" | "updatedAt" | "organizationId">
+  ) {
+    const response = await this.client.api.events[":id"].$put({
+      param: { id: id.toString() },
+      json: data,
+    });
+    return response.json();
+  }
+
+  async createEvent(
+    data: Omit<EventType, "id" | "createdAt" | "updatedAt" | "organizationId">
+  ) {
+    const response = await this.client.api.events.$post({
       json: data,
     });
     return response.json();
@@ -191,7 +204,9 @@ class ApiClient {
     return response.json();
   }
 
-  async createResult(data: Omit<Result, "id" | "createdAt" | "updatedAt" | "points">) {
+  async createResult(
+    data: Omit<Result, "id" | "createdAt" | "updatedAt" | "points">
+  ) {
     const response = await this.client.api.results.$post({
       json: data,
     });
@@ -235,7 +250,6 @@ class ApiClient {
     pointsThird: number;
     minParticipants: number;
     maxParticipants: number;
-    categoryId: number;
     eventId: number;
     gender: "male" | "female" | "any";
   }) {
@@ -245,16 +259,19 @@ class ApiClient {
     return response.json();
   }
 
-  async updateGroupItem(id: number, data: {
-    name?: string;
-    pointsFirst?: number;
-    pointsSecond?: number;
-    pointsThird?: number;
-    minParticipants?: number;
-    maxParticipants?: number;
-    categoryId?: number;
-    gender?: "male" | "female" | "any";
-  }) {
+  async updateGroupItem(
+    id: number,
+    data: {
+      name?: string;
+      pointsFirst?: number;
+      pointsSecond?: number;
+      pointsThird?: number;
+      minParticipants?: number;
+      maxParticipants?: number;
+      eventId?: number;
+      gender?: "male" | "female" | "any";
+    }
+  ) {
     const response = await this.client.api.groups.items[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -366,7 +383,10 @@ class ApiClient {
     return response.json();
   }
 
-  async updateAdmin(id: number, data: { role: "rep" | "manager" | "controller" | "super_admin" }) {
+  async updateAdmin(
+    id: number,
+    data: { role: "rep" | "manager" | "controller" | "super_admin" }
+  ) {
     const response = await this.client.api.admins[":id"].$put({
       param: { id: id.toString() },
       json: data,
@@ -424,7 +444,7 @@ class ApiClient {
       json: data,
     });
     return response.json();
-}
+  }
 }
 
 export const apiClient = new ApiClient();

@@ -9,9 +9,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@sports/ui";
 import { formatDate } from "@/lib/utils";
 
-import type { Participant } from "@sports/api/dist/src/types";
+import type { Participant } from "@sports/api";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import { EmptyState } from "../empty-state";
+import { Users } from "lucide-react";
 
 interface ParticipantListProps {
   participants: Participant[];
@@ -34,7 +36,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
             <TableHead>Avatar</TableHead>
             <TableHead>Chest No</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Section</TableHead>
+            <TableHead>Batch</TableHead>
             <TableHead>Semester</TableHead>
             <TableHead>Gender</TableHead>
             <TableHead>Created</TableHead>
@@ -56,13 +58,25 @@ export function ParticipantList({ participants }: ParticipantListProps) {
               <TableCell>
                 {participant.sectionId && getSectionName(participant.sectionId)}
               </TableCell>
-              <TableCell>{participant.semester}</TableCell>
+              <TableCell>{participant.batch}</TableCell>
               <TableCell className="capitalize">{participant.gender}</TableCell>
               <TableCell>
                 {participant.createdAt && formatDate(participant.createdAt)}
               </TableCell>
             </TableRow>
           ))}
+
+          {participants.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="h-96">
+                  <EmptyState
+                    icon={Users}
+                    title="No participants found"
+                    description="Get started by creating your first participant."
+                  />
+                </TableCell>
+              </TableRow>
+            )}
         </TableBody>
       </Table>
     </div>

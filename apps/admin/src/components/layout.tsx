@@ -102,6 +102,11 @@ export default function Layout() {
                 <DropdownMenuItem className="cursor-pointer" asChild>
                   <Link to="/profile">Profile</Link>
                 </DropdownMenuItem>
+                {admin?.role === "controller" && (
+                  <DropdownMenuItem className="cursor-pointer" asChild>
+                    <Link to="/admins">Admins</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer"
@@ -186,8 +191,8 @@ export function NavigationMenuComp() {
               <ListItem href="/sections" title="Sections">
                 Departments/Sections can be created and manged here.
               </ListItem>
-              <ListItem href="/admins" title="Admins">
-                Manage admins here.
+              <ListItem href="/events" title="Events">
+                Manage events here.
               </ListItem>
             </ul>
           </NavigationMenuContent>

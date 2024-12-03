@@ -6,6 +6,9 @@ export type Item = typeof schema.items.$inferInsert;
 export type Category = typeof schema.events.$inferInsert;
 export type Result = typeof schema.results.$inferInsert;
 export type Registration = typeof schema.registrations.$inferInsert;
+export type EventType = typeof schema.events.$inferInsert;
+export type Admin = typeof schema.admins.$inferInsert;
+export type Organization = typeof schema.organizations.$inferInsert;
 
 export interface LeaderboardEntry {
   sectionId: number;

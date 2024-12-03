@@ -41,7 +41,7 @@ import { apiClient } from "@/lib/api";
 const itemSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(1, "Name is required"),
-  categoryId: z.number(),
+  eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
   pointsFirst: z.number().min(0),
   pointsSecond: z.number().min(0),
@@ -73,9 +73,9 @@ export default function ItemsPage() {
     queryFn: () => apiClient.getItems(),
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => apiClient.getCategories(),
+  const { data: events } = useQuery({
+    queryKey: ["events"],
+    queryFn: () => apiClient.getEvents(),
   });
 
   const mutation = useMutation({
@@ -149,10 +149,10 @@ export default function ItemsPage() {
 
                 <FormField
                   control={form.control}
-                  name="categoryId"
+                  name="eventId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>Event</FormLabel>
                       <Select
                         onValueChange={(value) =>
                           field.onChange(parseInt(value))
@@ -160,15 +160,15 @@ export default function ItemsPage() {
                         value={field.value?.toString()}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder="Select event" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories?.map((category: any) => (
+                          {events?.map((ev: any) => (
                             <SelectItem
-                              key={category.id}
-                              value={category.id.toString()}
+                              key={ev.id}
+                              value={ev.id.toString()}
                             >
-                              {category.name}
+                              {ev.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -305,7 +305,7 @@ export default function ItemsPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
+            <TableHead>Event</TableHead>
             <TableHead>Gender</TableHead>
             <TableHead>Points (1st/2nd/3rd)</TableHead>
             <TableHead>Status</TableHead>
@@ -317,7 +317,7 @@ export default function ItemsPage() {
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>
-                {categories?.find((c: any) => c.id === item.categoryId)?.name}
+                {events?.find((c: any) => c.id === item.eventId)?.name}
               </TableCell>
               <TableCell className="capitalize">{item.gender}</TableCell>
               <TableCell>

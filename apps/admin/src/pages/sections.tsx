@@ -95,7 +95,7 @@ export default function SectionsPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto my-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Sections</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

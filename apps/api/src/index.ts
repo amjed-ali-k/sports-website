@@ -4,7 +4,7 @@ import participantsRouter from "./routes/participants";
 import itemsRouter from "./routes/items";
 import registrationsRouter from "./routes/registrations";
 import resultsRouter from "./routes/results";
-import categoriesRouter from "./routes/events";
+import eventsRouter from "./routes/events";
 import settingsRouter from "./routes/settings";
 import authRouter from "./routes/auth";
 import sectionsRouter from "./routes/sections";
@@ -24,7 +24,7 @@ const api = hono()
   .route("/items", itemsRouter)
   .route("/registrations", registrationsRouter)
   .route("/results", resultsRouter)
-  .route("/categories", categoriesRouter)
+  .route("/events", eventsRouter)
   .route("/sections", sectionsRouter)
   .route("/admins", adminsRouter)
   .route("/settings", settingsRouter)

@@ -2,9 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -61,6 +58,7 @@ export default function GroupRegistrationsPage() {
     queryKey: ["group-items"],
     queryFn: () => apiClient.getGroupItems(),
   });
+
 
   const { data: participants = [] } = useQuery({
     queryKey: ["participants"],
@@ -122,16 +120,13 @@ export default function GroupRegistrationsPage() {
     );
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <h1 className="text-2xl font-bold">Group Registrations</h1>
-          <Button onClick={() => setIsOpen(true)}>Add Registration</Button>
-        </CardHeader>
-        <CardContent>
-          <DataTable columns={columns} data={registrations || []} />
-        </CardContent>
-      </Card>
+    <div className="container mx-auto my-6">
+      <div className="flex mb-4 flex-row items-center justify-between">
+        <h1 className="text-2xl font-bold">Group Registrations</h1>
+        <Button onClick={() => setIsOpen(true)}>Add Registration</Button>
+      </div>
+
+      <DataTable filterPlaceholder="Search" columns={columns} data={registrations || []} />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
@@ -224,7 +219,9 @@ export default function GroupRegistrationsPage() {
                               >
                                 <TableCell>
                                   <Checkbox
-                                    checked={field.value.includes(p.participant.id)}
+                                    checked={field.value.includes(
+                                      p.participant.id
+                                    )}
                                     onCheckedChange={() => {
                                       const id = p.participant.id;
                                       const newValue = field.value.includes(id)
@@ -241,7 +238,10 @@ export default function GroupRegistrationsPage() {
                             ))}
                             {filteredParticipants.length === 0 && (
                               <TableRow>
-                                <TableCell colSpan={4} className="h-24 text-center">
+                                <TableCell
+                                  colSpan={4}
+                                  className="h-24 text-center"
+                                >
                                   No participants found
                                 </TableCell>
                               </TableRow>
@@ -250,7 +250,8 @@ export default function GroupRegistrationsPage() {
                         </Table>
                         {filteredParticipants.length > 10 && (
                           <div className="p-2 text-center text-sm text-muted-foreground border-t">
-                            Showing first 10 of {filteredParticipants.length} participants
+                            Showing first 10 of {filteredParticipants.length}{" "}
+                            participants
                           </div>
                         )}
                       </div>
