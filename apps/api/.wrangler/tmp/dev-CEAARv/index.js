@@ -23,11 +23,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc4) => {
+var __copyProps = (to, from, except2, desc5) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc4 = __getOwnPropDesc(from, key)) || desc4.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc5 = __getOwnPropDesc(from, key)) || desc5.enumerable });
   }
   return to;
 };
@@ -12667,6 +12667,7 @@ var admins = sqliteTable(
     id: integer("id").primaryKey(),
     email: text("email").notNull(),
     password: text("password").notNull(),
+    description: text("description"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
@@ -14411,20 +14412,24 @@ var sections_default = router7;
 init_modules_watch_stub();
 var import_bcryptjs2 = __toESM(require_bcrypt());
 var updateAdminSchema = z.object({
-  role: z.enum(["rep", "manager", "controller", "super_admin"])
+  role: z.enum(["rep", "manager", "controller", "super_admin"]),
+  description: z.string().nullish(),
+  name: z.string().min(1).optional()
 });
 var createAdminSchema2 = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().min(1),
-  role: z.enum(["rep", "manager", "controller", "super_admin"])
+  role: z.enum(["rep", "manager", "controller", "super_admin"]),
+  organizationId: z.number().int().min(1),
+  description: z.string().nullish()
 });
 var router8 = hono().get("/", async (c) => {
   const db = c.get("db");
   const allAdmins = await db.select().from(admins).all();
   return c.json(allAdmins);
 }).post("/", zodValidator(createAdminSchema2), async (c) => {
-  const { email, password, name, role } = c.req.valid("json");
+  const { email, password, name, role, description, organizationId } = c.req.valid("json");
   const db = c.get("db");
   const existingAdmin = await db.select().from(admins).where(eq(admins.email, email)).get();
   if (existingAdmin) {
@@ -14435,19 +14440,21 @@ var router8 = hono().get("/", async (c) => {
     email,
     password: hashedPassword,
     name,
-    role
+    role,
+    description,
+    organizationId
   }).returning().get();
   const { password: _, ...adminWithoutPassword } = admin;
   return c.json(adminWithoutPassword, 201);
 }).put("/:id", zodValidator(updateAdminSchema), async (c) => {
   const id = Number(c.req.param("id"));
-  const { role } = c.req.valid("json");
+  const body = c.req.valid("json");
   const db = c.get("db");
   const existingAdmin = await db.select().from(admins).where(eq(admins.id, id)).get();
   if (!existingAdmin) {
     return c.json({ error: "Admin not found" }, 404);
   }
-  const updatedAdmin = await db.update(admins).set({ role }).where(eq(admins.id, id)).returning().get();
+  const updatedAdmin = await db.update(admins).set(body).where(eq(admins.id, id)).returning().get();
   return c.json(updatedAdmin);
 }).delete("/:id", async (c) => {
   const id = Number(c.req.param("id"));

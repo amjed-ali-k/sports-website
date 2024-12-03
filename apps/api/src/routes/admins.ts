@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { admins } from "@sports/database";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 import bcrypt from "bcryptjs";
 
 const updateAdminSchema = z.object({
   role: z.enum(["rep", "manager", "controller", "super_admin"]),
+  description: z.string().nullish(),
+  name: z.string().min(1).optional(),
 });
 
 const createAdminSchema = z.object({
@@ -13,6 +15,8 @@ const createAdminSchema = z.object({
   password: z.string().min(8),
   name: z.string().min(1),
   role: z.enum(["rep", "manager", "controller", "super_admin"]),
+  organizationId: z.number().int().min(1),
+  description: z.string().nullish(),
 });
 
 const router = hono()
@@ -22,7 +26,8 @@ const router = hono()
     return c.json(allAdmins);
   })
   .post("/", zodValidator(createAdminSchema), async (c) => {
-    const { email, password, name, role } = c.req.valid("json");
+    const { email, password, name, role, description, organizationId } =
+      c.req.valid("json");
     const db = c.get("db");
 
     // Check if admin with same email exists
@@ -47,6 +52,8 @@ const router = hono()
         password: hashedPassword,
         name,
         role,
+        description,
+        organizationId,
       })
       .returning()
       .get();
@@ -57,7 +64,7 @@ const router = hono()
   })
   .put("/:id", zodValidator(updateAdminSchema), async (c) => {
     const id = Number(c.req.param("id"));
-    const { role } = c.req.valid("json");
+    const body = c.req.valid("json");
     const db = c.get("db");
 
     // Check if admin exists
@@ -74,7 +81,7 @@ const router = hono()
     // Update admin role
     const updatedAdmin = await db
       .update(admins)
-      .set({ role })
+      .set(body)
       .where(eq(admins.id, id))
       .returning()
       .get();

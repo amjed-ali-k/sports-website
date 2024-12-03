@@ -155,6 +155,7 @@ export const admins = sqliteTable(
     id: integer("id").primaryKey(),
     email: text("email").notNull(),
     password: text("password").notNull(),
+    description: text("description"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
     role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
