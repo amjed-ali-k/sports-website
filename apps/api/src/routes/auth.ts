@@ -1,7 +1,7 @@
 import { eq, and, ne } from "drizzle-orm";
 import { sign, verify } from "hono/jwt";
 import { z } from "zod";
-import { admins } from "@sports/database/schema";
+import { admins, organizations } from "@sports/database/schema";
 import bcrypt from "bcryptjs";
 import { hono, zodValidator } from "../lib/api";
 
@@ -15,8 +15,9 @@ const createAdminSchema = z.object({
   password: z.string().min(8),
   name: z.string(),
   role: z.enum(["rep", "manager", "controller"]),
+  orgName: z.string(),
+  orgDescription: z.string().nullish(),
 });
-
 
 const auth = hono()
   .post("/login", zodValidator(loginSchema), async (c) => {
@@ -53,6 +54,7 @@ const auth = hono()
         email: admin.email,
         name: admin.name,
         role: admin.role,
+        organizationId: admin.organizationId,
         exp,
       },
       c.env.JWT_SECRET
@@ -62,12 +64,14 @@ const auth = hono()
   })
   .post("/setup", zodValidator(createAdminSchema), async (c) => {
     // Only allow setup if no admins exist
-    const existingAdmins = await c.get("db").select().from(admins).limit(1);
+    const db = c.get("db");
+    const existingAdmins = await db.select().from(admins).limit(1);
     if (existingAdmins.length > 0) {
       return c.json({ message: "Setup already completed" }, 400);
     }
 
-    const { email, password, name, role } = c.req.valid("json");
+    const { email, password, name, role, orgName, orgDescription } =
+      c.req.valid("json");
 
     // Only allow creating controller during setup
     if (role !== "controller") {
@@ -75,6 +79,13 @@ const auth = hono()
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        name: orgName,
+        description: orgDescription,
+      })
+      .returning();
 
     const [admin] = await c
       .get("db")
@@ -84,6 +95,7 @@ const auth = hono()
         password: hashedPassword,
         name,
         role,
+        organizationId: org.id,
       })
       .returning();
 
@@ -113,7 +125,6 @@ const auth = hono()
     } catch {
       return c.json({ message: "Invalid token" }, 401);
     }
-  })
- 
+  });
 
 export default auth;

@@ -23,11 +23,11 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc3) => {
+var __copyProps = (to, from, except2, desc4) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc3 = __getOwnPropDesc(from, key)) || desc3.enumerable });
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc4 = __getOwnPropDesc(from, key)) || desc4.enumerable });
   }
   return to;
 };
@@ -12599,6 +12599,7 @@ var events = sqliteTable("events", {
 var organizations = sqliteTable("organizations", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
+  description: text("description"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
 });
@@ -14196,7 +14197,7 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
 });
 var results_default = router4;
 
-// src/routes/categories.ts
+// src/routes/events.ts
 init_modules_watch_stub();
 var createEventSchema = z.object({
   name: z.string().min(1),
@@ -14244,7 +14245,7 @@ var router5 = hono().post("/", zodValidator(createEventSchema), async (c) => {
   await db.delete(events).where(eq(events.id, id));
   return c.json({ success: true });
 });
-var categories_default = router5;
+var events_default = router5;
 
 // src/routes/settings.ts
 init_modules_watch_stub();
@@ -14281,7 +14282,9 @@ var createAdminSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string(),
-  role: z.enum(["rep", "manager", "controller"])
+  role: z.enum(["rep", "manager", "controller"]),
+  orgName: z.string(),
+  orgDescription: z.string().nullish()
 });
 var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
   const { email, password } = c.req.valid("json");
@@ -14306,26 +14309,33 @@ var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
       email: admin.email,
       name: admin.name,
       role: admin.role,
+      organizationId: admin.organizationId,
       exp
     },
     c.env.JWT_SECRET
   );
   return c.json({ token });
 }).post("/setup", zodValidator(createAdminSchema), async (c) => {
-  const existingAdmins = await c.get("db").select().from(admins).limit(1);
+  const db = c.get("db");
+  const existingAdmins = await db.select().from(admins).limit(1);
   if (existingAdmins.length > 0) {
     return c.json({ message: "Setup already completed" }, 400);
   }
-  const { email, password, name, role } = c.req.valid("json");
+  const { email, password, name, role, orgName, orgDescription } = c.req.valid("json");
   if (role !== "controller") {
     return c.json({ message: "Initial admin must be a controller" }, 400);
   }
   const hashedPassword = await import_bcryptjs.default.hash(password, 10);
+  const [org] = await db.insert(organizations).values({
+    name: orgName,
+    description: orgDescription
+  }).returning();
   const [admin] = await c.get("db").insert(admins).values({
     email,
     password: hashedPassword,
     name,
-    role
+    role,
+    organizationId: org.id
   }).returning();
   return c.json({
     admin: {
@@ -15035,7 +15045,7 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", categories_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
+var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/categories", events_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();

@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import {
   sqliteTable,
   text,
@@ -63,6 +63,7 @@ export const events = sqliteTable("events", {
 export const organizations = sqliteTable("organizations", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
+  description: text("description"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
