@@ -121,15 +121,12 @@ export default function GroupItemsPage() {
 
   return (
     <div className="container mx-auto my-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <h1 className="text-2xl font-bold">Group Items</h1>
-          <Button onClick={() => setIsOpen(true)}>Add Group Item</Button>
-        </CardHeader>
-        <CardContent>
-          <DataTable columns={columns} data={groupItems || []} />
-        </CardContent>
-      </Card>
+      <div className="flex mb-4 flex-row items-center justify-between">
+        <h1 className="text-2xl font-bold">Group Items</h1>
+        <Button onClick={() => setIsOpen(true)}>Add Group Item</Button>
+      </div>
+
+      <DataTable columns={columns} data={groupItems || []} />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>

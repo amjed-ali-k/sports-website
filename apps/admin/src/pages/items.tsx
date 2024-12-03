@@ -308,7 +308,7 @@ export default function ItemsPage() {
             <TableHead>Event</TableHead>
             <TableHead>Gender</TableHead>
             <TableHead>Points (1st/2nd/3rd)</TableHead>
-            <TableHead>Status</TableHead>
+            {/* <TableHead>Status</TableHead> */}
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
