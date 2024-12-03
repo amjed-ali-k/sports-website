@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-vRtb6x/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-myiJs7/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-vRtb6x/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-myiJs7/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -3194,7 +3194,8 @@ async function authMiddleware(c, next) {
       email: payload.email,
       name: payload.name,
       role: payload.role,
-      organizationId: payload.organizationId
+      organizationId: payload.organizationId,
+      avatar: payload.avatar
     });
     await next();
   } catch (e) {
@@ -14348,12 +14349,6 @@ var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
     return c.json({ message: "Invalid credentials" }, 401);
   }
   const exp = Math.floor(Date.now() / 1e3) + 24 * 60 * 60;
-  console.log("Admin logged in:", {
-    id: admin.id,
-    email: admin.email,
-    name: admin.name,
-    role: admin.role
-  });
   const token = await sign2(
     {
       id: admin.id,
@@ -14361,6 +14356,7 @@ var auth = hono().post("/login", zodValidator(loginSchema), async (c) => {
       name: admin.name,
       role: admin.role,
       organizationId: admin.organizationId,
+      avatar: admin.avatar,
       exp
     },
     c.env.JWT_SECRET
@@ -15214,7 +15210,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-vRtb6x/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-myiJs7/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15247,7 +15243,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-vRtb6x/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-myiJs7/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

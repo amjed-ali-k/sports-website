@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@sports/ui";
+import { Button, Form } from "@sports/ui";
 import { Input } from "@sports/ui";
 import { Label } from "@sports/ui";
 import {
@@ -56,12 +56,12 @@ export default function SettingsEditForm() {
     },
   });
 
-  const { isLoading,  } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => apiClient.getSettings().then(res => {
-      form.reset(res)
-    }),
-    
+    queryFn: () =>
+      apiClient.getSettings().then((res) => {
+        form.reset(res);
+      }),
   });
 
   function onSubmit(data: SettingsFormData) {
@@ -72,7 +72,7 @@ export default function SettingsEditForm() {
     return <div>Loading...</div>;
   }
 
-  console.log(form.formState.errors)
+  console.log(form.formState.errors);
   return (
     <div className="container mx-auto my-4">
       <Card>
@@ -84,108 +84,110 @@ export default function SettingsEditForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="eventName">Event Name</Label>
-                <Input
-                  id="eventName"
-                  {...form.register("eventName")}
-                  placeholder="Enter event name"
-                />
-                {form.formState.errors.eventName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {form.formState.errors.eventName.message}
-                  </p>
-                )}
-              </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="eventName">Event Name</Label>
+                  <Input
+                    id="eventName"
+                    {...form.register("eventName")}
+                    placeholder="Enter event name"
+                  />
+                  {form.formState.errors.eventName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.eventName.message}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="eventDate">Event Date</Label>
-                <Input
-                  id="eventDate"
-                  type="date"
-                  {...form.register("eventDate")}
-                />
-                {form.formState.errors.eventDate && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {form.formState.errors.eventDate.message}
-                  </p>
-                )}
-              </div>
+                <div>
+                  <Label htmlFor="eventDate">Event Date</Label>
+                  <Input
+                    id="eventDate"
+                    type="date"
+                    {...form.register("eventDate")}
+                  />
+                  {form.formState.errors.eventDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.eventDate.message}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="registrationEndDate">
-                  Registration End Date
-                </Label>
-                <Input
-                  id="registrationEndDate"
-                  type="date"
-                  {...form.register("registrationEndDate")}
-                />
-                {form.formState.errors.registrationEndDate && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {form.formState.errors.registrationEndDate.message}
-                  </p>
-                )}
-              </div>
+                <div>
+                  <Label htmlFor="registrationEndDate">
+                    Registration End Date
+                  </Label>
+                  <Input
+                    id="registrationEndDate"
+                    type="date"
+                    {...form.register("registrationEndDate")}
+                  />
+                  {form.formState.errors.registrationEndDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.registrationEndDate.message}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="maxRegistrationsPerParticipant">
-                  Max Registrations Per Participant
-                </Label>
-                <Input
-                  id="maxRegistrationsPerParticipant"
-                  type="number"
-                  {...form.register("maxRegistrationsPerParticipant")}
-                />
-                {form.formState.errors.maxRegistrationsPerParticipant && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {
-                      form.formState.errors.maxRegistrationsPerParticipant
-                        .message
+                <div>
+                  <Label htmlFor="maxRegistrationsPerParticipant">
+                    Max Registrations Per Participant
+                  </Label>
+                  <Input
+                    id="maxRegistrationsPerParticipant"
+                    type="number"
+                    {...form.register("maxRegistrationsPerParticipant")}
+                  />
+                  {form.formState.errors.maxRegistrationsPerParticipant && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {
+                        form.formState.errors.maxRegistrationsPerParticipant
+                          .message
+                      }
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isRegistrationOpen"
+                    checked={form.watch("isRegistrationOpen") == "true"}
+                    onCheckedChange={(checked) =>
+                      form.setValue(
+                        "isRegistrationOpen",
+                        checked ? "true" : "false"
+                      )
                     }
-                  </p>
-                )}
+                  />
+                  <Label htmlFor="isRegistrationOpen">Registration Open</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isResultsPublished"
+                    checked={form.watch("isResultsPublished") == "true"}
+                    onCheckedChange={(checked) =>
+                      form.setValue(
+                        "isResultsPublished",
+                        checked ? "true" : "false"
+                      )
+                    }
+                  />
+                  <Label htmlFor="isResultsPublished">Results Published</Label>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isRegistrationOpen"
-                  checked={form.watch("isRegistrationOpen") == "true"}
-                  onCheckedChange={(checked) =>
-                    form.setValue(
-                      "isRegistrationOpen",
-                      checked ? "true" : "false"
-                    )
-                  }
-                />
-                <Label htmlFor="isRegistrationOpen">Registration Open</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isResultsPublished"
-                  checked={form.watch("isResultsPublished") == "true"}
-                  onCheckedChange={(checked) =>
-                    form.setValue(
-                      "isResultsPublished",
-                      checked ? "true" : "false"
-                    )
-                  }
-                />
-                <Label htmlFor="isResultsPublished">Results Published</Label>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={updateSettings.isPending}
-              className="w-full"
-            >
-              {updateSettings.isPending ? "Saving..." : "Save Settings"}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                disabled={updateSettings.isPending}
+                className="w-full"
+              >
+                {updateSettings.isPending ? "Saving..." : "Save Settings"}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

@@ -1,6 +1,8 @@
 import { Link, Outlet } from "react-router-dom";
 import {
-  Button,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -45,16 +47,6 @@ const roleConfig = {
   },
 } as const;
 
-const navigation = [
-  { name: "Dashboard", href: "/" },
-  { name: "Participants", href: "/participants" },
-  { name: "Registrations", href: "/registrations" },
-  { name: "Results", href: "/results" },
-  { name: "Sections", href: "/sections" },
-  { name: "Group Items", href: "/group-items" },
-  { name: "Group Registrations", href: "/group-registrations" },
-];
-
 export default function Layout() {
   const { admin, logout } = useAuth();
   const roleSettings = admin ? roleConfig[admin.role] : roleConfig.rep;
@@ -67,7 +59,7 @@ export default function Layout() {
           <Link to="/" className="mr-6 flex items-center space-x-2">
             <span className="font-bold">Sports Admin</span>
           </Link>
-         <NavigationMenuComp />
+          <NavigationMenuComp />
           <div className="flex ml-auto items-center space-x-4">
             <div
               className={`flex items-center space-x-1.5 px-3 py-1 rounded-full ${roleSettings.color}`}
@@ -79,15 +71,13 @@ export default function Layout() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
-                  <span className="sr-only">Open user menu</span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                    {admin?.name[0]}
-                  </div>
-                </Button>
+                <Avatar>
+                  <AvatarImage src={admin?.avatar || ""} alt={admin?.name} />
+                  <AvatarFallback>
+                    {admin?.name.charAt(0)}
+                    {admin?.name.charAt(1)}
+                  </AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
@@ -99,7 +89,7 @@ export default function Layout() {
                       {admin?.email}
                     </p>
                     <div
-                      className={`inline-flex items-center space-x-1.5 px-2 py-0.5 mt-1 rounded-full ${roleSettings.color}`}
+                      className={`inline-flex w-fit items-center space-x-1.5 px-2 py-0.5 mt-1 rounded-full ${roleSettings.color}`}
                     >
                       <RoleIcon className="h-3 w-3" />
                       <span className="text-xs font-medium capitalize">

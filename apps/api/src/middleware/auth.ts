@@ -35,7 +35,8 @@ export async function authMiddleware(c: Context, next: Next) {
       email: payload.email,
       name: payload.name,
       role: payload.role,
-      organizationId: payload.organizationId
+      organizationId: payload.organizationId,
+      avatar: payload.avatar
     });
     await next();
   } catch (e) {

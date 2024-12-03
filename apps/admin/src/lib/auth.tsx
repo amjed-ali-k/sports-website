@@ -14,6 +14,8 @@ interface Admin {
   email: string;
   name: string;
   role: "rep" | "manager" | "controller";
+  organizationId: number;
+  avatar?: string | null;
 }
 
 interface AuthContextType {

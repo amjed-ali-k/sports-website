@@ -41,13 +41,6 @@ const auth = hono()
     // Token expires in 24 hours
     const exp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
 
-    console.log("Admin logged in:", {
-      id: admin.id,
-      email: admin.email,
-      name: admin.name,
-      role: admin.role,
-    });
-
     const token = await sign(
       {
         id: admin.id,
@@ -55,6 +48,7 @@ const auth = hono()
         name: admin.name,
         role: admin.role,
         organizationId: admin.organizationId,
+        avatar: admin.avatar,
         exp,
       },
       c.env.JWT_SECRET

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
+  Form,
   FormControl,
   FormDescription,
   FormField,
@@ -75,6 +76,7 @@ export default function OrganizationsEditForm() {
           <CardDescription>Change organization details here</CardDescription>
         </CardHeader>
         <CardContent>
+            <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-4">
               <FormField
@@ -128,6 +130,7 @@ export default function OrganizationsEditForm() {
               {updateSettings.isPending ? "Saving..." : "Save Settings"}
             </Button>
           </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
