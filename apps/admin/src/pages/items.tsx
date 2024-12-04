@@ -164,10 +164,7 @@ export default function ItemsPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {events?.map((ev: any) => (
-                            <SelectItem
-                              key={ev.id}
-                              value={ev.id.toString()}
-                            >
+                            <SelectItem key={ev.id} value={ev.id.toString()}>
                               {ev.name}
                             </SelectItem>
                           ))}
@@ -323,7 +320,6 @@ export default function ItemsPage() {
               <TableCell>
                 {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
               </TableCell>
-  
               <TableCell>
                 <Button
                   variant="outline"

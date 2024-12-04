@@ -57,7 +57,11 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     await onSubmit(data);
-    form.reset();
+    form.reset({
+      batch: data.batch,
+      sectionId: data.sectionId,
+      gender: data.gender
+    });
   };
 
   return (
