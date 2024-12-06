@@ -50,6 +50,13 @@
       "when": 1733208713017,
       "tag": "0006_tiny_phalanx",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1733481886923,
+      "tag": "0007_milky_skullbuster",
+      "breakpoints": true
     }
   ]
 }

@@ -76,6 +76,7 @@ export const items = sqliteTable("items", {
   pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
+  iconName: text("icon_name"),
   eventId: integer("event_id")
     .references(() => events.id, { onDelete: "cascade" })
     .notNull(),

@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-cAnBxj/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-8KlqmB/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-cAnBxj/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-8KlqmB/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -12606,6 +12606,7 @@ var items = sqliteTable("items", {
   pointsSecond: integer("points_second").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
+  iconName: text("icon_name"),
   eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
   maxParticipants: integer("max_participants"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -13818,7 +13819,8 @@ var createItemSchema = z.object({
   maxParticipants: z.number().min(1).optional().default(1),
   eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
-  pointsThird: z.number().min(0)
+  pointsThird: z.number().min(0),
+  iconName: z.string().nullish()
 });
 var updateItemSchema = z.object({
   name: z.string().min(1).optional(),
@@ -13827,7 +13829,8 @@ var updateItemSchema = z.object({
   description: z.string().optional().nullable(),
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),
-  pointsThird: z.number().min(0).optional()
+  pointsThird: z.number().min(0).optional(),
+  iconName: z.string().optional()
 });
 var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const data = c.req.valid("json");
@@ -15210,7 +15213,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-cAnBxj/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-8KlqmB/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15243,7 +15246,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-cAnBxj/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-8KlqmB/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -6,7 +6,7 @@ import Layout from "./components/layout";
 import LoginPage from "./pages/login";
 import DashboardPage from "./pages/dashboard";
 import ParticipantsPage from "./pages/participants";
-import ItemsPage from "./pages/items";
+import ItemsPage from "./pages/items/index";
 import RegistrationsPage from "./pages/registrations";
 import ResultsPage from "./pages/results";
 import SettingsPage from "./pages/settings";

@@ -12,6 +12,7 @@ const createItemSchema = z.object({
   eventId: z.number(),
   gender: z.enum(["male", "female", "any"]),
   pointsThird: z.number().min(0),
+  iconName: z.string().nullish()
 });
 
 const updateItemSchema = z.object({
@@ -22,6 +23,7 @@ const updateItemSchema = z.object({
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),
   pointsThird: z.number().min(0).optional(),
+  iconName: z.string().optional()
 });
 
 const router = hono()

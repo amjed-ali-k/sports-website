@@ -1,0 +1,1 @@
+ALTER TABLE `items` ADD `icon_name` text;
