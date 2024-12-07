@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api";
 import { Button, Card, CardContent } from "@sports/ui";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getEventIcon } from "..";
 
 export const ItemsSinglePage = () => {
@@ -60,7 +60,9 @@ export const ItemsSinglePage = () => {
         </CardContent>
       </Card>
       <div className="flex gap-4 mt-4">
-        <Button size="lg">Registration</Button>
+        <Button size="lg" asChild>
+          <Link to={"registrations"}>Registration</Link>
+        </Button>
         <Button size="lg">Results</Button>
         <Button size="lg">Reports</Button>
       </div>

@@ -24,6 +24,7 @@ import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
 import EventsPage from "./pages/events";
 import { ItemsSinglePage } from "./pages/items/single";
+import { SingleItemRegistrationsPage } from "./pages/items/single/registrations";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,13 @@ function App() {
                 />
                 <Route path="/items" element={<ManagerOnly />}>
                   <Route element={<ItemsPage />} index />
-                  <Route path=":itemId" element={<ItemsSinglePage />} />
+                  <Route path=":itemId">
+                    <Route element={<ItemsSinglePage />} index />
+                    <Route
+                      path="/registrations"
+                      element={<SingleItemRegistrationsPage />}
+                    />
+                  </Route>
                 </Route>
                 <Route
                   path="/registrations"

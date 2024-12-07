@@ -22,20 +22,22 @@ import { Plus, Users } from "lucide-react";
 
 export default function RegistrationsPage() {
   const navigate = useNavigate();
-  
+
   const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["items"],
-    queryFn: () => apiClient.getItems().then(res => {
-      setSelectedItem(res[0]?.item)
-      return res
-    }),
+    queryFn: () =>
+      apiClient.getItems().then((res) => {
+        setSelectedItem(res[0]?.item);
+        return res;
+      }),
   });
   const [selectedItem, setSelectedItem] = useState(items[0]?.item);
 
-  const { data: registrations = [], isLoading: registrationsLoading } = useQuery({
-    queryKey: ["registrations"],
-    queryFn: () => apiClient.getRegistrations(),
-  });
+  const { data: registrations = [], isLoading: registrationsLoading } =
+    useQuery({
+      queryKey: ["registrations"],
+      queryFn: () => apiClient.getRegistrations(),
+    });
 
   const isLoading = itemsLoading || registrationsLoading;
   if (isLoading) return <div>Loading...</div>;
@@ -81,7 +83,6 @@ export default function RegistrationsPage() {
               <TableHead>Participant</TableHead>
               <TableHead>Chest No</TableHead>
               <TableHead>Section</TableHead>
-              <TableHead>Group</TableHead>
               <TableHead>Meta Info</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -96,7 +97,6 @@ export default function RegistrationsPage() {
                   <TableCell>{participant.fullName}</TableCell>
                   <TableCell>{participant.chestNo}</TableCell>
                   <TableCell>{participant.sectionName}</TableCell>
-                  <TableCell>{registration.groupId || "-"}</TableCell>
                   <TableCell>{registration.metaInfo || "-"}</TableCell>
                   <TableCell>
                     <Badge
