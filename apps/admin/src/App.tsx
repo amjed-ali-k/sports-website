@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@sports/ui";
 import { Toaster } from "@sports/ui";
@@ -18,6 +23,7 @@ import GroupRegistrationsPage from "./pages/group-registrations";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
 import EventsPage from "./pages/events";
+import { ItemsSinglePage } from "./pages/items/single";
 
 const queryClient = new QueryClient();
 
@@ -45,14 +51,10 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/items"
-                  element={
-                    <ProtectedRoute requiredRole="manager">
-                      <ItemsPage />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/items" element={<ManagerOnly />}>
+                  <Route element={<ItemsPage />} index />
+                  <Route path=":itemId" element={<ItemsSinglePage />} />
+                </Route>
                 <Route
                   path="/registrations"
                   element={
@@ -126,3 +128,11 @@ function App() {
 }
 
 export default App;
+
+const ManagerOnly = () => {
+  return (
+    <ProtectedRoute requiredRole="manager">
+      <Outlet />
+    </ProtectedRoute>
+  );
+};

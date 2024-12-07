@@ -5,9 +5,10 @@ import { Button } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { iconsList, ItemFormValues, NewItemFormDialog } from "./new";
 import { Popcorn } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Helper function to get the appropriate icon for each event
-function getEventIcon(iconName?: string | null) {
+export function getEventIcon(iconName?: string | null) {
   if (iconName) {
     return iconsList.find((icon) => icon.name === iconName)?.icon || Popcorn;
   }
@@ -42,7 +43,8 @@ export default function ItemsPage() {
         {items?.map(({ item }) => {
           const ItemIcon = getEventIcon(item.iconName);
           return (
-            <Card key={item.id} className="overflow-hidden">
+            <Link key={item.id}  to={`/items/${item.id}`}>
+            <Card className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
@@ -53,7 +55,7 @@ export default function ItemsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setEditingItem(item)}
-                  >
+                    >
                     Edit
                   </Button>
                 </div>
@@ -82,6 +84,7 @@ export default function ItemsPage() {
                 </div>
               </CardContent>
             </Card>
+        </Link>
           );
         })}
       </div>
