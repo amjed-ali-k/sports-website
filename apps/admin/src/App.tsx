@@ -25,6 +25,7 @@ import NewRegistrationPage from "./pages/new-registration";
 import EventsPage from "./pages/events";
 import { ItemsSinglePage } from "./pages/items/single";
 import { SingleItemRegistrationsPage } from "./pages/items/single/registrations";
+import { NewItemRegistrationPage } from "./pages/items/single/registrations/new";
 
 const queryClient = new QueryClient();
 
@@ -57,8 +58,12 @@ function App() {
                   <Route path=":itemId">
                     <Route element={<ItemsSinglePage />} index />
                     <Route
-                      path="/registrations"
+                      path="registrations"
                       element={<SingleItemRegistrationsPage />}
+                    />
+                    <Route
+                      path="registrations/new"
+                      element={<NewItemRegistrationPage />}
                     />
                   </Route>
                 </Route>
