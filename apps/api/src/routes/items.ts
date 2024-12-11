@@ -23,7 +23,7 @@ const updateItemSchema = z.object({
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),
   pointsThird: z.number().min(0).optional(),
-  iconName: z.string().optional()
+  iconName: z.string().nullish()
 });
 
 const router = hono()

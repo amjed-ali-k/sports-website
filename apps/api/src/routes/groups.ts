@@ -17,6 +17,7 @@ const createGroupItemSchema = z.object({
   minParticipants: z.number(),
   maxParticipants: z.number(),
   eventId: z.number(),
+  iconName: z.string().nullish(),
   gender: z.enum(["male", "female", "any"]),
 });
 
@@ -158,6 +159,7 @@ export const groupsRouter = hono()
         .values({
           groupItemId: data.groupItemId,
           participantIds: JSON.stringify(data.participantIds),
+
         })
         .returning()
         .get();
@@ -202,7 +204,9 @@ export const groupsRouter = hono()
         item: groupItems,
         participants: sql<string>`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId}
         ))`.as("participants"),
       })
       .from(groupRegistrations)
@@ -229,7 +233,10 @@ export const groupsRouter = hono()
         item: groupItems,
         participants: sql<string>`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId},
+          'batch', ${participants.batch}
         ))`.as("participants"),
       })
       .from(groupRegistrations)
@@ -241,9 +248,9 @@ export const groupsRouter = hono()
           FROM json_each(${groupRegistrations.participantIds})
         )`
       )
-      .where(eq(groupRegistrations.id, id))
+      .where(eq(groupRegistrations.groupItemId, id))
       .groupBy(groupRegistrations.id)
-      .get();
+      .all();
 
     if (!registration) {
       return c.json({ error: "Group registration not found" }, 404);
@@ -376,7 +383,12 @@ export const groupsRouter = hono()
         events,
         eq(events.organizationId, c.get("user").organizationId)
       )
-      .where(and(eq(groupRegistrations.id, data.groupRegistrationId), eq(groupItems.eventId, events.id)))
+      .where(
+        and(
+          eq(groupRegistrations.id, data.groupRegistrationId),
+          eq(groupItems.eventId, events.id)
+        )
+      )
       .get();
 
     if (!registration) {
@@ -398,6 +410,7 @@ export const groupsRouter = hono()
         groupRegistrationId: data.groupRegistrationId,
         position: data.position,
         points,
+        groupItemId: registration.item.id
       })
       .returning()
       .get();
@@ -412,9 +425,11 @@ export const groupsRouter = hono()
         result: groupResults,
         registration: groupRegistrations,
         item: groupItems,
-        participants: sql<any>`json_group_array(json_object(
+        participants: sql<string>`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId}
         ))`.as("participants"),
       })
       .from(groupResults)

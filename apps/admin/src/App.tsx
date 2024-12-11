@@ -18,7 +18,6 @@ import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections"; // added import statement
 import ProfilePage from "./pages/profile";
-import GroupItemsPage from "./pages/group-items";
 import GroupRegistrationsPage from "./pages/group-registrations";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import NewRegistrationPage from "./pages/new-registration";
@@ -31,6 +30,12 @@ import { ItemResultsPage } from "./pages/items/single/results";
 import { ItemReportsPage } from "./pages/items/single/reports";
 import { RegistrationReportPage } from "./pages/items/single/reports/registration-pdf";
 import { ResultReportPage } from "./pages/items/single/reports/result-pdf";
+import GroupItemsPage from "./pages/group-items/index";
+import { GroupItemLayout } from "./pages/group-items/single/layout";
+import { GroupItemsSinglePage } from "./pages/group-items/single";
+import { SingleGroupItemRegistrationsPage } from "./pages/group-items/single/registrations";
+import { NewGroupItemRegistrationPage } from "./pages/group-items/single/registrations/new";
+import { GroupItemResultsPage } from "./pages/group-items/single/results";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +76,27 @@ function App() {
                       element={<NewItemRegistrationPage />}
                     />
                     <Route path="results" element={<ItemResultsPage />} />
+                    <Route path="reports"  >
+                      <Route index element={<ItemReportsPage />} />
+                      <Route path="registration" element={<RegistrationReportPage />} />
+                      <Route path="results" element={<ResultReportPage />} />
+
+                    </Route>
+                  </Route>
+                </Route>
+                <Route path="/group-items" element={<ManagerOnly />}>
+                  <Route element={<GroupItemsPage />} index />
+                  <Route path=":itemId" element={<GroupItemLayout />}>
+                    <Route element={<GroupItemsSinglePage />} index />
+                    <Route
+                      path="registrations"
+                      element={<SingleGroupItemRegistrationsPage />}
+                    />
+                    <Route
+                      path="registrations/new"
+                      element={<NewGroupItemRegistrationPage />}
+                    />
+                    <Route path="results" element={<GroupItemResultsPage />} />
                     <Route path="reports"  >
                       <Route index element={<ItemReportsPage />} />
                       <Route path="registration" element={<RegistrationReportPage />} />
@@ -136,7 +162,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/group-items" element={<GroupItemsPage />} />
+                {/* <Route path="/group-items" element={<GroupItemsPage />} /> */}
                 <Route
                   path="/group-registrations"
                   element={<GroupRegistrationsPage />}

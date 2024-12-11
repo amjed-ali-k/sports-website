@@ -1,11 +1,17 @@
 import { apiClient } from "@/lib/api";
 import { tw } from "@/lib/pdf";
-import { Document, Page, Text, View, PDFViewer } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  PDFViewer,
+} from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
 
-export const ResultReportPage = () => {
+export const RegistrationReportPage = () => {
   const { itemId } = useParams();
 
   const { data: items = [] } = useQuery({
@@ -24,57 +30,49 @@ export const ResultReportPage = () => {
 
   const event = events?.find((event) => event.id === currentItem?.eventId);
 
-  const { data: results = [] } = useQuery({
-    queryKey: ["results"],
-    queryFn: () => apiClient.getResults(),
-    enabled: !!currentItem,
-  });
+  const { data: registrations = [] } =
+    useQuery({
+      queryKey: ["registrations"],
+      queryFn: () => apiClient.getRegistrations(),
+    });
 
   if (!currentItem || !event) return <div>Item not found</div>;
 
   return (
     <PDFViewer className="w-full h-screen">
-      <ReportResultPdf
+      <ReportRegistrationPdf
         eventDescription={event.description}
         eventName={event.name}
-        results={results
-          .filter((r) => r.result.itemId === currentItem.id)
-          .sort((a, b) =>
-            a.result.points - b.result.points > 0
-              ? -1
-              : a.result.points - b.result.points < 0
-                ? 1
-                : 0
-          )}
+        registrations={registrations.filter(r => r.item.id === currentItem.id).sort((a, b) => a.participant.chestNo.localeCompare(b.participant.chestNo))}
         itemName={currentItem.name}
       />
     </PDFViewer>
   );
 };
 
-const ReportResultPdf = ({
+const ReportRegistrationPdf = ({
   eventName,
   eventDescription,
-  results,
+  registrations,
   itemName,
 }: {
   eventName?: string;
   eventDescription?: string | null;
   itemName?: string;
-  results: {
-    result: {
+  registrations: {
+    registration: {
       id: number;
       createdAt: string | null;
       updatedAt: string | null;
-      position: "first" | "second" | "third";
-      points: number;
       itemId: number;
-      registrationId: number;
+      participantId: number;
+      metaInfo: string | null;
+      status: "registered" | "participated" | "not_participated";
     };
     participant: {
       id: number;
-      chestNo: string;
       fullName: string;
+      chestNo: string;
       sectionId: number;
       sectionName: string;
     };
@@ -95,58 +93,53 @@ const ReportResultPdf = ({
             <Text style={tw("text-sm text-slate-700")}>{eventDescription}</Text>
           </View>
           <View style={tw(" px-4 w-full font-body text-sm")}>
-            <Text
-              style={tw(
-                "text-sm my-2 text-center font-semibold text-slate-900"
-              )}
-            >
-              Results of {itemName}
+            <Text style={tw("text-sm my-2 text-center font-semibold text-slate-900")}>
+              Registrations for {itemName}
             </Text>
-            <View style={tw("flex flex-row w-full font-bold bg-slate-50")}>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[10%]")}>
-                <Text>Position</Text>
+            <View style={tw("flex flex-row w-full ")}>
+              <View style={tw("border border-slate-200 px-1 w-[10%]")}>
+                <Text>Id</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[10%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Chest No</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[40%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[40%]")}>
                 <Text>Name</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[20%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[10%]")}>
+                <Text>Batch</Text>
+              </View>
+              <View style={tw("border border-slate-200 px-1 w-[20%]")}>
                 <Text>Section</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[10%]")}>
-                <Text>Points</Text>
-              </View>
-              <View style={tw("border border-slate-200 px-1 py-1  w-[10%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Time</Text>
               </View>
             </View>
-            {results.map((result) => (
+            {registrations.map((registration) => (
               <View style={tw("flex flex-row w-full ")}>
-                <View
-                  style={tw(
-                    "px-1 border capitalize font-bold border-slate-200 w-[10%]"
-                  )}
-                >
-                  <Text>{result.result.position}</Text>
+                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
+                  <Text>{registration.registration.id}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{result.participant.chestNo}</Text>
+                  <Text>{registration.participant.chestNo}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[40%]")}>
-                  <Text>{result.participant.fullName}</Text>
-                </View>
-                <View style={tw("border border-slate-200 px-1 w-[20%]")}>
-                <Text>{result.participant.sectionName}</Text>
-              </View>
-                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{result.result.points}</Text>
+                  <Text>{registration.participant.fullName}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  {result.result.createdAt && (
+                  <Text>{registration.participant.sectionId}</Text>
+                </View>
+                <View style={tw("px-1 border border-slate-200 w-[20%]")}>
+                  <Text>{registration.participant.sectionName}</Text>
+                </View>
+                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
+                  {registration.registration.createdAt && (
                     <Text>
-                      {format(new Date(result.result.createdAt), "hh:mm a")}
+                      {format(
+                        new Date(registration.registration.createdAt),
+                        "hh:mm a"
+                      )}
                     </Text>
                   )}
                 </View>

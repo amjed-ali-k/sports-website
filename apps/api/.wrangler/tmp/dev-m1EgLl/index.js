@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-iLhA2R/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-jVBVqS/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-iLhA2R/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-jVBVqS/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -12587,7 +12587,9 @@ var events = sqliteTable("events", {
   registrationEndDate: text("registration_end_date"),
   certificateTemplates: text("certificate_templates", { mode: "json" }).$type(),
   logo: text("logo"),
-  maxRegistrationPerParticipant: integer("max_registration_per_participant").notNull(),
+  maxRegistrationPerParticipant: integer(
+    "max_registration_per_participant"
+  ).notNull(),
   organizationId: integer("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
@@ -12607,6 +12609,9 @@ var items = sqliteTable("items", {
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
   iconName: text("icon_name"),
+  canRegister: integer("can_register").default(1).notNull(),
+  isFinished: integer("is_finished").default(0).notNull(),
+  isResultPublished: integer("is_result_published").default(0).notNull(),
   eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
   maxParticipants: integer("max_participants"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -12618,7 +12623,11 @@ var groupItems = sqliteTable("group_items", {
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
+  iconName: text("icon_name"),
   eventId: integer("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  canRegister: integer("can_register").default(1).notNull(),
+  isFinished: integer("is_finished").default(0).notNull(),
+  isResultPublished: integer("is_result_published").default(0).notNull(),
   minParticipants: integer("min_participants").notNull(),
   maxParticipants: integer("max_participants").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -12633,6 +12642,7 @@ var groupRegistrations = sqliteTable("group_registrations", {
 var groupResults = sqliteTable("group_results", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   groupRegistrationId: integer("group_registration_id").references(() => groupRegistrations.id, { onDelete: "cascade" }).notNull(),
+  groupItemId: integer("group-item_id").references(() => groupItems.id).notNull(),
   position: text("position", { enum: ["first", "second", "third"] }).notNull(),
   points: integer("points").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -12667,7 +12677,9 @@ var admins = sqliteTable(
     avatar: text("avatar"),
     organizationId: integer("organization_id").references(() => organizations.id).notNull(),
     name: text("name").notNull(),
-    role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
+    role: text("role", {
+      enum: ["rep", "manager", "controller", "super_admin"]
+    }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
   },
@@ -13830,7 +13842,7 @@ var updateItemSchema = z.object({
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),
   pointsThird: z.number().min(0).optional(),
-  iconName: z.string().optional()
+  iconName: z.string().nullish()
 });
 var router2 = hono().post("/", zodValidator(createItemSchema), async (c) => {
   const data = c.req.valid("json");
@@ -14136,9 +14148,10 @@ var router4 = hono().post("/", zodValidator(createResultSchema), async (c) => {
       id: participants.id,
       fullName: participants.fullName,
       chestNo: participants.chestNo,
-      sectionId: participants.sectionId
+      sectionId: participants.sectionId,
+      sectionName: sections.name
     }
-  }).from(results).innerJoin(registrations, eq(results.registrationId, registrations.id)).innerJoin(participants, eq(registrations.participantId, participants.id)).all();
+  }).from(results).innerJoin(sections, eq(sections.id, participants.sectionId)).innerJoin(registrations, eq(results.registrationId, registrations.id)).innerJoin(participants, eq(registrations.participantId, participants.id)).all();
   return c.json(allResults);
 }).get("/item/:itemId", async (c) => {
   const itemId = Number(c.req.param("itemId"));
@@ -14886,6 +14899,7 @@ var createGroupItemSchema = z.object({
   minParticipants: z.number(),
   maxParticipants: z.number(),
   eventId: z.number(),
+  iconName: z.string().nullish(),
   gender: z.enum(["male", "female", "any"])
 });
 var updateGroupItemSchema = z.object({
@@ -14999,7 +15013,9 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     item: groupItems,
     participants: sql`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId}
         ))`.as("participants")
   }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
     participants,
@@ -15017,7 +15033,10 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     item: groupItems,
     participants: sql`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId},
+          'batch', ${participants.batch}
         ))`.as("participants")
   }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
     participants,
@@ -15025,7 +15044,7 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
           SELECT value 
           FROM json_each(${groupRegistrations.participantIds})
         )`
-  ).where(eq(groupRegistrations.id, id)).groupBy(groupRegistrations.id).get();
+  ).where(eq(groupRegistrations.groupItemId, id)).groupBy(groupRegistrations.id).all();
   if (!registration) {
     return c.json({ error: "Group registration not found" }, 404);
   }
@@ -15103,7 +15122,12 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
   }).from(groupRegistrations).innerJoin(groupItems, eq(groupItems.id, groupRegistrations.groupItemId)).innerJoin(
     events,
     eq(events.organizationId, c.get("user").organizationId)
-  ).where(and(eq(groupRegistrations.id, data.groupRegistrationId), eq(groupItems.eventId, events.id))).get();
+  ).where(
+    and(
+      eq(groupRegistrations.id, data.groupRegistrationId),
+      eq(groupItems.eventId, events.id)
+    )
+  ).get();
   if (!registration) {
     return c.json({ error: "Group registration not found" }, 404);
   }
@@ -15111,7 +15135,8 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
   const result = await db.insert(groupResults).values({
     groupRegistrationId: data.groupRegistrationId,
     position: data.position,
-    points
+    points,
+    groupItemId: registration.item.id
   }).returning().get();
   return c.json(result, 201);
 }).get("/results", async (c) => {
@@ -15122,7 +15147,9 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     item: groupItems,
     participants: sql`json_group_array(json_object(
           'id', ${participants.id},
-          'name', ${participants.fullName}
+          'name', ${participants.fullName},
+          'chestNo', ${participants.chestNo},
+          'sectionId', ${participants.sectionId}
         ))`.as("participants")
   }).from(groupResults).innerJoin(
     groupRegistrations,
@@ -15213,7 +15240,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-iLhA2R/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-jVBVqS/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15246,7 +15273,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-iLhA2R/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-jVBVqS/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

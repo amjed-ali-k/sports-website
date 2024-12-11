@@ -1,0 +1,1 @@
+ALTER TABLE `group_results` ADD `group-item_id` integer NOT NULL REFERENCES group_items(id);

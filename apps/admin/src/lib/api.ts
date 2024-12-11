@@ -325,6 +325,20 @@ class ApiClient {
     return response.json();
   }
 
+  async getGroupResults() {
+    const response = await this.client.api.groups.results.$get({});
+    return response.json();
+  }
+
+  async createGroupResult(data: {
+    groupRegistrationId: number;
+    position: "first" | "second" | "third";
+  }) {
+    const response = await this.client.api.groups.results.$post({
+      json: data,
+    });
+    return response.json();
+  }
   async deleteGroupRegistration(id: number) {
     const response = await this.client.api.groups.registrations[":id"].$delete({
       param: { id: id.toString() },

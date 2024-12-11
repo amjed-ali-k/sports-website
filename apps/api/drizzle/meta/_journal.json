@@ -57,6 +57,20 @@
       "when": 1733481886923,
       "tag": "0007_milky_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1733905156003,
+      "tag": "0008_last_oracle",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1733910449772,
+      "tag": "0009_brainy_rachel_grey",
+      "breakpoints": true
     }
   ]
 }

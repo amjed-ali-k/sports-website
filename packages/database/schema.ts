@@ -11,7 +11,9 @@ export const sections = sqliteTable("sections", {
   name: text("name").notNull(),
   logo: text("logo"),
   color: text("color"),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+  organizationId: integer("organization_id")
+    .references(() => organizations.id)
+    .notNull(),
   description: text("description"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
@@ -23,17 +25,25 @@ export const participants = sqliteTable(
     id: integer("id").primaryKey(),
     chestNo: text("chest_no").notNull(),
     fullName: text("full_name").notNull(),
-    sectionId: integer("section_id").references(() => sections.id).notNull(),
+    sectionId: integer("section_id")
+      .references(() => sections.id)
+      .notNull(),
     avatar: text("avatar"),
-    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+    organizationId: integer("organization_id")
+      .references(() => organizations.id)
+      .notNull(),
     batch: text("batch").notNull(),
     gender: text("gender", { enum: ["male", "female"] }).notNull(),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    createdAt: text("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: text("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
   },
   (table) => ({
     chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
-  }),
+  })
 );
 
 export const events = sqliteTable("events", {
@@ -46,27 +56,37 @@ export const events = sqliteTable("events", {
   eventEndTime: text("event_end_time"),
   registrationStartDate: text("registration_start_date"),
   registrationEndDate: text("registration_end_date"),
-  certificateTemplates: text("certificate_templates", {mode: "json"}).$type<{
+  certificateTemplates: text("certificate_templates", { mode: "json" }).$type<{
     participation: string;
     first: string;
     second: string;
     third: string;
   }>(),
   logo: text("logo"),
-  maxRegistrationPerParticipant: integer("max_registration_per_participant").notNull(),
+  maxRegistrationPerParticipant: integer(
+    "max_registration_per_participant"
+  ).notNull(),
   organizationId: integer("organization_id")
     .references(() => organizations.id, { onDelete: "cascade" })
     .notNull(),
-  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const organizations = sqliteTable("organizations", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const items = sqliteTable("items", {
@@ -77,6 +97,9 @@ export const items = sqliteTable("items", {
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
   pointsThird: integer("points_third").notNull(),
   iconName: text("icon_name"),
+  canRegister: integer("can_register").default(1).notNull(),
+  isFinished: integer("is_finished").default(0).notNull(),
+  isResultPublished: integer("is_result_published").default(0).notNull(),
   eventId: integer("event_id")
     .references(() => events.id, { onDelete: "cascade" })
     .notNull(),
@@ -93,9 +116,13 @@ export const groupItems = sqliteTable("group_items", {
   pointsSecond: integer("points_second").notNull(),
   pointsThird: integer("points_third").notNull(),
   gender: text("gender", { enum: ["male", "female", "any"] }).notNull(),
+  iconName: text("icon_name"),
   eventId: integer("event_id")
-  .references(() => events.id, { onDelete: "cascade" })
-  .notNull(),
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  canRegister: integer("can_register").default(1).notNull(),
+  isFinished: integer("is_finished").default(0).notNull(),
+  isResultPublished: integer("is_result_published").default(0).notNull(),
   minParticipants: integer("min_participants").notNull(),
   maxParticipants: integer("max_participants").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -119,6 +146,9 @@ export const groupResults = sqliteTable("group_results", {
   groupRegistrationId: integer("group_registration_id")
     .references(() => groupRegistrations.id, { onDelete: "cascade" })
     .notNull(),
+  groupItemId: integer("group-item_id")
+    .references(() => groupItems.id)
+    .notNull(),
   position: text("position", { enum: ["first", "second", "third"] }).notNull(),
   points: integer("points").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -128,8 +158,12 @@ export const groupResults = sqliteTable("group_results", {
 
 export const registrations = sqliteTable("registrations", {
   id: integer("id").primaryKey(),
-  itemId: integer("item_id").references(() => items.id).notNull(),
-  participantId: integer("participant_id").references(() => participants.id).notNull(),
+  itemId: integer("item_id")
+    .references(() => items.id)
+    .notNull(),
+  participantId: integer("participant_id")
+    .references(() => participants.id)
+    .notNull(),
   metaInfo: text("meta_info"),
   status: text("status", {
     enum: ["registered", "participated", "not_participated"],
@@ -142,9 +176,13 @@ export const registrations = sqliteTable("registrations", {
 
 export const results = sqliteTable("results", {
   id: integer("id").primaryKey(),
-  itemId: integer("item_id").references(() => items.id).notNull(),
+  itemId: integer("item_id")
+    .references(() => items.id)
+    .notNull(),
   position: text("position", { enum: ["first", "second", "third"] }).notNull(),
-  registrationId: integer("registration_id").references(() => registrations.id).notNull(),
+  registrationId: integer("registration_id")
+    .references(() => registrations.id)
+    .notNull(),
   points: integer("points").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
@@ -158,22 +196,32 @@ export const admins = sqliteTable(
     password: text("password").notNull(),
     description: text("description"),
     avatar: text("avatar"),
-    organizationId: integer("organization_id").references(() => organizations.id).notNull(),
+    organizationId: integer("organization_id")
+      .references(() => organizations.id)
+      .notNull(),
     name: text("name").notNull(),
-    role: text("role", { enum: ["rep", "manager", "controller", "super_admin"] }).notNull(),
+    role: text("role", {
+      enum: ["rep", "manager", "controller", "super_admin"],
+    }).notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
     emailIdx: uniqueIndex("email_idx").on(table.email),
-  }),
+  })
 );
 
 export const settings = sqliteTable("settings", {
   id: integer("id").primaryKey(),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
-  organizationId: integer("organization_id").references(() => organizations.id).notNull(),
-  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  organizationId: integer("organization_id")
+    .references(() => organizations.id)
+    .notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
 });

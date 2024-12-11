@@ -129,22 +129,7 @@ export default function Layout() {
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: "Dashboard",
-    href: "/",
-    description: "An overview of the results, participants and registrations.",
-  },
-  {
-    title: "Individual Registrations",
-    href: "/registrations",
-    description: "Register participants to specific event items.",
-  },
-  {
-    title: "Group Registrations",
-    href: "/group-registrations",
-    description: "Register teams to group event items.",
-  },
-  {
-    title: "Items",
+    title: "Individual Items",
     href: "/items",
     description: "Manage individual event items and their details.",
   },
@@ -153,11 +138,7 @@ const components: { title: string; href: string; description: string }[] = [
     href: "/group-items",
     description: "Manage group event items and their specifications.",
   },
-  {
-    title: "Results",
-    href: "/results",
-    description: "View and update event results and rankings.",
-  },
+
 ];
 
 export function NavigationMenuComp() {

@@ -50,7 +50,7 @@ type GroupItem = {
   gender: "male" | "female" | "any";
 };
 
-export default function GroupItemsPage() {
+export default function GroupItemsOldPage() {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();

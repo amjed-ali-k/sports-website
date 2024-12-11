@@ -122,9 +122,11 @@ const router = hono()
           fullName: participants.fullName,
           chestNo: participants.chestNo,
           sectionId: participants.sectionId,
+          sectionName: sections.name,
         },
       })
       .from(results)
+      .innerJoin(sections, eq(sections.id, participants.sectionId))
       .innerJoin(registrations, eq(results.registrationId, registrations.id))
       .innerJoin(participants, eq(registrations.participantId, participants.id))
       .all();
