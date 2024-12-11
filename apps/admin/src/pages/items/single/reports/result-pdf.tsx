@@ -5,13 +5,14 @@ import {
   Page,
   Text,
   View,
+  
   PDFViewer,
 } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
 
-export const RegistrationReportPage = () => {
+export const ResultReportPage = () => {
   const { itemId } = useParams();
 
   const { data: items = [] } = useQuery({
@@ -30,51 +31,54 @@ export const RegistrationReportPage = () => {
 
   const event = events?.find((event) => event.id === currentItem?.eventId);
 
-  const { data: registrations = [] } =
-    useQuery({
-      queryKey: ["registrations"],
-      queryFn: () => apiClient.getRegistrations(),
-    });
+  const { data: results = [], } = useQuery({
+    queryKey: ["results"],
+    queryFn: () => apiClient.getResults(),
+    enabled: !!currentItem,
+  });
 
   if (!currentItem || !event) return <div>Item not found</div>;
 
   return (
     <PDFViewer className="w-full h-screen">
-      <ReportRegistrationPdf
+      <ReportResultPdf
         eventDescription={event.description}
         eventName={event.name}
-        registrations={registrations.filter(r => r.item.id === currentItem.id).sort((a, b) => a.participant.chestNo.localeCompare(b.participant.chestNo))}
+        results={results
+          .filter((r) => r.result.itemId === currentItem.id)
+          .sort((a, b) =>
+            a.participant.chestNo.localeCompare(b.participant.chestNo)
+          )}
         itemName={currentItem.name}
       />
     </PDFViewer>
   );
 };
 
-const ReportRegistrationPdf = ({
+const ReportResultPdf = ({
   eventName,
   eventDescription,
-  registrations,
+  results,
   itemName,
 }: {
   eventName?: string;
   eventDescription?: string | null;
   itemName?: string;
-  registrations: {
-    registration: {
+  results: {
+    result: {
       id: number;
       createdAt: string | null;
       updatedAt: string | null;
+      position: "first" | "second" | "third";
+      points: number;
       itemId: number;
-      participantId: number;
-      metaInfo: string | null;
-      status: "registered" | "participated" | "not_participated";
+      registrationId: number;
     };
     participant: {
       id: number;
-      fullName: string;
       chestNo: string;
+      fullName: string;
       sectionId: number;
-      sectionName: string;
     };
   }[];
 }) => {
@@ -93,53 +97,49 @@ const ReportRegistrationPdf = ({
             <Text style={tw("text-sm text-slate-700")}>{eventDescription}</Text>
           </View>
           <View style={tw(" px-4 w-full font-body text-sm")}>
-            <Text style={tw("text-sm my-2 text-center font-semibold text-slate-900")}>
-              Registrations for {itemName}
+            <Text
+              style={tw(
+                "text-sm my-2 text-center font-semibold text-slate-900"
+              )}
+            >
+              Results of {itemName}
             </Text>
             <View style={tw("flex flex-row w-full ")}>
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
-                <Text>Id</Text>
+                <Text>Position</Text>
               </View>
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Chest No</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 w-[40%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[60%]")}>
                 <Text>Name</Text>
               </View>
+
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
-                <Text>Batch</Text>
-              </View>
-              <View style={tw("border border-slate-200 px-1 w-[20%]")}>
-                <Text>Section</Text>
+                <Text>Points</Text>
               </View>
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Time</Text>
               </View>
             </View>
-            {registrations.map((registration) => (
+            {results.map((result) => (
               <View style={tw("flex flex-row w-full ")}>
-                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{registration.registration.id}</Text>
+                <View style={tw("px-1 border capitalize font-bold border-slate-200 w-[10%]")}>
+                  <Text>{result.result.position}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{registration.participant.chestNo}</Text>
+                  <Text>{result.participant.chestNo}</Text>
                 </View>
-                <View style={tw("px-1 border border-slate-200 w-[40%]")}>
-                  <Text>{registration.participant.fullName}</Text>
-                </View>
-                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{registration.participant.sectionId}</Text>
-                </View>
-                <View style={tw("px-1 border border-slate-200 w-[20%]")}>
-                  <Text>{registration.participant.sectionName}</Text>
+                <View style={tw("px-1 border border-slate-200 w-[60%]")}>
+                  <Text>{result.participant.fullName}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  {registration.registration.createdAt && (
+                  <Text>{result.result.points}</Text>
+                </View>   
+                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
+                  {result.result.createdAt && (
                     <Text>
-                      {format(
-                        new Date(registration.registration.createdAt),
-                        "hh:mm a"
-                      )}
+                      {format(new Date(result.result.createdAt), "hh:mm a")}
                     </Text>
                   )}
                 </View>
