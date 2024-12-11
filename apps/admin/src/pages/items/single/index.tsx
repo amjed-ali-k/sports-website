@@ -12,7 +12,7 @@ export const ItemsSinglePage = () => {
           <Link to="results">Results</Link>
         </Button>
         <Button size="lg" asChild className="px-16 text-lg py-12">
-          <Link to="">Reports</Link>
+          <Link to="reports">Reports</Link>
         </Button>
       </div>
     </div>

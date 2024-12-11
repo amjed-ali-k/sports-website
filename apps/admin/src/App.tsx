@@ -28,6 +28,8 @@ import { SingleItemRegistrationsPage } from "./pages/items/single/registrations"
 import { NewItemRegistrationPage } from "./pages/items/single/registrations/new";
 import { ItemLayout } from "./pages/items/single/layout";
 import { ItemResultsPage } from "./pages/items/single/results";
+import { ItemReportsPage } from "./pages/items/single/reports";
+import { RegistrationReportPage } from "./pages/items/single/reports/registration-pdf";
 
 const queryClient = new QueryClient();
 
@@ -67,10 +69,11 @@ function App() {
                       path="registrations/new"
                       element={<NewItemRegistrationPage />}
                     />
-                    <Route
-                      path="results"
-                      element={<ItemResultsPage />}
-                    />
+                    <Route path="results" element={<ItemResultsPage />} />
+                    <Route path="reports"  >
+                      <Route index element={<ItemReportsPage />} />
+                      <Route path="registration" element={<RegistrationReportPage />} />
+                    </Route>
                   </Route>
                 </Route>
                 <Route

@@ -36,6 +36,7 @@ export function SingleItemRegistrationsPage() {
   )?.item;
 
   if (!currentItem) return <div>Item not found</div>;
+  
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">

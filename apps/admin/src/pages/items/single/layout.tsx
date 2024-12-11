@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 import { apiClient } from "@/lib/api";
 import { Card, CardContent } from "@sports/ui";
 import { useQuery } from "@tanstack/react-query";
@@ -29,10 +29,10 @@ export const ItemLayout = () => {
            <Card className="overflow-hidden">
         <CardContent className="p-6 flex justify-between">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <Link to={`/items/${currentItem.id}`} className="flex items-center space-x-3">
               <ItemIcon className="size-6" />
               <h3 className="font-semibold text-lg">{currentItem.name}</h3>
-            </div>
+            </Link>
           </div>
           <div className=" text-sm flex gap-x-4">
             <div className="flex gap-x-3">
