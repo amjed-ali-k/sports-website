@@ -13,6 +13,10 @@ import {
   CardTitle,
   Badge,
   useToast,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
 } from "@sports/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,7 +26,7 @@ import { useMemo } from "react";
 
 const registrationSchema = z.object({
   itemId: z.number(),
-  metaInfo: z.string().optional(),
+  name: z.string().optional(),
 });
 type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
@@ -62,11 +66,13 @@ export function NewGroupItemRegistrationPage() {
     mutationFn: async (
       values: RegistrationFormValues & {
         participantIds: number[];
+
       }
     ) => {
       await apiClient.createGroupRegistration({
         groupItemId: Number(itemId),
         participantIds: values.participantIds,
+        name: values.name
       });
     },
     onSuccess: () => {
@@ -156,6 +162,21 @@ export function NewGroupItemRegistrationPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Group Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="space-y-4">
                 <FormLabel>Select Participants</FormLabel>
                 <div className="flex items-center gap-4">

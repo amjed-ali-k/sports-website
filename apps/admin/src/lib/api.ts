@@ -302,7 +302,7 @@ class ApiClient {
   async createGroupRegistration(data: {
     groupItemId: number;
     participantIds: number[];
-    metaInfo?: string;
+    name?: string;
   }) {
     const response = await this.client.api.groups.registrations.$post({
       json: data,
@@ -315,7 +315,7 @@ class ApiClient {
     data: {
       groupItemId?: number;
       participantIds?: number[];
-      metaInfo?: string;
+      name?: string;
     }
   ) {
     const response = await this.client.api.groups.registrations[":id"].$put({
