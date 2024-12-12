@@ -3,7 +3,6 @@ import { tw } from "@/lib/pdf";
 import { cn } from "@/lib/utils";
 import { Document, Page, Text, View, PDFViewer } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { useParams } from "react-router-dom";
 
 export const GroupResultReportPage = () => {

@@ -1,9 +1,10 @@
 import { Link, Outlet } from "react-router-dom";
 import { apiClient } from "@/lib/api";
-import { Card, CardContent } from "@sports/ui";
+import { Button, Card, CardContent } from "@sports/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { getEventIcon } from "..";
+import { ChevronRight } from "lucide-react";
 
 export const GroupItemLayout = () => {
   const params = useParams();
@@ -28,13 +29,21 @@ export const GroupItemLayout = () => {
       <Card className="overflow-hidden">
         <CardContent className="p-6 flex justify-between">
           <div className="flex items-center justify-between">
-            <Link
-              to={`/group-items/${currentItem.id}`}
-              className="flex items-center space-x-3"
-            >
-              <ItemIcon className="size-6" />
-              <h3 className="font-semibold text-lg">{currentItem.name}</h3>
-            </Link>
+            <Button variant="ghost" asChild>
+              <Link to="/group-items">Group Items</Link>
+            </Button>
+            <ChevronRight className="size-4 mx-1" />
+            <div className="flex items-center justify-between">
+            <Button variant="ghost" asChild>
+              <Link
+                to={`/group-items/${currentItem.id}`}
+                className="flex items-center space-x-3"
+              >
+                <ItemIcon className="size-6" />
+                <h3 className="font-semibold text-lg">{currentItem.name}</h3>
+              </Link>
+              </Button>
+            </div>
           </div>
           <div className=" text-sm flex gap-x-4">
             <div className="flex gap-x-3">

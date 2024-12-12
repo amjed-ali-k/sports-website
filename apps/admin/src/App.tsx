@@ -12,15 +12,11 @@ import LoginPage from "./pages/login";
 import DashboardPage from "./pages/dashboard";
 import ParticipantsPage from "./pages/participants";
 import ItemsPage from "./pages/items/index";
-import RegistrationsPage from "./pages/registrations";
-import ResultsPage from "./pages/results";
 import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections"; // added import statement
 import ProfilePage from "./pages/profile";
-import GroupRegistrationsPage from "./pages/group-registrations";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
-import NewRegistrationPage from "./pages/new-registration";
 import EventsPage from "./pages/events";
 import { ItemsSinglePage } from "./pages/items/single";
 import { SingleItemRegistrationsPage } from "./pages/items/single/registrations";
@@ -79,11 +75,13 @@ function App() {
                       element={<NewItemRegistrationPage />}
                     />
                     <Route path="results" element={<ItemResultsPage />} />
-                    <Route path="reports"  >
+                    <Route path="reports">
                       <Route index element={<ItemReportsPage />} />
-                      <Route path="registration" element={<RegistrationReportPage />} />
+                      <Route
+                        path="registration"
+                        element={<RegistrationReportPage />}
+                      />
                       <Route path="results" element={<ResultReportPage />} />
-
                     </Route>
                   </Route>
                 </Route>
@@ -100,38 +98,20 @@ function App() {
                       element={<NewGroupItemRegistrationPage />}
                     />
                     <Route path="results" element={<GroupItemResultsPage />} />
-                    <Route path="reports"  >
+                    <Route path="reports">
                       <Route index element={<GroupItemReportsPage />} />
-                      <Route path="registration" element={<GroupRegistrationReportPage />} />
-                      <Route path="results" element={<GroupResultReportPage />} />
-
+                      <Route
+                        path="registration"
+                        element={<GroupRegistrationReportPage />}
+                      />
+                      <Route
+                        path="results"
+                        element={<GroupResultReportPage />}
+                      />
                     </Route>
                   </Route>
                 </Route>
-                <Route
-                  path="/registrations"
-                  element={
-                    <ProtectedRoute requiredRole="rep">
-                      <RegistrationsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/registrations/new"
-                  element={
-                    <ProtectedRoute requiredRole="rep">
-                      <NewRegistrationPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/results"
-                  element={
-                    <ProtectedRoute requiredRole="rep">
-                      <ResultsPage />
-                    </ProtectedRoute>
-                  }
-                />
+
                 <Route
                   path="/settings"
                   element={
@@ -148,7 +128,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
+                <Route  
                   path="/events"
                   element={
                     <ProtectedRoute requiredRole="controller">
@@ -164,11 +144,6 @@ function App() {
                       <ProfilePage />
                     </ProtectedRoute>
                   }
-                />
-                {/* <Route path="/group-items" element={<GroupItemsPage />} /> */}
-                <Route
-                  path="/group-registrations"
-                  element={<GroupRegistrationsPage />}
                 />
               </Route>
             </Routes>
