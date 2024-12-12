@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api";
 import { tw } from "@/lib/pdf";
+import { cn } from "@/lib/utils";
 import { Document, Page, Text, View, PDFViewer } from "@react-pdf/renderer";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -111,13 +112,30 @@ const ReportResultPdf = ({
             </Text>
             <Text style={tw("text-sm text-slate-700")}>{eventDescription}</Text>
           </View>
-          <Text
+          <View
             style={tw(
-              "text-sm my-2 text-center font-body font-semibold text-slate-900"
+              cn("w-full border-y  mb-4", {
+                "bg-indigo-50 border-indigo-200": itemGender === "male",
+                "bg-pink-100 border-pink-200": itemGender === "female",
+                "bg-sky-50 border-sky-200": itemGender === "any",
+              })
             )}
           >
-            Results for {itemName} [{itemGender}]
-          </Text>
+            <Text
+              style={tw(
+                "text-xs mt-2 mb-0 leading-3 text-center  font-body text-slate-500"
+              )}
+            >
+              Final Result
+            </Text>
+            <Text
+              style={tw(
+                "text-xl capitalize my-2 text-center font-body font-semibold text-slate-900"
+              )}
+            >
+              {itemName} [{itemGender}]
+            </Text>
+          </View>
           {results.map((result) => {
             const participants = JSON.parse(result.participants) as {
               id: number;
@@ -146,7 +164,7 @@ const ReportResultPdf = ({
                     {result.result.points} Points
                   </Text>
                 </View>
-                <View style={tw("flex flex-row w-full font-bold bg-slate-50")}>
+                <View style={tw("flex flex-row mx-auto font-bold bg-slate-50")}>
                   <View
                     style={tw("border border-slate-200 px-1 py-1  w-[10%]")}
                   >
@@ -168,13 +186,13 @@ const ReportResultPdf = ({
                     <Text>Section</Text>
                   </View>
                   <View
-                    style={tw("border border-slate-200 px-1 py-1  w-[10%]")}
+                    style={tw("border border-slate-200 px-1 py-1  w-[20%]")}
                   >
-                    <Text>Time</Text>
+                    <Text>Remarks</Text>
                   </View>
                 </View>
                 {participants.map((e) => (
-                  <View style={tw("flex flex-row w-full ")}>
+                  <View style={tw("flex flex-row mx-auto ")}>
                     <View
                       style={tw(
                         `px-1 border capitalize font-bold border-slate-200 w-[10%] ${
@@ -198,13 +216,9 @@ const ReportResultPdf = ({
                       <Text>{e.sectionName}</Text>
                     </View>
 
-                    <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                      {result.result.createdAt && (
-                        <Text>
-                          {format(new Date(result.result.createdAt), "hh:mm a")}
-                        </Text>
-                      )}
-                    </View>
+                    <View
+                      style={tw("px-1 border border-slate-200 w-[20%]")}
+                    ></View>
                   </View>
                 ))}
               </View>
