@@ -32,6 +32,7 @@ import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
 import { Award } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const resultSchema = z.object({
   position: z.enum(["first", "second", "third"]),
@@ -134,21 +135,44 @@ export function GroupItemResultsPage() {
                   control={form.control}
                   name="position"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-3">
                       <FormLabel>Position</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select position" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="first">First</SelectItem>
-                          <SelectItem value="second">Second</SelectItem>
-                          <SelectItem value="third">Third</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-3 gap-4">
+                        {["first", "second", "third"].map((position) => (
+                          <label
+                            key={position}
+                            className={cn(
+                              "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 p-4 text-center hover:bg-accent",
+                              {
+                                "border-primary bg-primary/10":
+                                  field.value === position,
+                                "border-muted": field.value !== position,
+                                "bg-amber-100 hover:bg-amber-100": position === "first",
+                                "bg-gray-100 hover:bg-gray-100": position === "second",
+                                "bg-rose-50 hover:bg-rose-100": position === "third",
+                              }
+                            )}
+                          >
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              {...field}
+                              value={position}
+                              checked={field.value === position}
+                            />
+                            <span className="text-lg font-semibold capitalize">
+                              {position}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {position === "first"
+                                ? "Gold"
+                                : position === "second"
+                                  ? "Silver"
+                                  : "Bronze"}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -195,6 +219,7 @@ export function GroupItemResultsPage() {
                                     key={reg.id}
                                     value={reg.id.toString()}
                                   >
+                                    {reg.name ?? "-"} {" | "}
                                     {user.name} ({user.chestNo}) and{" "}
                                     {users.length - 1} others
                                   </SelectItem>

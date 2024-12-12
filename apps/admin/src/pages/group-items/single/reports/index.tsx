@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@sports/ui";
 
-export const ItemReportsPage = () => {
+export const GroupItemReportsPage = () => {
   return (
     <div>
         <div className="flex gap-4 mt-4">

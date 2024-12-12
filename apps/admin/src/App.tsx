@@ -36,6 +36,9 @@ import { GroupItemsSinglePage } from "./pages/group-items/single";
 import { SingleGroupItemRegistrationsPage } from "./pages/group-items/single/registrations";
 import { NewGroupItemRegistrationPage } from "./pages/group-items/single/registrations/new";
 import { GroupItemResultsPage } from "./pages/group-items/single/results";
+import { GroupItemReportsPage } from "./pages/group-items/single/reports";
+import { GroupRegistrationReportPage } from "./pages/group-items/single/reports/registration-pdf";
+import { GroupResultReportPage } from "./pages/group-items/single/reports/result-pdf";
 
 const queryClient = new QueryClient();
 
@@ -98,9 +101,9 @@ function App() {
                     />
                     <Route path="results" element={<GroupItemResultsPage />} />
                     <Route path="reports"  >
-                      <Route index element={<ItemReportsPage />} />
-                      <Route path="registration" element={<RegistrationReportPage />} />
-                      <Route path="results" element={<ResultReportPage />} />
+                      <Route index element={<GroupItemReportsPage />} />
+                      <Route path="registration" element={<GroupRegistrationReportPage />} />
+                      <Route path="results" element={<GroupResultReportPage />} />
 
                     </Route>
                   </Route>
