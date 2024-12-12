@@ -135,6 +135,7 @@ export const groupRegistrations = sqliteTable("group_registrations", {
   groupItemId: integer("group_item_id")
     .references(() => groupItems.id, { onDelete: "cascade" })
     .notNull(),
+  name: text("name"),
   participantIds: text("participant_ids").notNull(), // Stored as JSON array of participant IDs
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

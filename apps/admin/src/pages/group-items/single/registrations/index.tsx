@@ -53,6 +53,7 @@ export function SingleGroupItemRegistrationsPage() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Name</TableHead>
             <TableHead>Participant</TableHead>
             <TableHead>Section</TableHead>
             <TableHead>Meta Info</TableHead>
@@ -75,6 +76,7 @@ export function SingleGroupItemRegistrationsPage() {
             const user = users[0];
             return (
               <TableRow key={registration.id}>
+                <TableCell>{registration.name || 'N/A'}</TableCell>
                 <TableCell>
                   {user.name} and {users.length - 1} others
                 </TableCell>

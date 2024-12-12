@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-jVBVqS/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Nepx78/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-jVBVqS/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Nepx78/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -12635,6 +12635,7 @@ var groupItems = sqliteTable("group_items", {
 var groupRegistrations = sqliteTable("group_registrations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   groupItemId: integer("group_item_id").references(() => groupItems.id, { onDelete: "cascade" }).notNull(),
+  name: text("name"),
   participantIds: text("participant_ids").notNull(),
   // Stored as JSON array of participant IDs
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$default(() => /* @__PURE__ */ new Date())
@@ -14914,7 +14915,8 @@ var updateGroupItemSchema = z.object({
 });
 var createGroupRegistrationSchema = z.object({
   groupItemId: z.number(),
-  participantIds: z.array(z.number())
+  participantIds: z.array(z.number()),
+  name: z.string().nullish()
 });
 var updateGroupRegistrationSchema = z.object({
   groupItemId: z.number().optional(),
@@ -14985,7 +14987,8 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
     }
     const registration = await db.insert(groupRegistrations).values({
       groupItemId: data.groupItemId,
-      participantIds: JSON.stringify(data.participantIds)
+      participantIds: JSON.stringify(data.participantIds),
+      name: data.name
     }).returning().get();
     const fullRegistration = await db.select({
       registration: groupRegistrations,
@@ -15240,7 +15243,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-jVBVqS/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Nepx78/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15273,7 +15276,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-jVBVqS/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Nepx78/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

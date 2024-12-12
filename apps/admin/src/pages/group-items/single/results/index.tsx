@@ -153,7 +153,6 @@ export function GroupItemResultsPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="registrationId"
