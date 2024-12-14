@@ -69,9 +69,8 @@ export function SingleGroupItemRegistrationsPage() {
               sectionId: string;
               batch: string;
             }[];
-            const sectionId = Number(users[0]?.sectionId);
             const section = sections.find(
-              (section) => section.id === sectionId
+              (section) => section.id === registration.sectionId
             );
             const user = users[0];
             return (
@@ -80,7 +79,7 @@ export function SingleGroupItemRegistrationsPage() {
                 <TableCell>
                   {user.name} and {users.length - 1} others
                 </TableCell>
-                <TableCell>{section?.name}</TableCell>
+                <TableCell>{section?.name ?? '-'}</TableCell>
                 <TableCell>{user.batch}</TableCell>
                 <TableCell></TableCell>
               </TableRow>

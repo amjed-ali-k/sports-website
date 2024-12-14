@@ -82,6 +82,7 @@ export function NewGroupItemRegistrationPage() {
         groupItemId: Number(itemId),
         participantIds: values.participantIds,
         name: values.name,
+        sectionId: values.sectionId
       });
     },
     onSuccess: () => {
