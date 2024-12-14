@@ -76,13 +76,12 @@ export function NewGroupItemRegistrationPage() {
     mutationFn: async (
       values: RegistrationFormValues & {
         participantIds: number[];
-
       }
     ) => {
       await apiClient.createGroupRegistration({
         groupItemId: Number(itemId),
         participantIds: values.participantIds,
-        name: values.name
+        name: values.name,
       });
     },
     onSuccess: () => {
@@ -117,9 +116,14 @@ export function NewGroupItemRegistrationPage() {
     });
   };
 
+  const selectedSectionId = form.watch("sectionId");
+
   const isLoading = itemsLoading || participantsLoading;
 
   const filteredParticipants = participants?.filter(({ participant: p }) => {
+    const isSectionMatch =
+      !selectedSectionId || p.sectionId === selectedSectionId;
+    if (!isSectionMatch) return false;
     if (!selectedItem) return true;
     // Filter by gender if item is gender-specific
     if (selectedItem.gender !== "any") {
@@ -188,32 +192,36 @@ export function NewGroupItemRegistrationPage() {
                 />
               </div>
               <div>
-              <FormField
-              control={form.control}
-              name="sectionId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Section (Optional)</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value?.toString()}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sections?.map((ev) => (
-                        <SelectItem key={ev.id} value={ev.id.toString()}>
-                          {ev.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>Select section if this item is section-specific</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="sectionId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Section (Optional)</FormLabel>
+                      <Select
+                        onValueChange={(value) =>
+                          field.onChange(parseInt(value))
+                        }
+                        value={field.value?.toString()}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select section" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sections?.map((ev) => (
+                            <SelectItem key={ev.id} value={ev.id.toString()}>
+                              {ev.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Select section if this item is section-specific
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="space-y-4">
                 <FormLabel>Select Participants</FormLabel>
