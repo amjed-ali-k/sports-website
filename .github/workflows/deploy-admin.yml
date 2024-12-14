@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - production
-    paths:
-      - 'apps/admin/**'
-      - 'packages/ui/**'
-      - 'packages/database/**'
 
 jobs:
   deploy:
