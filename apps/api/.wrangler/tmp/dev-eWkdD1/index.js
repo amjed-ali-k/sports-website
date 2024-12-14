@@ -1889,10 +1889,10 @@ var require_bcrypt = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-kXZ7oG/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-w3QoeZ/middleware-loader.entry.ts
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-kXZ7oG/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-w3QoeZ/middleware-insertion-facade.js
 init_modules_watch_stub();
 
 // src/index.ts
@@ -15194,11 +15194,113 @@ var groupsRouter = hono().post("/items", zodValidator(createGroupItemSchema), as
   return c.json(results2);
 });
 
+// src/routes/stats.ts
+init_modules_watch_stub();
+var statsRouter = hono().get("/stats", async (c) => {
+  const db = c.get("db");
+  const participantsCount = await db.select({
+    total: sql`count(*)`.as("total"),
+    male: sql`sum(case when ${participants.gender} = 'male' then 1 else 0 end)`.as("male"),
+    female: sql`sum(case when ${participants.gender} = 'female' then 1 else 0 end)`.as("female")
+  }).from(participants).get();
+  const participantsBySectionAndGender = await db.select({
+    sectionId: participants.sectionId,
+    male: sql`sum(case when ${participants.gender} = 'male' then 1 else 0 end)`.as("male"),
+    female: sql`sum(case when ${participants.gender} = 'female' then 1 else 0 end)`.as("female"),
+    total: sql`count(*)`.as("total")
+  }).from(participants).groupBy(participants.sectionId).get();
+  const eventsCount = await db.select({
+    total: sql`count(*)`.as("total"),
+    completed: sql`sum(case when ${events.eventEndTime} < datetime('now', 'localtime') then 1 else 0 end)`.as("completed"),
+    upcoming: sql`sum(case when ${events.eventEndTime} >= datetime('now', 'localtime') or ${events.eventEndTime} is null then 1 else 0 end)`.as("upcoming")
+  }).from(events).get();
+  const itemsCount = await db.select({
+    total: sql`count(*)`.as("total"),
+    scheduled: sql`sum(case when ${items.status} = 'scheduled' then 1 else 0 end)`.as("scheduled"),
+    ongoing: sql`sum(case when ${items.status} = 'on-going' then 1 else 0 end)`.as("ongoing"),
+    finished: sql`sum(case when ${items.status} = 'finished' then 1 else 0 end)`.as("finished")
+  }).from(items).get();
+  const groupItemsCount = await db.select({
+    total: sql`count(*)`.as("total"),
+    scheduled: sql`sum(case when ${groupItems.status} = 'scheduled' then 1 else 0 end)`.as("scheduled"),
+    ongoing: sql`sum(case when ${groupItems.status} = 'on-going' then 1 else 0 end)`.as("ongoing"),
+    finished: sql`sum(case when ${groupItems.status} = 'finished' then 1 else 0 end)`.as("finished")
+  }).from(groupItems).get();
+  return c.json({
+    participants: {
+      total: participantsCount,
+      bySection: participantsBySectionAndGender
+    },
+    eventsCount,
+    itemsCount,
+    groupItemsCount
+  });
+}).get("/event/:eventId/results", async (c) => {
+  const eventId = Number(c.req.param("eventId"));
+  const db = c.get("db");
+  const individualResults = await db.select({
+    sectionId: participants.sectionId,
+    totalPoints: sql`sum(${results.points})`.as("total_points"),
+    firstCount: sql`sum(case when ${results.position} = 'first' then 1 else 0 end)`.as("first_count"),
+    secondCount: sql`sum(case when ${results.position} = 'second' then 1 else 0 end)`.as("second_count"),
+    thirdCount: sql`sum(case when ${results.position} = 'third' then 1 else 0 end)`.as("third_count")
+  }).from(results).innerJoin(registrations, eq(results.registrationId, registrations.id)).innerJoin(items, eq(registrations.itemId, items.id)).innerJoin(participants, eq(registrations.participantId, participants.id)).where(eq(items.eventId, eventId)).groupBy(participants.sectionId);
+  const _groupResults = await db.select({
+    sectionId: groupRegistrations.sectionId,
+    totalPoints: sql`sum(${groupResults.points})`.as("total_points"),
+    firstCount: sql`sum(case when ${groupResults.position} = 'first' then 1 else 0 end)`.as("first_count"),
+    secondCount: sql`sum(case when ${groupResults.position} = 'second' then 1 else 0 end)`.as("second_count"),
+    thirdCount: sql`sum(case when ${groupResults.position} = 'third' then 1 else 0 end)`.as("third_count")
+  }).from(groupResults).innerJoin(groupRegistrations, eq(groupResults.groupRegistrationId, groupRegistrations.id)).innerJoin(groupItems, eq(groupResults.groupItemId, groupItems.id)).where(
+    and(
+      eq(groupItems.eventId, eventId),
+      isNotNull(groupRegistrations.sectionId)
+    )
+  ).groupBy(groupRegistrations.sectionId);
+  const sections2 = /* @__PURE__ */ new Set([
+    ...individualResults?.map((r) => r.sectionId),
+    ..._groupResults?.map((r) => r.sectionId)
+  ]);
+  const combinedResults = Array.from(sections2).map((sectionId) => {
+    const individual = individualResults.find((r) => r.sectionId === sectionId) || {
+      totalPoints: 0,
+      firstCount: 0,
+      secondCount: 0,
+      thirdCount: 0
+    };
+    const group = _groupResults.find((r) => r.sectionId === sectionId) || {
+      totalPoints: 0,
+      firstCount: 0,
+      secondCount: 0,
+      thirdCount: 0
+    };
+    return {
+      sectionId,
+      totalPoints: individual.totalPoints + group.totalPoints,
+      individual: {
+        points: individual.totalPoints,
+        first: individual.firstCount,
+        second: individual.secondCount,
+        third: individual.thirdCount
+      },
+      group: {
+        points: group.totalPoints,
+        first: group.firstCount,
+        second: group.secondCount,
+        third: group.thirdCount
+      }
+    };
+  });
+  return c.json({
+    results: combinedResults.sort((a, b) => b.totalPoints - a.totalPoints)
+  });
+});
+
 // src/types.ts
 init_modules_watch_stub();
 
 // src/index.ts
-var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/events", events_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter);
+var api = hono().use("*", authMiddleware).route("/profile", profile_default).route("/participants", participants_default).route("/items", items_default).route("/registrations", registrations_default).route("/results", results_default).route("/events", events_default).route("/sections", sections_default).route("/admins", admins_default).route("/settings", settings_default).route("/groups", groupsRouter).route("/stats", statsRouter);
 var app = hono().use("*", cors()).use(logger()).use("*", async (c, next) => {
   c.set("db", createDb(c.env.DB));
   await next();
@@ -15248,7 +15350,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-kXZ7oG/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-w3QoeZ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -15281,7 +15383,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-kXZ7oG/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-w3QoeZ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

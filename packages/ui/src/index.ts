@@ -25,6 +25,8 @@ export * from "./components/ui/data-table";
 export * from "./components/ui/multi-combobox";
 export * from "./components/ui/navigation-menu"
 export * from "./components/ui/checkbox"
+export * from "./components/ui/progress"
+export * from "./components/ui/chart"
 
 // Export styles
 import "./styles.css";

@@ -14,6 +14,7 @@ import { createDb } from "./db/index";
 import { logger } from "hono/logger";
 import profileRouter from "./routes/profile";
 import { groupsRouter } from "./routes/groups";
+import { statsRouter } from "./routes/stats";
 
 export * from "./types";
 
@@ -28,7 +29,8 @@ const api = hono()
   .route("/sections", sectionsRouter)
   .route("/admins", adminsRouter)
   .route("/settings", settingsRouter)
-  .route("/groups", groupsRouter);
+  .route("/groups", groupsRouter)
+  .route("/stats", statsRouter);
 
 const app = hono()
   .use("*", cors())

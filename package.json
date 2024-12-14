@@ -19,5 +19,8 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "bun@1.1.38"
+  "packageManager": "bun@1.1.38",
+  "dependencies": {
+    "@radix-ui/react-progress": "^1.1.1"
+  }
 }

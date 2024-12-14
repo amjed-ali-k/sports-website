@@ -237,6 +237,18 @@ class ApiClient {
     return response.json();
   }
 
+  async getStats() {
+    const response = await this.client.api.stats.stats.$get({});
+    return response.json();
+  }
+
+  async getEventResultStats(eventId: number) {
+    const response = await this.client.api.stats.event[":eventId"].results.$get({
+      param: { eventId: eventId.toString() },
+    });
+    return response.json();
+  }
+
   // Group Items
   async getGroupItems() {
     const response = await this.client.api.groups.items.$get({});
