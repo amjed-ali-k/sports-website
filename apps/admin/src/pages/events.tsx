@@ -24,13 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@sports/ui";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sports/ui";
 import { Input } from "@sports/ui";
 import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";

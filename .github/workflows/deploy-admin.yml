@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
+      - name: Build UI Package
+        run: bun run build --filter @sports/ui
       - name: Build Admin
         run: bun run build --filter @sports/admin
         env:
