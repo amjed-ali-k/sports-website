@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - production
-    paths:
-      - 'apps/api/**'
-  pull_request:
-    branches:
-      - production
-    paths:
-      - 'apps/api/**'
 
 jobs:
   deploy:
@@ -34,14 +27,20 @@ jobs:
 
           [[d1_databases]]
           binding = "DB"
-          database_name = "gptc-sports-db"
+          database_name = "gptc-pmna-sports-db"
           database_id = "${{ secrets.DATABASE_ID }}"
           migrations_dir = "drizzle"
+
+          [observability]
+          enabled = true
+          head_sampling_rate = 1 # optional. default = 1.
           EOF
         
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/api'
           command: deploy
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

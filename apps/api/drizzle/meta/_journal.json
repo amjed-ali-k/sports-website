@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1732971937055,
-      "tag": "0000_young_magus",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1732985856050,
-      "tag": "0001_stiff_vampiro",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1732994747169,
-      "tag": "0002_high_dexter_bennett",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1732996032745,
-      "tag": "0003_nasty_morg",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1733075992213,
-      "tag": "0004_ambitious_valkyrie",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1733206250924,
-      "tag": "0005_lumpy_calypso",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1733208713017,
-      "tag": "0006_tiny_phalanx",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1733481886923,
-      "tag": "0007_milky_skullbuster",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1733905156003,
-      "tag": "0008_last_oracle",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1733910449772,
-      "tag": "0009_brainy_rachel_grey",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "6",
-      "when": 1733992229569,
-      "tag": "0010_flippant_king_cobra",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "6",
-      "when": 1734181751385,
-      "tag": "0011_silent_pyro",
+      "when": 1734192587769,
+      "tag": "0000_steady_machine_man",
       "breakpoints": true
     }
   ]

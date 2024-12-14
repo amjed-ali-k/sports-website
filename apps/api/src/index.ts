@@ -15,6 +15,8 @@ import { logger } from "hono/logger";
 import profileRouter from "./routes/profile";
 import { groupsRouter } from "./routes/groups";
 import { statsRouter } from "./routes/stats";
+import { timing } from "hono/timing";
+
 
 export * from "./types";
 
@@ -34,7 +36,7 @@ const api = hono()
 
 const app = hono()
   .use("*", cors())
-  .use(logger())
+  .use(logger()).use(timing())
   .use("*", async (c, next) => {
     c.set("db", createDb(c.env.DB));
     await next();
