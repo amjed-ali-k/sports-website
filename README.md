@@ -109,3 +109,27 @@ Uses Cloudflare D1 with Drizzle ORM for:
 - 👑 Controller: Full access to results and management
 - 👨‍💼 Manager: Can manage participants and enrollments
 - 👤 Rep: Basic participant management
+
+
+You'll need to set up two secrets in your GitHub repository:
+
+CLOUDFLARE_API_TOKEN: Create a new API token in Cloudflare with these permissions:
+Account.Cloudflare Pages: Edit
+User.User Details: Read
+Zone.Zone Settings: Read
+CLOUDFLARE_ACCOUNT_ID: Your Cloudflare account ID
+Here's how to set these up:
+
+Create a new API token in Cloudflare:
+Go to https://dash.cloudflare.com/profile/api-tokens
+Click "Create Token"
+Use the "Edit Cloudflare Pages" template or create a custom token with the permissions listed above
+Copy the token
+Get your Account ID:
+Go to your Cloudflare dashboard
+The Account ID is in the URL or in the overview page
+Add the secrets to GitHub:
+Go to your repository settings
+Navigate to Secrets and Variables > Actions
+Click "New repository secret"
+Add both CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
