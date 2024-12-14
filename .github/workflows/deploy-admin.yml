@@ -6,11 +6,8 @@ on:
       - production
     paths:
       - 'apps/admin/**'
-  pull_request:
-    branches:
-      - production
-    paths:
-      - 'apps/admin/**'
+      - 'packages/ui/**'
+      - 'packages/database/**'
 
 jobs:
   deploy:
@@ -31,5 +28,6 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/admin'
-          command: pages deploy dist
+          command: pages deploy dist --project-name=sports-admin
