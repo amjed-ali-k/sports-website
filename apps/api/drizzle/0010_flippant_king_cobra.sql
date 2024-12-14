@@ -1,1 +1,0 @@
-ALTER TABLE `group_registrations` ADD `name` text;

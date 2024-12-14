@@ -30,6 +30,10 @@ jobs:
           database_name = "gptc-pmna-sports-db"
           database_id = "${{ secrets.DATABASE_ID }}"
           migrations_dir = "drizzle"
+
+          [observability]
+          enabled = true
+          head_sampling_rate = 1 # optional. default = 1.
           EOF
         
       - name: Deploy to Cloudflare Workers
