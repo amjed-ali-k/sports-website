@@ -4,13 +4,6 @@ on:
   push:
     branches:
       - production
-    paths:
-      - 'apps/api/**'
-  pull_request:
-    branches:
-      - production
-    paths:
-      - 'apps/api/**'
 
 jobs:
   deploy:
@@ -34,7 +27,7 @@ jobs:
 
           [[d1_databases]]
           binding = "DB"
-          database_name = "gptc-sports-db"
+          database_name = "gptc-pmna-sports-db"
           database_id = "${{ secrets.DATABASE_ID }}"
           migrations_dir = "drizzle"
           EOF
@@ -46,3 +39,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/api'
           command: deploy
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

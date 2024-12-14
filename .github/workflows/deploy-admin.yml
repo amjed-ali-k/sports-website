@@ -27,3 +27,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/admin'
           command: pages deploy dist --project-name=sports-admin
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
