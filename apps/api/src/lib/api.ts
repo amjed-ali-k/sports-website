@@ -1,6 +1,7 @@
 import { createDb } from "../db/index";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
+import type { TimingVariables } from 'hono/timing'
 
 type Bindings = {
   DB: D1Database;
@@ -17,7 +18,7 @@ type Variables = {
     avatar?: string | null;
     organizationId: number;
   };
-};
+} & TimingVariables;
 
 export const hono = <Path extends string = "/">() =>
   new Hono<{
