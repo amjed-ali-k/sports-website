@@ -1,21 +1,95 @@
-import { lazy, Suspense } from 'react';
-import { LucideProps } from 'lucide-react';
-import dynamicIconImports from 'lucide-react/dynamicIconImports';
+import {
+  Anvil,
+  Award,
+  Axe,
+  Binoculars,
+  Bird,
+  Bolt,
+  CircleGauge,
+  Dumbbell,
+  FolderKanban,
+  Gauge,
+  LandPlot,
+  PaintbrushVertical,
+  Ratio,
+  Swords,
+  Tickets,
+  Trophy,
+  VenetianMask,
+  Volleyball,
+} from "lucide-react";
 
-const fallback = <div style={{ background: '#ddd', width: 24, height: 24 }}/>
-
-interface IconProps extends Omit<LucideProps, 'ref'> {
-  name: keyof typeof dynamicIconImports;
-}
-
-const Icon = ({ name, ...props }: IconProps) => {
-  const LucideIcon = lazy(dynamicIconImports[name]);
-
-  return (
-    <Suspense fallback={fallback}>
-      <LucideIcon {...props} />
-    </Suspense>
-  );
-}
-
-export default Icon
+export const iconsList = [
+  {
+    name: "anvil",
+    icon: Anvil,
+  },
+  {
+    name: "axe",
+    icon: Axe,
+  },
+  {
+    name: "bolt",
+    icon: Bolt,
+  },
+  {
+    name: "swords",
+    icon: Swords,
+  },
+  {
+    name: "award",
+    icon: Award,
+  },
+  {
+    name: "circle-gauge",
+    icon: CircleGauge,
+  },
+  {
+    name: "dumbbell",
+    icon: Dumbbell,
+  },
+  {
+    name: "gauge",
+    icon: Gauge,
+  },
+  {
+    name: "land-plot",
+    icon: LandPlot,
+  },
+  {
+    name: "volleyball",
+    icon: Volleyball,
+  },
+  {
+    name: "trophy",
+    icon: Trophy,
+  },
+  {
+    name: "tickets",
+    icon: Tickets,
+  },
+  {
+    name: "folder-kanban",
+    icon: FolderKanban,
+  },
+  {
+    name: "venetian-mask",
+    icon: VenetianMask,
+  },
+  {
+    name: "bird",
+    icon: Bird,
+  },
+  {
+    name: "paintbrush-vertical",
+    icon: PaintbrushVertical,
+  },
+  {
+    name: "ratio",
+    icon: Ratio,
+  },
+  {
+    name: "binoculars",
+    icon: Binoculars,
+  },
+] as const;

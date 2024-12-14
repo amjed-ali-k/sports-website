@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@sports/ui";
 import { Button } from "@sports/ui";
 import { apiClient } from "@/lib/api";
-import { iconsList, ItemFormValues, NewItemFormDialog } from "./new";
+import {  ItemFormValues, NewItemFormDialog } from "./new";
 import { Popcorn } from "lucide-react";
 import { Link } from "react-router-dom";
+import { iconsList } from "@/components/icon";
 
 // Helper function to get the appropriate icon for each event
 export function getEventIcon(iconName?: string | null) {

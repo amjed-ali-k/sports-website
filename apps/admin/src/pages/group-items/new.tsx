@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@sports/ui";
+import { Button, FormDescription } from "@sports/ui";
 import {
   Dialog,
   DialogContent,
@@ -29,27 +29,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
-import {
-  Anvil,
-  Award,
-  Axe,
-  Binoculars,
-  Bird,
-  Bolt,
-  CircleGauge,
-  Dumbbell,
-  FolderKanban,
-  Gauge,
-  LandPlot,
-  PaintbrushVertical,
-  Ratio,
-  Swords,
-  Tickets,
-  Trophy,
-  VenetianMask,
-  Volleyball,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { iconsList } from "@/components/icon";
 
 const itemSchema = z.object({
   id: z.number().optional(),
@@ -65,81 +46,6 @@ const itemSchema = z.object({
 });
 
 export type ItemFormValues = z.infer<typeof itemSchema>;
-
-export const iconsList = [
-  {
-    name: "anvil",
-    icon: Anvil,
-  },
-  {
-    name: "axe",
-    icon: Axe,
-  },
-  {
-    name: "bolt",
-    icon: Bolt,
-  },
-  {
-    name: "swords",
-    icon: Swords,
-  },
-  {
-    name: "award",
-    icon: Award,
-  },
-  {
-    name: "circle-gauge",
-    icon: CircleGauge,
-  },
-  {
-    name: "dumbbell",
-    icon: Dumbbell,
-  },
-  {
-    name: "gauge",
-    icon: Gauge,
-  },
-  {
-    name: "land-plot",
-    icon: LandPlot,
-  },
-  {
-    name: "volleyball",
-    icon: Volleyball,
-  },
-  {
-    name: "trophy",
-    icon: Trophy,
-  },
-  {
-    name: "tickets",
-    icon: Tickets,
-  },
-  {
-    name: "folder-kanban",
-    icon: FolderKanban,
-  },
-  {
-    name: "venetian-mask",
-    icon: VenetianMask,
-  },
-  {
-    name: "bird",
-    icon: Bird,
-  },
-  {
-    name: "paintbrush-vertical",
-    icon: PaintbrushVertical,
-  },
-  {
-    name: "ratio",
-    icon: Ratio,
-  },
-  {
-    name: "binoculars",
-    icon: Binoculars,
-  },
-] as const;
 
 export const NewItemFormDialog = ({
   editingItem,
@@ -166,6 +72,7 @@ export const NewItemFormDialog = ({
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
@@ -270,6 +177,8 @@ export const NewItemFormDialog = ({
                 </FormItem>
               )}
             />
+
+          
 
             <FormField
               control={form.control}
@@ -457,8 +366,6 @@ export const NewItemFormDialog = ({
               </FormItem>
             )}
           /> */}
-
-         
 
             <Button type="submit" className="w-full">
               {editingItem ? "Update" : "Create"} Item

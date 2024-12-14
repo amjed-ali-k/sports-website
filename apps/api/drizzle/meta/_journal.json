@@ -78,6 +78,13 @@
       "when": 1733992229569,
       "tag": "0010_flippant_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1734181751385,
+      "tag": "0011_silent_pyro",
+      "breakpoints": true
     }
   ]
 }

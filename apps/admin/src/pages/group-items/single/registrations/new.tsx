@@ -17,6 +17,12 @@ import {
   FormItem,
   FormControl,
   FormMessage,
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectValue,
+  FormDescription,
+  SelectItem,
 } from "@sports/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,6 +33,7 @@ import { useMemo } from "react";
 const registrationSchema = z.object({
   itemId: z.number(),
   name: z.string().optional(),
+  sectionId: z.number().optional(),
 });
 type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
@@ -47,7 +54,10 @@ export function NewGroupItemRegistrationPage() {
     queryKey: ["group-items"],
     queryFn: () => apiClient.getGroupItems(),
   });
-
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => apiClient.getSections(),
+  });
   const selectedItem = items?.find((item) => item.id === Number(itemId));
 
   const form = useForm<RegistrationFormValues>({
@@ -176,6 +186,34 @@ export function NewGroupItemRegistrationPage() {
                     </FormItem>
                   )}
                 />
+              </div>
+              <div>
+              <FormField
+              control={form.control}
+              name="sectionId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Section (Optional)</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={field.value?.toString()}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sections?.map((ev) => (
+                        <SelectItem key={ev.id} value={ev.id.toString()}>
+                          {ev.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Select section if this item is section-specific</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
               </div>
               <div className="space-y-4">
                 <FormLabel>Select Participants</FormLabel>

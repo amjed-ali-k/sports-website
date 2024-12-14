@@ -100,7 +100,9 @@ export const items = sqliteTable("items", {
   canRegister: integer("can_register").default(1).notNull(),
   isFinished: integer("is_finished").default(0).notNull(),
   isResultPublished: integer("is_result_published").default(0).notNull(),
-  status: text("status", {enum: ["scheduled", "on-going", "finished"]}).default("scheduled").notNull(),
+  status: text("status", { enum: ["scheduled", "on-going", "finished"] })
+    .default("scheduled")
+    .notNull(),
   eventId: integer("event_id")
     .references(() => events.id, { onDelete: "cascade" })
     .notNull(),
@@ -124,7 +126,9 @@ export const groupItems = sqliteTable("group_items", {
   canRegister: integer("can_register").default(1).notNull(),
   isFinished: integer("is_finished").default(0).notNull(),
   isResultPublished: integer("is_result_published").default(0).notNull(),
-  status: text("status", {enum: ["scheduled", "on-going", "finished"]}).default("scheduled").notNull(),
+  status: text("status", { enum: ["scheduled", "on-going", "finished"] })
+    .default("scheduled")
+    .notNull(),
   minParticipants: integer("min_participants").notNull(),
   maxParticipants: integer("max_participants").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -138,6 +142,7 @@ export const groupRegistrations = sqliteTable("group_registrations", {
     .references(() => groupItems.id, { onDelete: "cascade" })
     .notNull(),
   name: text("name"),
+  sectionId: integer("section_id").references(() => sections.id),
   participantIds: text("participant_ids").notNull(), // Stored as JSON array of participant IDs
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

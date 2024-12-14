@@ -35,7 +35,8 @@ const updateGroupItemSchema = z.object({
 const createGroupRegistrationSchema = z.object({
   groupItemId: z.number(),
   participantIds: z.array(z.number()),
-  name: z.string().nullish()
+  name: z.string().nullish(),
+  sectionId: z.number().optional(),
 });
 
 const updateGroupRegistrationSchema = z.object({
@@ -160,7 +161,8 @@ export const groupsRouter = hono()
         .values({
           groupItemId: data.groupItemId,
           participantIds: JSON.stringify(data.participantIds),
-          name: data.name
+          name: data.name,
+          sectionId: data.sectionId,
         })
         .returning()
         .get();
