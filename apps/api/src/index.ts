@@ -16,7 +16,11 @@ import profileRouter from "./routes/profile";
 import { groupsRouter } from "./routes/groups";
 import { statsRouter } from "./routes/stats";
 import { timing } from "hono/timing";
-
+import { filerouter } from "./routes/files";
+import { eventPublicrouter } from "./publicRoutes/events";
+import { sectionPublicRouter } from "./publicRoutes/sections";
+import { publicItemsRouter } from "./publicRoutes/items";
+import { participantPublicRouter } from "./publicRoutes/participants";
 
 export * from "./types";
 
@@ -32,17 +36,26 @@ const api = hono()
   .route("/admins", adminsRouter)
   .route("/settings", settingsRouter)
   .route("/groups", groupsRouter)
-  .route("/stats", statsRouter);
+  .route("/stats", statsRouter)
+  .route("/file", filerouter);
+
+const publicRouter = hono()
+  .route("/events", eventPublicrouter)
+  .route("/sections", sectionPublicRouter)
+  .route("/items", publicItemsRouter)
+  .route("/participants", participantPublicRouter);
 
 const app = hono()
   .use("*", cors())
-  .use(logger()).use(timing())
+  .use(logger())
+  .use(timing())
   .use("*", async (c, next) => {
     c.set("db", createDb(c.env.DB));
     await next();
   })
   // Public routes
   .get("/", (c) => c.text("Sports Management API"))
+  .route("/public", publicRouter)
   .route("/auth", authRouter)
   // Protected routes
   .route("/api", api);

@@ -6,12 +6,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "wrangler": "wrangler",
-    "dev": "wrangler dev src/index.ts --port 8787 --local --persist-to ./drizzle/local",
+    "dev": "wrangler dev src/index.ts --port 8787",
     "deploy": "wrangler deploy src/index.ts",
     "db:seed": "wrangler dev scripts/seed-db.ts",
-    "db:migrate": "wrangler d1 migrations apply gptc-pmna-sports-db --env production",
+    "db:migrate": "wrangler d1 migrations apply gptc-pmna-sports-db",
     "db:generate": "drizzle-kit generate",
-    "db:push": "wrangler d1 migrations apply gptc-pmna-sports-db --env production",
+    "db:push": "wrangler d1 migrations apply gptc-pmna-sports-db",
     "db:studio": "drizzle-kit studio",
     "build": "tsc",
     "generate:types": "tsc --emitDeclarationOnly --outDir dist"

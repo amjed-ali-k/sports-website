@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom"
-import { BackgroundBeams } from "./ui/background-beams"
 import { Spotlight } from "./ui/spot-light"
 
 export const Layout = () => {

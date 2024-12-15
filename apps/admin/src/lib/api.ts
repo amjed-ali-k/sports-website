@@ -243,9 +243,11 @@ class ApiClient {
   }
 
   async getEventResultStats(eventId: number) {
-    const response = await this.client.api.stats.event[":eventId"].results.$get({
-      param: { eventId: eventId.toString() },
-    });
+    const response = await this.client.api.stats.event[":eventId"].results.$get(
+      {
+        param: { eventId: eventId.toString() },
+      }
+    );
     return response.json();
   }
 
@@ -377,7 +379,7 @@ class ApiClient {
     return response.json();
   }
 
-  async addSection(data: { name: string }) {
+  async addSection(data: { name: string, slug: string }) {
     const response = await this.client.api.sections.$post({
       json: data,
     });
@@ -471,6 +473,18 @@ class ApiClient {
       json: data,
     });
     return response.json();
+  }
+
+  async uploadFile(data: FormData) {
+    for (const [key, value] of data.entries()) {
+      console.log(key, value);
+    }
+    const url = this.client.api.file["upload-image"].$url();
+    return await fetch(url, {
+      method: "POST",
+      body: data,
+      headers: this.getAuthHeaders(),
+    }).then((r) => r.json());
   }
 }
 

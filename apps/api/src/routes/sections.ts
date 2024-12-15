@@ -8,6 +8,7 @@ const createSectionSchema = z.object({
   logo: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  slug: z.string().min(1).max(3)
 });
 
 const router = hono()
@@ -33,7 +34,7 @@ const router = hono()
     return c.json(section);
   })
   .post("/", zodValidator(createSectionSchema), async (c) => {
-    const { name, logo, color, description } = c.req.valid("json");
+    const { name, logo, color, description, slug } = c.req.valid("json");
     const db = c.get("db");
     const organizationId = c.get("user").organizationId;
     // Check if section with same name exists
@@ -55,6 +56,7 @@ const router = hono()
         color,
         description,
         organizationId,
+        slug
       })
       .returning()
       .get();

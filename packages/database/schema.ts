@@ -11,6 +11,7 @@ export const sections = sqliteTable("sections", {
   name: text("name").notNull(),
   logo: text("logo"),
   color: text("color"),
+  slug: text("slug"),
   organizationId: integer("organization_id")
     .references(() => organizations.id)
     .notNull(),
@@ -56,6 +57,7 @@ export const events = sqliteTable("events", {
   eventEndTime: text("event_end_time"),
   registrationStartDate: text("registration_start_date"),
   registrationEndDate: text("registration_end_date"),
+  image: text("image"),
   certificateTemplates: text("certificate_templates", { mode: "json" }).$type<{
     participation: string;
     first: string;
