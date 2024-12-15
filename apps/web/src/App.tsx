@@ -31,7 +31,8 @@ function App() {
                   <Route path="items">
                     <Route index element={<ItemsPage />} />
                     <Route path=":itemId">
-                      <Route index element={<SingleItemPage />} />
+                      <Route path="individual" element={<SingleItemPage />} />
+                      <Route path="group" element={<SingleItemPage />} />
                     </Route>
                   </Route>
                   <Route path="participants" element={<ParticipantsPage />} />

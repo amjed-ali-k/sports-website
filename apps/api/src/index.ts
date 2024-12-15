@@ -19,6 +19,7 @@ import { timing } from "hono/timing";
 import { filerouter } from "./routes/files";
 import { eventPublicrouter } from "./publicRoutes/events";
 import { sectionPublicRouter } from "./publicRoutes/sections";
+import { publicItemsRouter } from "./publicRoutes/items";
 
 export * from "./types";
 
@@ -39,7 +40,8 @@ const api = hono()
 
 const publicRouter = hono()
   .route("/events", eventPublicrouter)
-  .route("/sections", sectionPublicRouter);
+  .route("/sections", sectionPublicRouter)
+  .route("/items", publicItemsRouter)
 
 const app = hono()
   .use("*", cors())

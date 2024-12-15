@@ -10,25 +10,65 @@ import {
 } from "@sports/ui";
 import { Sprout, Zap } from "lucide-react";
 import { Icon } from "@iconify-icon/react";
+import { apiClient } from "@/lib/api";
+import { InferRequestType } from "hono/client";
+import { useParams } from "react-router-dom";
+import useSWR from "swr";
+import { cn } from "@/lib/utils";
+import { useSection } from "@/hooks/use-section";
+import { useIndividualItem } from "@/hooks/use-item";
+
+const Api = apiClient.public.items.participants.individual[":itemId"];
+const url = Api.$url();
+const $get = Api.$get;
+const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+  const res = await $get(arg);
+  return await res.json();
+};
 
 export const SingleItemPage = () => {
+  const itemId = useParams().itemId || "";
+
+  const { data } = useSWR(
+    url,
+    fetcher({
+      param: {
+        itemId,
+      },
+    })
+  );
+
+  const item = useIndividualItem(itemId);
   return (
     <div>
-    
       <div className="flex flex-col items-center py-4">
         <Sprout className="size-12" />
-        <h4 className="text-2xl text-center font-bold">100M Run</h4>
+        <h4 className="text-2xl text-center font-bold">{item?.item.name}</h4>
         <div className="text-sm items-center flex">
-          <Icon icon="material-symbols:male" className="text-base" />
-          Male
+          <Icon
+            icon={
+              item?.item.gender === "male"
+                ? "material-symbols:male"
+                : "material-symbols:female"
+            }
+            className="text-base"
+          />
+          {item?.item.gender === "male" ? "Male" : "Female"}
         </div>
-        <div className="text-sm">5/3/2 Points</div>
-        <Badge variant="outline" className="gap-1.5 mt-2">
+        <div className="text-sm">
+          {item?.item.pointsFirst}/{item?.item.pointsSecond}/
+          {item?.item.pointsThird} Points
+        </div>
+        <Badge variant="outline" className="gap-1.5 mt-2 capitalize">
           <span
-            className="size-1.5 rounded-full bg-amber-500"
+            className={cn("size-1.5 rounded-full", {
+              "bg-amber-500": item?.item.status === "on-going",
+              "bg-green-500": item?.item.status === "finished",
+              "bg-slate-500": item?.item.status === "scheduled",
+            })}
             aria-hidden="true"
           ></span>
-          Ongoing
+          {item?.item.status}
         </Badge>
       </div>
       <Table>
@@ -42,37 +82,75 @@ export const SingleItemPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">
-                <span className="mr-2">
-
-              Amjed Ali
-                </span>
-              <Badge className="gap-1">
-                <Zap
-                  className="-ms-0.5 opacity-60"
-                  size={12}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-                First
-              </Badge>
-            </TableCell>
-            <TableCell>EL2025</TableCell>
-            <TableCell>Electronics Engineering</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">Arshad</TableCell>
-            <TableCell>EL2025</TableCell>
-            <TableCell>Electronics Engineering</TableCell>
-          </TableRow>
-          <TableRow className="opacity-50">
-            <TableCell className="font-medium">Fayyas</TableCell>
-            <TableCell>EL2025</TableCell>
-            <TableCell>Electronics Engineering</TableCell>
-          </TableRow>
+          {data?.map((d) => <Rows key={d.participants.id} {...d} />)}
         </TableBody>
       </Table>
     </div>
+  );
+};
+
+const Rows = ({
+  participants,
+  registrations,
+  results,
+}: {
+  participants: {
+    id: number;
+    organizationId: number;
+    avatar: string | null;
+    createdAt: string;
+    updatedAt: string;
+    chestNo: string;
+    fullName: string;
+    sectionId: number;
+    batch: string;
+    gender: "male" | "female";
+  };
+  registrations: {
+    id: number;
+    createdAt: string | null;
+    updatedAt: string | null;
+    status: "registered" | "participated" | "not_participated";
+    itemId: number;
+    participantId: number;
+    metaInfo: string | null;
+  };
+  results: {
+    id: number;
+    createdAt: string | null;
+    updatedAt: string | null;
+    position: "first" | "second" | "third";
+    points: number;
+    itemId: number;
+    registrationId: number;
+  };
+}) => {
+  const section = useSection(participants.sectionId);
+  return (
+    <TableRow
+      className={cn({
+        "opacity-40": registrations.status === "not_participated",
+        "bg-yellow-600": results?.position === "first",
+        "bg-slate-700": results?.position === "second",
+        "bg-teal-950": results?.position === "third",
+      })}
+    >
+      <TableCell className="font-medium">
+        <span className="mr-2">{participants.fullName}</span>
+        {results?.position && (
+          <Badge className="gap-1 capitalize">
+            <Zap
+              className="-ms-0.5  opacity-60"
+              size={12}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            {results?.position}
+          </Badge>
+        )}
+      </TableCell>
+      <TableCell>{participants.batch}</TableCell>
+      <TableCell>{section?.name}</TableCell>
+    </TableRow>
   );
 };
