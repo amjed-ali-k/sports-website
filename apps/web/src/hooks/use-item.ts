@@ -22,7 +22,7 @@ const groupfetcher = (arg: InferRequestType<typeof group$get>) => async () => {
 export const useIndividualItem = (id?: number | string | null) => {
   const event = useEvent();
   const { data } = useSWRImmutable(
-    individualurl,
+    [individualurl, event?.id],
     individualfetcher({
       param: {
         eventId: (event?.id || 1).toString(),
@@ -38,7 +38,7 @@ export const useGroupItem = (id?: number | string | null) => {
   const event = useEvent();
 
   const { data } = useSWRImmutable(
-    groupurl,
+    [groupurl, event?.id],
     groupfetcher({
       param: {
         eventId: (event?.id || 1).toString(),

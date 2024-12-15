@@ -26,7 +26,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
 const useResult = () => {
   const event = useEvent();
   const { data } = useSWR(
-    url,
+    [url, event?.id],
     fetcher({
       param: {
         eventId: event?.id.toString() ?? "1",

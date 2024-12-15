@@ -14,6 +14,7 @@ import { ItemsPage } from "./pages/items";
 import { SingleItemPage } from "./pages/items/single";
 import { ParticipantsPage } from "./pages/participants";
 import { EventLayout } from "./components/eventLayout";
+import { GroupItemPage } from "./pages/items/group";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ function App() {
                     <Route index element={<ItemsPage />} />
                     <Route path=":itemId">
                       <Route path="individual" element={<SingleItemPage />} />
-                      <Route path="group" element={<SingleItemPage />} />
+                      <Route path="group" element={<GroupItemPage />} />
                     </Route>
                   </Route>
                   <Route path="participants" element={<ParticipantsPage />} />

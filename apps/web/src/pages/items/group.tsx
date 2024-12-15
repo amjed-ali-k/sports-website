@@ -16,9 +16,9 @@ import { useParams } from "react-router-dom";
 import useSWR from "swr";
 import { cn } from "@/lib/utils";
 import { useSection } from "@/hooks/use-section";
-import { useIndividualItem } from "@/hooks/use-item";
+import { useGroupItem } from "@/hooks/use-item";
 
-const Api = apiClient.public.items.participants.individual[":itemId"];
+const Api = apiClient.public.items.participants.group[":itemId"];
 const url = Api.$url();
 const $get = Api.$get;
 const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
@@ -26,7 +26,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
   return await res.json();
 };
 
-export const SingleItemPage = () => {
+export const GroupItemPage = () => {
   const itemId = useParams().itemId || "";
 
   const { data } = useSWR(
@@ -38,14 +38,14 @@ export const SingleItemPage = () => {
     })
   );
 
-  const item = useIndividualItem(itemId);
+  const item = useGroupItem(itemId);
   return (
     <div>
       <div className="flex flex-col items-center py-4">
         <Sprout className="size-12" />
         <h4 className="text-2xl text-center font-bold">{item?.item.name}</h4>
         <div className="text-sm items-center flex">
-          <Icon
+        <Icon
             icon={
               item?.item.gender === "male"
                 ? "material-symbols:male"
@@ -85,7 +85,7 @@ export const SingleItemPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.map((d) => <Rows key={d.participants.id} {...d} />)}
+          {data?.map((d) => <Rows key={d.group_registrations.id} {...d} />)}
         </TableBody>
       </Table>
     </div>
@@ -93,67 +93,52 @@ export const SingleItemPage = () => {
 };
 
 const Rows = ({
-  participants,
-  registrations,
-  results,
+  group_registrations: registrations,
+  group_results: results,
 }: {
-  participants: {
+  group_registrations: {
     id: number;
-    organizationId: number;
-    avatar: string | null;
+    name: string | null;
     createdAt: string;
-    updatedAt: string;
-    chestNo: string;
-    fullName: string;
-    sectionId: number;
-    batch: string;
-    gender: "male" | "female";
+    sectionId: number | null;
+    groupItemId: number;
+    participantIds: string;
   };
-  registrations: {
+  group_results: {
     id: number;
-    createdAt: string | null;
-    updatedAt: string | null;
-    status: "registered" | "participated" | "not_participated";
-    itemId: number;
-    participantId: number;
-    metaInfo: string | null;
-  };
-  results: {
-    id: number;
-    createdAt: string | null;
-    updatedAt: string | null;
+    createdAt: string;
+    groupItemId: number;
+    groupRegistrationId: number;
     position: "first" | "second" | "third";
     points: number;
-    itemId: number;
-    registrationId: number;
   };
 }) => {
-  const section = useSection(participants.sectionId);
+  const section = useSection(registrations.sectionId);
   return (
-    <TableRow
-      className={cn({
-        "opacity-40": registrations.status === "not_participated",
-        "bg-yellow-600": results?.position === "first",
-        "bg-slate-700": results?.position === "second",
-        "bg-teal-950": results?.position === "third",
-      })}
-    >
-      <TableCell className="font-medium">
-        <span className="mr-2">{participants.fullName}</span>
-        {results?.position && (
-          <Badge className="gap-1 capitalize">
-            <Zap
-              className="-ms-0.5  opacity-60"
-              size={12}
-              strokeWidth={2}
-              aria-hidden="true"
-            />
-            {results?.position}
-          </Badge>
-        )}
-      </TableCell>
-      <TableCell>{participants.batch}</TableCell>
-      <TableCell>{section?.name}</TableCell>
-    </TableRow>
+    <>
+      <TableRow
+        className={cn({
+          "bg-yellow-600": results?.position === "first",
+          "bg-slate-700": results?.position === "second",
+          "bg-teal-950": results?.position === "third",
+        })}
+      >
+        <TableCell className="font-medium">
+          <span className="mr-2">{registrations.name}</span>
+          {results?.position && (
+            <Badge className="gap-1 capitalize">
+              <Zap
+                className="-ms-0.5  opacity-60"
+                size={12}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              {results?.position}
+            </Badge>
+          )}
+        </TableCell>
+        <TableCell>{section?.name}</TableCell>
+      </TableRow>
+    </>
   );
 };

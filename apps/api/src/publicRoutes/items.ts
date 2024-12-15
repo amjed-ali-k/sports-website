@@ -69,9 +69,9 @@ export const publicItemsRouter = hono()
     const allParticipants = await db
       .select()
       .from(groupRegistrations)
-      .innerJoin(
+      .leftJoin(
         groupResults,
-        eq(groupResults.groupRegistrationId, registrations.id)
+        eq(groupResults.groupRegistrationId, groupRegistrations.id)
       )
       .where(eq(groupRegistrations.groupItemId, itemId));
     return c.json(allParticipants);
