@@ -13,7 +13,6 @@ export const EventPage = () => {
   return (
     <div>
       <LinkMenu />
-
       <div className="flex overflow-hidden items-center border-b max-h-96">
         <div className="w-1/2 h-fit grow border-r">
           <OverallScoreChart />
@@ -21,7 +20,7 @@ export const EventPage = () => {
         <div className="h-full  flex items-center flex-col justify-center p-4">
           <div className="text-4xl font-bold">230</div>
           <div className="text-sm text-muted-foreground">Points</div>
-          <div>Electronics Engineering</div>
+          <div className="text-sm text-center">Electronics Engineering</div>
 
           <Badge variant="outline" className="gap-1.5 animate-pulse">
             <span

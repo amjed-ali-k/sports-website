@@ -16,6 +16,7 @@ import profileRouter from "./routes/profile";
 import { groupsRouter } from "./routes/groups";
 import { statsRouter } from "./routes/stats";
 import { timing } from "hono/timing";
+import { filerouter } from "./routes/files";
 
 
 export * from "./types";
@@ -32,7 +33,8 @@ const api = hono()
   .route("/admins", adminsRouter)
   .route("/settings", settingsRouter)
   .route("/groups", groupsRouter)
-  .route("/stats", statsRouter);
+  .route("/stats", statsRouter)
+  .route("/file", filerouter)
 
 const app = hono()
   .use("*", cors())

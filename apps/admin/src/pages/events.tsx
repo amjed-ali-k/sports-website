@@ -32,6 +32,7 @@ import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { shake } from "radash";
 import { format } from "date-fns/format";
+import { FileUpload } from "@/components/file-upload";
 
 const eventSchema = z.object({
   id: z.number().optional(),
@@ -202,6 +203,7 @@ export default function EventsPage() {
                     </FormItem>
                   )}
                 />
+                <FileUpload />
                 <Button type="submit" className="w-full">
                   {editingEvent ? "Update" : "Create"} event
                 </Button>

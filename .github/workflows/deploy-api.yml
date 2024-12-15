@@ -24,6 +24,7 @@ jobs:
 
           [vars]
           JWT_SECRET = "${{ secrets.JWT_SECRET }}"
+          IMGBB_API_KEY = "${{ secrets.IMGBB_API_KEY }}"
 
           [[d1_databases]]
           binding = "DB"
