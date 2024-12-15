@@ -379,7 +379,7 @@ class ApiClient {
     return response.json();
   }
 
-  async addSection(data: { name: string }) {
+  async addSection(data: { name: string, slug: string }) {
     const response = await this.client.api.sections.$post({
       json: data,
     });

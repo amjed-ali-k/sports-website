@@ -27,6 +27,7 @@ export * from "./components/ui/navigation-menu"
 export * from "./components/ui/checkbox"
 export * from "./components/ui/progress"
 export * from "./components/ui/chart"
+export * from "./components/ui/pagination"
 
 // Export styles
 import "./styles.css";

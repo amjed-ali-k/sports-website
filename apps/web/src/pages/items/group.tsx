@@ -111,7 +111,7 @@ const Rows = ({
     groupRegistrationId: number;
     position: "first" | "second" | "third";
     points: number;
-  };
+  } | null;
 }) => {
   const section = useSection(registrations.sectionId);
   const participantIds = JSON.parse(registrations.participantIds) as number[];

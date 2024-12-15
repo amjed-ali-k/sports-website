@@ -1,14 +1,13 @@
 import { z } from "zod";
 import { participants, sections } from "@sports/database";
-import { and, desc, eq, sql } from "drizzle-orm";
-import { hono, zodValidator } from "../lib/api";
+import { eq, sql } from "drizzle-orm";
+import { hono, zodQueryValidator, } from "../lib/api";
 
 export const participantPublicRouter = hono()
   .get(
     "/",
-    zodValidator(
-      z.object({ page: z.number().optional(), limit: z.number().optional() }),
-      "query"
+    zodQueryValidator(
+      z.object({ page: z.string().optional(), limit: z.string().optional() })
     ),
     async (c) => {
       const db = c.get("db");

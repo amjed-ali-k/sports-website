@@ -123,7 +123,7 @@ const Rows = ({
     points: number;
     itemId: number;
     registrationId: number;
-  };
+  } | null;
 }) => {
   const section = useSection(participants.sectionId);
   return (
