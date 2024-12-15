@@ -1,7 +1,13 @@
 import { z } from "zod";
-import { participants, sections } from "@sports/database";
-import { eq, sql } from "drizzle-orm";
-import { hono, zodQueryValidator, } from "../lib/api";
+import {
+  items,
+  participants,
+  registrations,
+  results,
+  sections,
+} from "@sports/database";
+import { desc, eq, sql } from "drizzle-orm";
+import { hono, zodQueryValidator } from "../lib/api";
 
 export const participantPublicRouter = hono()
   .get(
@@ -23,10 +29,7 @@ export const participantPublicRouter = hono()
           batch: participants.batch,
           gender: participants.gender,
           avatar: participants.avatar,
-          section: {
-            id: sections.id,
-            name: sections.name,
-          },
+          sectionId: participants.sectionId,
         })
         .from(participants)
         .innerJoin(sections, eq(participants.sectionId, sections.id))
@@ -60,10 +63,7 @@ export const participantPublicRouter = hono()
         batch: participants.batch,
         gender: participants.gender,
         avatar: participants.avatar,
-        section: {
-          id: sections.id,
-          name: sections.name,
-        },
+        sectionId: participants.sectionId,
       })
       .from(participants)
       .where(eq(participants.id, id))
@@ -75,4 +75,31 @@ export const participantPublicRouter = hono()
     }
 
     return c.json(participant);
+  })
+  .get("/top/:eventId/:count", async (c) => {
+    const eventId = Number(c.req.param("eventId"));
+    const count = Number(c.req.param("count"));
+    const db = c.get("db");
+
+    const topParticipants = await db
+      .select({
+        name: participants.fullName,
+        chestNo: participants.chestNo,
+        batch: participants.batch,
+        gender: participants.gender,
+        id: participants.id,
+        avatar: participants.avatar,
+        sectionId: participants.sectionId,
+        points: sql<number>`sum(${results.points})`,
+      })
+      .from(participants)
+      .where(eq(items.eventId, eventId))
+      .innerJoin(results, eq(participants.id, results.registrationId))
+      .leftJoin(registrations, eq(registrations.participantId, participants.id))
+      .leftJoin(items, eq(items.id, registrations.itemId))
+      .orderBy(desc(sql<number>`sum(${results.points})`))
+      .groupBy(participants.id)
+      .limit(count)
+      .all();
+    return c.json(topParticipants);
   });

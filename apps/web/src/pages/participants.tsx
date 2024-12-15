@@ -3,7 +3,6 @@ import { apiClient } from "@/lib/api";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -12,7 +11,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -23,6 +21,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { Icon } from "@iconify-icon/react";
 import { cn } from "@/lib/utils";
+import { SectionName } from "@/components/section-name";
 
 const api = apiClient.public.participants;
 const url = api.$url();
@@ -77,7 +76,7 @@ export const ParticipantsPage = () => {
                 <span className="mr-2">{e.name}</span>
               </TableCell>
               <TableCell>{e.batch}</TableCell>
-              <TableCell>{e.section.name}</TableCell>
+              <TableCell><SectionName id={e.sectionId} /></TableCell>
             </TableRow>
           ))}
           {participants?.length === 0 && (
