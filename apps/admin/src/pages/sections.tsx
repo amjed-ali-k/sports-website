@@ -32,6 +32,7 @@ const sectionSchema = z.object({
   logo: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  slug: z.string().min(1).max(3)
 });
 
 type SectionFormValues = z.infer<typeof sectionSchema>;
@@ -142,6 +143,17 @@ export default function SectionsPage() {
                     </FormItem>
                   )}
                 />
+                 <FormField
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Section Slug</FormLabel>
+                      <Input {...field} placeholder="e.g., CS, EL, EEE" />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="color"
@@ -199,7 +211,7 @@ export default function SectionsPage() {
             {sections.length > 0 ? (
               sections.map((section) => (
                 <TableRow key={section.id}>
-                  <TableCell>{section.name}</TableCell>
+                  <TableCell>{section.name} ({section.slug})</TableCell>
                   <TableCell>
                     {section.logo && (
                       <img

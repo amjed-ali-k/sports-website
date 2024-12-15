@@ -18,6 +18,7 @@ import { statsRouter } from "./routes/stats";
 import { timing } from "hono/timing";
 import { filerouter } from "./routes/files";
 import { eventPublicrouter } from "./publicRoutes/events";
+import { sectionPublicRouter } from "./publicRoutes/sections";
 
 export * from "./types";
 
@@ -36,7 +37,9 @@ const api = hono()
   .route("/stats", statsRouter)
   .route("/file", filerouter);
 
-const publicRouter = hono().route("/events", eventPublicrouter);
+const publicRouter = hono()
+  .route("/events", eventPublicrouter)
+  .route("/sections", sectionPublicRouter);
 
 const app = hono()
   .use("*", cors())

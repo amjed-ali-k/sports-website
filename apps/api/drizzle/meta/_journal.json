@@ -15,6 +15,13 @@
       "when": 1734256460328,
       "tag": "0001_cloudy_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1734262665008,
+      "tag": "0002_bitter_spiral",
+      "breakpoints": true
     }
   ]
 }

@@ -8,11 +8,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@sports/ui";
+
+
 const chartData = [
-  { month: "Electronics", individual: 186, group: 80 },
-  { month: "Mechanical", individual: 305, group: 200 },
-  { month: "Civil", individual: 237, group: 120 },
-  { month: "Electrical", individual: 73, group: 190 },
+  { section: "Electronics", individual: 186, group: 80 },
+  { section: "Mechanical", individual: 305, group: 200 },
+  { section: "Civil", individual: 237, group: 120 },
+  { section: "Electrical", individual: 73, group: 190 },
 ];
 
 const chartConfig = {
@@ -26,13 +28,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function OverallScoreChart() {
+export function OverallScoreChart({chartData}: {chartData: {
+  section: string;
+  individual: number;
+  group: number;
+}[]}) {
   return (
     <ChartContainer config={chartConfig}>
       <BarChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="month"
+          dataKey="section"
           tickLine={false}
           
           tickMargin={10}

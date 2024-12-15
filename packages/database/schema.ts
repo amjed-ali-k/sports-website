@@ -11,6 +11,7 @@ export const sections = sqliteTable("sections", {
   name: text("name").notNull(),
   logo: text("logo"),
   color: text("color"),
+  slug: text("slug"),
   organizationId: integer("organization_id")
     .references(() => organizations.id)
     .notNull(),
