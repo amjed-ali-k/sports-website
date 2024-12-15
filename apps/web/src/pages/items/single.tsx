@@ -99,15 +99,12 @@ const Rows = ({
 }: {
   participants: {
     id: number;
-    organizationId: number;
     avatar: string | null;
-    createdAt: string;
-    updatedAt: string;
     chestNo: string;
     fullName: string;
-    sectionId: number;
     batch: string;
     gender: "male" | "female";
+    sectionId: number;
   };
   registrations: {
     id: number;

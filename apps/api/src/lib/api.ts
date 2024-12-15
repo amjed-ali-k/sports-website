@@ -30,8 +30,8 @@ export const hono = <Path extends string = "/">() =>
 
 export const zodValidator = <T extends {}>(schema: {
   parse: (value: unknown) => T;
-}) =>
-  validator("json", (value, c) => {
+}, v : 'query' | 'json' = 'json') =>
+  validator(v, (value, c) => {
     const parsed = schema.parse(value);
     if (!parsed) {
       return c.json({ message: "Validation failed" }, 400);

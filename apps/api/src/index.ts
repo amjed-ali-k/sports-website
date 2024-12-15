@@ -20,6 +20,7 @@ import { filerouter } from "./routes/files";
 import { eventPublicrouter } from "./publicRoutes/events";
 import { sectionPublicRouter } from "./publicRoutes/sections";
 import { publicItemsRouter } from "./publicRoutes/items";
+import { participantPublicRouter } from "./publicRoutes/participants";
 
 export * from "./types";
 
@@ -42,6 +43,7 @@ const publicRouter = hono()
   .route("/events", eventPublicrouter)
   .route("/sections", sectionPublicRouter)
   .route("/items", publicItemsRouter)
+  .route("/participants", participantPublicRouter);
 
 const app = hono()
   .use("*", cors())

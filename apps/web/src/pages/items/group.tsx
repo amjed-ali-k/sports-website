@@ -79,7 +79,7 @@ export const GroupItemPage = () => {
         <TableHeader>
           <TableRow>
             <TableHead className="min-w-[100px]">Name</TableHead>
-            <TableHead>Batch</TableHead>
+            {/* <TableHead>Batch</TableHead> */}
             <TableHead>Section</TableHead>
             {/* <TableHead className="text-right">Points</TableHead> */}
           </TableRow>
@@ -114,6 +114,7 @@ const Rows = ({
   };
 }) => {
   const section = useSection(registrations.sectionId);
+  const participantIds = JSON.parse(registrations.participantIds) as number[];
   return (
     <>
       <TableRow
@@ -137,7 +138,7 @@ const Rows = ({
             </Badge>
           )}
         </TableCell>
-        <TableCell>{section?.name}</TableCell>
+        <TableCell>{section?.name} ({participantIds.length})</TableCell>
       </TableRow>
     </>
   );

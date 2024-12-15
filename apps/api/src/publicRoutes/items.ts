@@ -8,7 +8,7 @@ import {
   groupRegistrations,
   groupItems,
 } from "@sports/database";
-import { count, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { hono } from "../lib/api";
 
 export const publicItemsRouter = hono()
@@ -53,14 +53,24 @@ export const publicItemsRouter = hono()
   .get("/participants/individual/:itemId", async (c) => {
     const db = c.get("db");
     const itemId = Number(c.req.param("itemId"));
-    console.log({itemId})
     const allParticipants = await db
-      .select()
+      .select({
+        registrations,
+        results,
+        participants: {
+          id: participants.id,
+          fullName: participants.fullName,
+          chestNo: participants.chestNo,
+          batch: participants.batch,
+          gender: participants.gender,
+          avatar: participants.avatar,
+          sectionId: participants.sectionId,
+        }
+      })
       .from(registrations)
       .innerJoin(participants, eq(participants.id, registrations.participantId))
       .leftJoin(results, eq(results.registrationId, registrations.id))
       .where(eq(registrations.itemId, itemId));
-      console.log(allParticipants);
     return c.json(allParticipants);
   })
   .get("/participants/group/:itemId", async (c) => {
