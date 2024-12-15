@@ -9,6 +9,10 @@ import { ThemeProvider } from "@sports/ui";
 import { Toaster } from "@sports/ui";
 import { HomePage } from "./pages/home";
 import { Layout } from "./components/layout";
+import { EventPage } from "./pages/event";
+import { ItemsPage } from "./pages/items";
+import { SingleItemPage } from "./pages/items/single";
+import { ParticipantsPage } from "./pages/participants";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +25,16 @@ function App() {
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path=":eventId">
+                  <Route index element={<EventPage />} />
+                  <Route path="items">
+                    <Route index element={<ItemsPage />} />
+                    <Route path=":itemId">
+                      <Route index element={<SingleItemPage />} />
+                    </Route>
+                  </Route>
+                  <Route path="participants" element={<ParticipantsPage />} />
+                </Route>
               </Route>
             </Routes>
           </Router>
