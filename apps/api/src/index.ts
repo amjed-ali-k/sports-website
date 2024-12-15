@@ -40,7 +40,7 @@ const api = hono()
   .route("/file", filerouter);
 
 const publicRouter = hono()
-  .route("/events", eventPublicrouter)
+  .route("/envts", eventPublicrouter)
   .route("/sections", sectionPublicRouter)
   .route("/items", publicItemsRouter)
   .route("/participants", participantPublicRouter);

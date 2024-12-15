@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api";
 import { useParams } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
 
-const api = apiClient.public.events;
+const api = apiClient.public.envts;
 const url = api.$url();
 const fetcher = () => api.$get().then((e) => e.json());
 

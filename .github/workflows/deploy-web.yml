@@ -1,4 +1,4 @@
-name: Deploy Admin to Cloudflare Pages
+name: Deploy Web to Cloudflare Pages
 
 on:
   push:
@@ -8,14 +8,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy Admin Website
+    name: Deploy Web Website
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - name: Build UI Package
         run: bun run build --filter @sports/ui
-      - name: Build Admin
+      - name: Build Web
         run: bun run build --filter @sports/web
         env:
           VITE_API_URL: ${{ secrets.API_URL }}

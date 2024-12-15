@@ -16,7 +16,7 @@ import {
 import { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-const api = apiClient.public.events[":eventId"].results;
+const api = apiClient.public.envts[":eventId"].results;
 const url = api.$url();
 const $get = api.$get;
 const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
