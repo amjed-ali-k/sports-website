@@ -1,6 +1,5 @@
 import { LinkMenu } from "@/components/menu";
 import {
-  Button,
   Table,
   TableBody,
   TableCaption,
@@ -9,21 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@sports/ui";
-import { Home } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const ItemsPage = () => {
   const navigate = useNavigate();
 
   return (
     <div>
-      <div className="border-b w-full py-2 px-4 flex items-center">
-        <Button variant={"ghost"}>
-          <Home />
-        </Button>
-        <div></div>
-        <div className="ml-auto font-bold">Sports Fest 2024</div>
-      </div>
+     
       <LinkMenu />
       <h4 className="text-lg text-center font-bold mt-2">Programs List</h4>
       <Table>

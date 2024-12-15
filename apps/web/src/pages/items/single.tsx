@@ -1,6 +1,5 @@
 import {
   Badge,
-  Button,
   Table,
   TableBody,
   TableCaption,
@@ -9,20 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@sports/ui";
-import { Home, Sprout, Zap } from "lucide-react";
+import { Sprout, Zap } from "lucide-react";
 import { Icon } from "@iconify-icon/react";
-import { useNavigate } from "react-router-dom";
 
 export const SingleItemPage = () => {
   return (
     <div>
-      <div className="border-b w-full py-2 px-4 flex items-center">
-        <Button variant={"ghost"}>
-          <Home />
-        </Button>
-        <div></div>
-        <div className="ml-auto font-bold">Sports Fest 2024</div>
-      </div>
+    
       <div className="flex flex-col items-center py-4">
         <Sprout className="size-12" />
         <h4 className="text-2xl text-center font-bold">100M Run</h4>

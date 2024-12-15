@@ -13,6 +13,7 @@ import { EventPage } from "./pages/event";
 import { ItemsPage } from "./pages/items";
 import { SingleItemPage } from "./pages/items/single";
 import { ParticipantsPage } from "./pages/participants";
+import { EventLayout } from "./components/eventLayout";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +26,7 @@ function App() {
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
-                <Route path=":eventId">
+                <Route path=":eventId" element={<EventLayout />}>
                   <Route index element={<EventPage />} />
                   <Route path="items">
                     <Route index element={<ItemsPage />} />
