@@ -17,7 +17,7 @@ import { groupsRouter } from "./routes/groups";
 import { statsRouter } from "./routes/stats";
 import { timing } from "hono/timing";
 import { filerouter } from "./routes/files";
-
+import { eventPublicrouter } from "./publicRoutes/events";
 
 export * from "./types";
 
@@ -34,17 +34,21 @@ const api = hono()
   .route("/settings", settingsRouter)
   .route("/groups", groupsRouter)
   .route("/stats", statsRouter)
-  .route("/file", filerouter)
+  .route("/file", filerouter);
+
+const publicRouter = hono().route("/events", eventPublicrouter);
 
 const app = hono()
   .use("*", cors())
-  .use(logger()).use(timing())
+  .use(logger())
+  .use(timing())
   .use("*", async (c, next) => {
     c.set("db", createDb(c.env.DB));
     await next();
   })
   // Public routes
   .get("/", (c) => c.text("Sports Management API"))
+  .route("/public", publicRouter)
   .route("/auth", authRouter)
   // Protected routes
   .route("/api", api);

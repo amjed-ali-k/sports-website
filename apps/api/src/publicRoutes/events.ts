@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { hono } from "../lib/api";
 
 
-const router = hono()
+export const eventPublicrouter = hono()
   .get("/", async (c) => {
     const db = c.get("db");
     const allCategories = await db.select().from(events).all();
@@ -22,4 +22,4 @@ const router = hono()
     return c.json(event);
   });
 
-export default router;
+

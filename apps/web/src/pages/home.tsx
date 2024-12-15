@@ -1,9 +1,13 @@
-import artsImage from "@/assets/arts.jpg";
-import sportsImage from "@/assets/sports.jpg";
-import athlecticsImage from "@/assets/athletics.jpg";
 import { Link } from "react-router-dom";
+import useSWRImmutable from "swr/immutable";
+import { apiClient } from "@/lib/api";
+
+const api = apiClient.public.events;
+const url = api.$url();
+const fetcher = () => api.$get().then((e) => e.json());
 
 export const HomePage = () => {
+  const { data } = useSWRImmutable(url, fetcher);
   return (
     <div className="py-8">
       <div className="flex justify-center flex-col items-center">
@@ -11,21 +15,13 @@ export const HomePage = () => {
         <h3>Choose an option</h3>
       </div>
       <div className="flex flex-col gap-6 p-4">
-        <StyledButton
-          image={sportsImage}
-          title="Games 2024"
-          description="Official Annual college games"
-        />
-        <StyledButton
-          image={athlecticsImage}
-          title="Sports Meet 2024"
-          description="Official Annual college sports meet"
-        />
-        <StyledButton
-          image={artsImage}
-          title="Arts fest 2024"
-          description="College arts fest conducted by Ritva students union"
-        />
+        {data?.map((event) => (
+          <StyledButton
+            image={event.image ?? ""}
+            title={event.name}
+            description={event.description || ""}
+          />
+        ))}
       </div>
     </div>
   );

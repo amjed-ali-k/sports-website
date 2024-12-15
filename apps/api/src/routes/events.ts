@@ -9,6 +9,7 @@ const createEventSchema = z.object({
   endDate: z.string().datetime(),
   description: z.string().nullish(),
   logo: z.string().nullish(),
+  image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
 });
 

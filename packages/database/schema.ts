@@ -56,6 +56,7 @@ export const events = sqliteTable("events", {
   eventEndTime: text("event_end_time"),
   registrationStartDate: text("registration_start_date"),
   registrationEndDate: text("registration_end_date"),
+  image: text("image"),
   certificateTemplates: text("certificate_templates", { mode: "json" }).$type<{
     participation: string;
     first: string;

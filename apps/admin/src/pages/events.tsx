@@ -33,6 +33,7 @@ import { apiClient } from "@/lib/api";
 import { shake } from "radash";
 import { format } from "date-fns/format";
 import { FileUpload } from "@/components/file-upload";
+import { Image } from "lucide-react";
 
 const eventSchema = z.object({
   id: z.number().optional(),
@@ -48,7 +49,7 @@ const eventSchema = z.object({
   eventEndTime: z.string().nullish(),
   registrationStartDate: z.string().nullish(),
   registrationEndDate: z.string().nullish(),
-  logo: z.string().nullish(),
+  image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
 });
 
@@ -111,7 +112,7 @@ export default function EventsPage() {
   };
 
   if (isLoading) return <div>Loading...</div>;
-
+  const image = form.getValues("image");
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -203,7 +204,10 @@ export default function EventsPage() {
                     </FormItem>
                   )}
                 />
-                <FileUpload />
+                {image && <img src={image} className="w-full h-24 object-cover" />}
+                <FileUpload
+                  onFileUpload={({ url }) => form.setValue("image", url)}
+                />
                 <Button type="submit" className="w-full">
                   {editingEvent ? "Update" : "Create"} event
                 </Button>
@@ -225,7 +229,16 @@ export default function EventsPage() {
         <TableBody>
           {events?.map((event) => (
             <TableRow key={event.id}>
-              <TableCell>{event.name}</TableCell>
+              <TableCell>
+                {event.name}
+                {event.image && (
+                  <Button asChild variant="ghost" size="icon">
+                    <a href={event.image}>
+                      <Image className="size-4" />
+                    </a>
+                  </Button>
+                )}
+              </TableCell>
               <TableCell>
                 {event.startDate && event.endDate
                   ? `${format(new Date(event.startDate), "dd-MM-yyyy")} to ${format(
@@ -250,7 +263,6 @@ export default function EventsPage() {
                         "yyyy-MM-dd"
                       ),
                       endDate: format(new Date(event.endDate), "yyyy-MM-dd"),
-                      
                     });
                     setIsOpen(true);
                   }}
