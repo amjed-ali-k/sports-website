@@ -1,0 +1,30 @@
+name: Deploy Admin to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Admin Website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - name: Build UI Package
+        run: bun run build --filter @sports/ui
+      - name: Build Admin
+        run: bun run build --filter @sports/web
+        env:
+          VITE_API_URL: ${{ secrets.API_URL }}
+        
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'apps/web'
+          command: pages deploy dist --project-name=sports-web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
