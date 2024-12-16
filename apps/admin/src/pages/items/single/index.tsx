@@ -14,6 +14,9 @@ export const ItemsSinglePage = () => {
         <Button size="lg" asChild className="px-16 text-lg py-12">
           <Link to="reports">Reports</Link>
         </Button>
+        <Button size="lg" asChild className="px-16 text-lg py-12">
+          <Link to="edit">Edit</Link>
+        </Button>
       </div>
     </div>
   );
