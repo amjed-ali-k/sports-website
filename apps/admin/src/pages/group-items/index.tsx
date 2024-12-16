@@ -34,7 +34,7 @@ export default function GroupItemsPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Items Management</h1>
+        <h1 className="text-2xl font-bold">Group Items Management</h1>
       </div>
       <NewItemFormDialog
         editingItem={editingItem}

@@ -29,12 +29,13 @@ const itemSchema = z.object({
   canRegister: z.number(),
   isFinished: z.number(),
   isResultPublished: z.number(),
-  maxParticipants: z.number().nullish(),
+  maxParticipants: z.number(),
+  minParticipants: z.number(),
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
 
-export function ItemEditPage() {
+export function GroupItemEditPage() {
   const { itemId } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,13 +45,11 @@ export function ItemEditPage() {
   });
 
   const { data: items = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ["items"],
-    queryFn: () => apiClient.getItems(),
+    queryKey: ["group-items"],
+    queryFn: () => apiClient.getGroupItems(),
   });
 
-  const currentItem = items?.find(
-    (item) => item.item.id === Number(itemId)
-  )?.item;
+  const currentItem = items?.find((item) => item.id === Number(itemId));
 
   useEffect(() => {
     if (currentItem) {
@@ -61,7 +60,7 @@ export function ItemEditPage() {
   const mutation = useMutation({
     mutationFn: async (values: ItemFormValues) => {
       if (!currentItem) return;
-      const res = await apiClient.updateItem(values.id, {
+      const res = await apiClient.updateGroupItem(values.id, {
         ...currentItem,
         ...values,
       });
@@ -168,7 +167,40 @@ export function ItemEditPage() {
                 </FormItem>
               )}
             />
-
+            <FormField
+              control={form.control}
+              name="minParticipants"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Participants</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxParticipants"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Participants</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="status"
@@ -221,7 +253,7 @@ export function ItemEditPage() {
             )}
           />
           <Button type="submit" className="w-fit">
-            Edit Item   
+            Edit Item
           </Button>
         </form>
       </Form>

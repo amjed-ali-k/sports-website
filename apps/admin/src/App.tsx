@@ -35,6 +35,8 @@ import { GroupItemResultsPage } from "./pages/group-items/single/results";
 import { GroupItemReportsPage } from "./pages/group-items/single/reports";
 import { GroupRegistrationReportPage } from "./pages/group-items/single/reports/registration-pdf";
 import { GroupResultReportPage } from "./pages/group-items/single/reports/result-pdf";
+import { ItemEditPage } from "./pages/items/single/edit";
+import { GroupItemEditPage } from "./pages/group-items/single/edit";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +68,8 @@ function App() {
                   <Route element={<ItemsPage />} index />
                   <Route path=":itemId" element={<ItemLayout />}>
                     <Route element={<ItemsSinglePage />} index />
+                    <Route element={<ItemEditPage />} path="edit" />
+
                     <Route
                       path="registrations"
                       element={<SingleItemRegistrationsPage />}
@@ -89,6 +93,7 @@ function App() {
                   <Route element={<GroupItemsPage />} index />
                   <Route path=":itemId" element={<GroupItemLayout />}>
                     <Route element={<GroupItemsSinglePage />} index />
+                    <Route element={<GroupItemEditPage />} path="edit" />
                     <Route
                       path="registrations"
                       element={<SingleGroupItemRegistrationsPage />}
@@ -128,7 +133,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route  
+                <Route
                   path="/events"
                   element={
                     <ProtectedRoute requiredRole="controller">
