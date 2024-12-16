@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@sports/ui";
-import { Sprout, Zap } from "lucide-react";
+import { Origami, Zap } from "lucide-react";
 import { Icon } from "@iconify-icon/react";
 import { apiClient } from "@/lib/api";
 import { InferRequestType } from "hono/client";
@@ -17,6 +17,7 @@ import useSWR from "swr";
 import { cn } from "@/lib/utils";
 import { useSection } from "@/hooks/use-section";
 import { useGroupItem } from "@/hooks/use-item";
+import { iconsList } from "@/components/icon";
 
 const Api = apiClient.public.items.participants.group[":itemId"];
 const url = Api.$url();
@@ -39,13 +40,16 @@ export const GroupItemPage = () => {
   );
 
   const item = useGroupItem(itemId);
+  const ItemIcon =
+    iconsList.find((e) => e.name === item?.item.iconName)?.icon ?? Origami;
+
   return (
     <div>
       <div className="flex flex-col items-center py-4">
-        <Sprout className="size-12" />
+        <ItemIcon className="size-12" />
         <h4 className="text-2xl text-center font-bold">{item?.item.name}</h4>
         <div className="text-sm items-center flex">
-        <Icon
+          <Icon
             icon={
               item?.item.gender === "male"
                 ? "material-symbols:male"
@@ -138,7 +142,9 @@ const Rows = ({
             </Badge>
           )}
         </TableCell>
-        <TableCell>{section?.name} ({participantIds.length})</TableCell>
+        <TableCell>
+          {section?.name} ({participantIds.length})
+        </TableCell>
       </TableRow>
     </>
   );

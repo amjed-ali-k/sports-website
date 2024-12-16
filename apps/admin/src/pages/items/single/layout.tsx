@@ -32,7 +32,7 @@ export const ItemLayout = () => {
         <CardContent className="p-6 flex justify-between">
           <div className="flex items-center justify-between">
             <Button variant="ghost" asChild>
-              <Link to="/items">Group Items</Link>
+              <Link to="/items">Individual Items</Link>
             </Button>
             <ChevronRight className="size-4 mx-1" />
             <div className="flex items-center justify-between">

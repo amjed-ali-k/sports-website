@@ -26,6 +26,7 @@ export const participants = sqliteTable(
     id: integer("id").primaryKey(),
     chestNo: text("chest_no").notNull(),
     fullName: text("full_name").notNull(),
+    no: text("no").unique(),
     sectionId: integer("section_id")
       .references(() => sections.id)
       .notNull(),
