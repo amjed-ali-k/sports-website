@@ -8,17 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@sports/ui";
-import { Origami, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Icon } from "@iconify-icon/react";
 import { apiClient } from "@/lib/api";
 import { InferRequestType } from "hono/client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 import { cn } from "@/lib/utils";
-import { useSection } from "@/hooks/use-section";
 import { useIndividualItem } from "@/hooks/use-item";
 import { IconFromName } from "@/components/icon";
 import { SectionName } from "@/components/section-name";
+import { useEvent } from "@/hooks/use-event";
 
 const Api = apiClient.public.items.participants.individual[":itemId"];
 const url = Api.$url();
@@ -128,6 +128,8 @@ const Rows = ({
     registrationId: number;
   } | null;
 }) => {
+  const navigate = useNavigate();
+  const event = useEvent();
   return (
     <TableRow
       className={cn({
@@ -136,6 +138,7 @@ const Rows = ({
         "bg-slate-600/30": results?.position === "second",
         "bg-teal-600/30": results?.position === "third",
       })}
+      onClick={() => navigate(`/${event?.id}/participants/${participants.id}`)}
     >
       <TableCell className="font-medium">
         <span className="mr-2">{participants.fullName}</span>
@@ -152,7 +155,9 @@ const Rows = ({
         )}
       </TableCell>
       <TableCell>{participants.batch}</TableCell>
-      <TableCell><SectionName id={participants.sectionId} /></TableCell>
+      <TableCell>
+        <SectionName id={participants.sectionId} />
+      </TableCell>
     </TableRow>
   );
 };

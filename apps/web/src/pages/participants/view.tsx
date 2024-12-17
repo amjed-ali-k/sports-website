@@ -5,7 +5,6 @@ import {
   Badge,
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -44,7 +43,7 @@ export const SingleParticipantPage = () => {
   const participantId = useParams().participantId || "";
 
   const { data } = useSWRImmutable(
-    url,
+    [url, participantId],
     fetcher({
       param: {
         id: participantId,
@@ -122,9 +121,11 @@ export const SingleParticipantPage = () => {
           {participant?.batch}
         </div>
       </div>
-      <div className="border-t text-center py-2">
-        Scored total of {totalPoints} points in {stats?.length} items
-      </div>
+      {totalPoints > 0 && (
+        <div className="border-t text-center py-2">
+          Scored total of {totalPoints} points in {stats?.length} items
+        </div>
+      )}
       <div className="flex border-t items-center justify-evenly">
         <div className="grow py-2 border-r px-4">
           <div className="text-4xl font-bold">{firstCount}</div>

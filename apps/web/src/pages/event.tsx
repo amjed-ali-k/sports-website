@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@sports/ui";
 import { InferRequestType } from "hono/client";
+import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 
 const api = apiClient.public.envts[":eventId"].results;
@@ -160,6 +161,7 @@ const Top5 = () => {
       },
     })
   );
+  const navigate = useNavigate()
   return (
     <div>
       <div className="text-center font-bold mt-4">TOP 5 Participants</div>
@@ -174,7 +176,7 @@ const Top5 = () => {
         </TableHeader>
         <TableBody>
           {data?.map((e) => (
-            <TableRow>
+            <TableRow onClick={() => navigate(`/${event?.id}/participants/${e.id}`)}>
               <TableCell className="font-medium">
                 <span className="mr-2">{e.name}</span>
               </TableCell>

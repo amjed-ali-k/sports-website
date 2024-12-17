@@ -34,7 +34,7 @@ export const FileUpload = ({
           .then((res: { url: string }) => {
             onFileUpload(res);
           })
-          .catch((e) => {
+          .catch(() => {
             setAcceptedFiles([]);
             setError(true);
           })
