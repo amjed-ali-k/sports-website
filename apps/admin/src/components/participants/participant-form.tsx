@@ -29,6 +29,7 @@ const formSchema = z.object({
   batch: z.string(),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional(),
+  no: z.string().optional()
 });
 
 interface ParticipantFormProps {
@@ -62,6 +63,7 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
       batch: data.batch,
       sectionId: data.sectionId,
       gender: data.gender,
+      no: undefined
     });
   };
   const image = form.watch("avatar");
@@ -82,7 +84,24 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             </FormItem>
           )}
         />
-
+ <FormField
+          control={form.control}
+          name="no"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>No</FormLabel>
+              <FormControl>
+                <Input placeholder="EL2024" {...field} />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Enter the unique identification number. Eg. Admisson no, Registration No etc.
+                It can be used to identify participatns in later
+                events.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="sectionId"
@@ -138,6 +157,7 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             </FormItem>
           )}
         />
+
 
         <FormField
           control={form.control}

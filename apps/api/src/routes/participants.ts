@@ -9,6 +9,8 @@ const createParticipantSchema = z.object({
   batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable(),
+  no: z.string().nullish(),
+  chestNo: z.string().nullish(),
 });
 
 const updateParticipantSchema = z.object({
@@ -17,6 +19,8 @@ const updateParticipantSchema = z.object({
   batch: z.string().min(1),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional().nullable(),
+  no: z.string().nullish(),
+  chestNo: z.string().nullish(),
 });
 
 const router = hono()
@@ -37,23 +41,26 @@ const router = hono()
     }
 
     // Generate chest number (you might want to implement your own logic)
-    const latestParticipant = await db
-      .select()
-      .from(participants)
-      .where(eq(participants.sectionId, data.sectionId))
-      .orderBy(desc(participants.chestNo))
-      .get();
+    const latestParticipant = data.chestNo
+      ? null
+      : await db
+          .select()
+          .from(participants)
+          .where(eq(participants.sectionId, data.sectionId))
+          .orderBy(desc(participants.chestNo))
+          .get();
 
-    const chestNo = latestParticipant
-      ? Number(latestParticipant.chestNo) + 1
-      : section.id * 500;
+    const chestNo =
+      latestParticipant && latestParticipant.chestNo
+        ? Number(latestParticipant.chestNo) + 1
+        : null;
 
     const participant = await db
       .insert(participants)
       .values({
         ...data,
         organizationId,
-        chestNo: chestNo.toString(),
+        chestNo: data.chestNo ?? chestNo?.toString(),
       })
       .returning()
       .get();

@@ -24,7 +24,7 @@ export const participants = sqliteTable(
   "participants",
   {
     id: integer("id").primaryKey(),
-    chestNo: text("chest_no").notNull(),
+    chestNo: text("chest_no"),
     fullName: text("full_name").notNull(),
     no: text("no").unique(),
     sectionId: integer("section_id")
