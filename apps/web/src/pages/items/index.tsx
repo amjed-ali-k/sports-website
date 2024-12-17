@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { Icon } from "@iconify-icon/react";
 import { cn } from "@/lib/utils";
+import { IconFromName } from "@/components/icon";
 
 const individualApi = apiClient.public.items.all.individual[":eventId"];
 const individualurl = individualApi.$url();
@@ -71,20 +72,28 @@ export const ItemsPage = () => {
           {individualItems?.map(({ item, registrationCount }) => (
             <TableRow onClick={() => navigate(`${item.id}/individual`)}>
               <TableCell className="font-medium min-w-[200px]">
+                <span>
+                  <IconFromName
+                    name={item.iconName}
+                    className="size-4 inline-block mr-1"
+                  />
+                </span>
+                <span>{item.name}</span>
                 <Icon
                   icon={
                     item.gender === "male"
                       ? "material-symbols:male"
                       : "material-symbols:female"
                   }
-                  className={cn("mr-1", {
+                  className={cn("ml-1", {
                     "text-blue-500": item.gender === "male",
                     "text-pink-500": item.gender === "female",
                   })}
                 />
-                <span>{item.name}</span>
               </TableCell>
-              <TableCell className="capitalize text-xs">{item.status}</TableCell>
+              <TableCell className="capitalize text-xs">
+                {item.status}
+              </TableCell>
               <TableCell>{registrationCount}</TableCell>
               <TableCell className="text-right">
                 {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
@@ -116,7 +125,7 @@ export const ItemsPage = () => {
         <TableBody>
           {groupItems?.map(({ item, registrationCount }) => (
             <TableRow onClick={() => navigate(`${item.id}/group`)}>
-             <TableCell className="font-medium">
+              <TableCell className="font-medium">
                 <Icon
                   icon={
                     item.gender === "male"
@@ -130,7 +139,9 @@ export const ItemsPage = () => {
                 />
                 <span>{item.name}</span>
               </TableCell>
-              <TableCell className="capitalize text-xs">{item.status}</TableCell>
+              <TableCell className="capitalize text-xs">
+                {item.status}
+              </TableCell>
               <TableCell>{registrationCount}</TableCell>
               <TableCell className="text-right">
                 {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}

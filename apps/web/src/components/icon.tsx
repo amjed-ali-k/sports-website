@@ -237,3 +237,18 @@ export const iconsList = [
     icon: Paintbrush2,
   },
 ] as const;
+
+const getIcon = (name?: string | null) =>
+  iconsList.find((e) => e.name === name)?.icon ?? Origami;
+
+export const IconFromName = ({
+  name,
+  className,
+}: {
+  name?: string | null;
+  className?: string;
+}) => {
+  const Icon = getIcon(name);
+
+  return <Icon className={className} />;
+};

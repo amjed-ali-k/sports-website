@@ -17,7 +17,8 @@ import useSWR from "swr";
 import { cn } from "@/lib/utils";
 import { useSection } from "@/hooks/use-section";
 import { useIndividualItem } from "@/hooks/use-item";
-import { iconsList } from "@/components/icon";
+import { IconFromName } from "@/components/icon";
+import { SectionName } from "@/components/section-name";
 
 const Api = apiClient.public.items.participants.individual[":itemId"];
 const url = Api.$url();
@@ -40,14 +41,11 @@ export const SingleItemPage = () => {
   );
 
   const item = useIndividualItem(itemId);
-  const ItemIcon =
-    iconsList.find((e) => e.name === item?.item.iconName)?.icon ?? Origami;
 
   return (
     <div>
       <div className="flex flex-col items-center py-4">
-        <ItemIcon className="size-12" />
-
+        <IconFromName name={item?.item.iconName} className="size-12" />
         <h4 className="text-2xl text-center font-bold">{item?.item.name}</h4>
         <div className="text-sm items-center flex">
           <Icon
@@ -130,14 +128,13 @@ const Rows = ({
     registrationId: number;
   } | null;
 }) => {
-  const section = useSection(participants.sectionId);
   return (
     <TableRow
       className={cn({
         "opacity-40": registrations.status === "not_participated",
-        "bg-yellow-600": results?.position === "first",
-        "bg-slate-700": results?.position === "second",
-        "bg-teal-950": results?.position === "third",
+        "bg-yellow-600/30": results?.position === "first",
+        "bg-slate-600/30": results?.position === "second",
+        "bg-teal-600/30": results?.position === "third",
       })}
     >
       <TableCell className="font-medium">
@@ -155,7 +152,7 @@ const Rows = ({
         )}
       </TableCell>
       <TableCell>{participants.batch}</TableCell>
-      <TableCell>{section?.name}</TableCell>
+      <TableCell><SectionName id={participants.sectionId} /></TableCell>
     </TableRow>
   );
 };
