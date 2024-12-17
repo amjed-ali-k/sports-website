@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
-import { ColorPicker, Textarea, useToast } from "@sports/ui";
+import {
+  ColorPicker,
+  FormControl,
+  Label,
+  Textarea,
+  useToast,
+} from "@sports/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -26,13 +32,14 @@ import { Button } from "@sports/ui";
 import { Plus, Trash2, FolderIcon } from "lucide-react";
 import { useRequireAuth } from "../lib/auth";
 import { EmptyState } from "../components/empty-state";
+import { FileUpload } from "@/components/file-upload";
 
 const sectionSchema = z.object({
   name: z.string().min(1, "Section name is required"),
   logo: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  slug: z.string().min(1).max(3)
+  slug: z.string().min(1).max(3),
 });
 
 type SectionFormValues = z.infer<typeof sectionSchema>;
@@ -143,7 +150,7 @@ export default function SectionsPage() {
                     </FormItem>
                   )}
                 />
-                 <FormField
+                <FormField
                   control={form.control}
                   name="slug"
                   render={({ field }) => (
@@ -173,16 +180,24 @@ export default function SectionsPage() {
                   name="logo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo Url</FormLabel>
-                      <Input
-                        {...field}
-                        value={field.value || ""}
-                        placeholder="Logo url. (200px x 200px)"
-                      />
-                      <FormMessage />
+                      <FormLabel>Logo</FormLabel>
+                      <FormControl>
+                        <div>
+                          {field.value && (
+                            <img
+                              src={field.value}
+                              className="w-full h-24 object-cover"
+                            />
+                          )}
+                          <FileUpload
+                            onFileUpload={({ url }) => field.onChange(url)}
+                          />
+                        </div>
+                      </FormControl>
                     </FormItem>
                   )}
                 />
+
                 <Button
                   type="submit"
                   className="w-full"
@@ -211,7 +226,9 @@ export default function SectionsPage() {
             {sections.length > 0 ? (
               sections.map((section) => (
                 <TableRow key={section.id}>
-                  <TableCell>{section.name} ({section.slug})</TableCell>
+                  <TableCell>
+                    {section.name} ({section.slug})
+                  </TableCell>
                   <TableCell>
                     {section.logo && (
                       <img
