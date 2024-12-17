@@ -36,7 +36,7 @@ const formSchema = z.object({
 
 type ParticipantFormValues = z.infer<typeof formSchema>;
 
-export const EditSectionPage = () => {
+export const EditParticipantsPage = () => {
   const participantId = useParams().participantId;
   const queryClient = useQueryClient();
 
@@ -108,7 +108,9 @@ export const EditSectionPage = () => {
         <CardContent>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit((data) => createParticipant.mutate(data))}
+              onSubmit={form.handleSubmit((data) =>
+                createParticipant.mutate(data)
+              )}
               className="space-y-6"
             >
               <FormField
@@ -133,7 +135,7 @@ export const EditSectionPage = () => {
                     <FormLabel>Section</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value.toString()}
+                      value={field.value?.toString()}
                     >
                       <FormControl>
                         <SelectTrigger>

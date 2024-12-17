@@ -39,6 +39,7 @@ import { ItemEditPage } from "./pages/items/single/edit";
 import { GroupItemEditPage } from "./pages/group-items/single/edit";
 import { NewSectionPage } from "./pages/sections/new";
 import { EditSectionPage } from "./pages/sections/edit";
+import { EditParticipantsPage } from "./pages/participants/edit";
 
 const queryClient = new QueryClient();
 
@@ -67,7 +68,7 @@ function App() {
                   }
                 >
                   <Route index element={<ParticipantsPage />} />
-                  <Route path="edit/:participantId" element={<div />} />
+                  <Route path="edit/:participantId" element={<EditParticipantsPage />} />
                 </Route>
                 <Route path="/items" element={<ManagerOnly />}>
                   <Route element={<ItemsPage />} index />
