@@ -42,10 +42,7 @@ export const participants = sqliteTable(
     updatedAt: text("updated_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-  },
-  (table) => ({
-    chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
-  })
+  }
 );
 
 export const events = sqliteTable("events", {
