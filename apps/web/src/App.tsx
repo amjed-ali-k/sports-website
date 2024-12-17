@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@sports/ui";
 import { Toaster } from "@sports/ui";
@@ -14,6 +10,7 @@ import { SingleItemPage } from "./pages/items/single";
 import { ParticipantsPage } from "./pages/participants";
 import { EventLayout } from "./components/eventLayout";
 import { GroupItemPage } from "./pages/items/group";
+import { SingleParticipantPage } from "./pages/participants/view";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +32,10 @@ function App() {
                       <Route path="group" element={<GroupItemPage />} />
                     </Route>
                   </Route>
-                  <Route path="participants" element={<ParticipantsPage />} />
+                  <Route path="participants">
+                    <Route index element={<ParticipantsPage />} />
+                    <Route path=":participantId" element={<SingleParticipantPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Routes>

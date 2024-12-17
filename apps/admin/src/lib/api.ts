@@ -58,7 +58,7 @@ class ApiClient {
 
   async updateParticipant(
     id: number,
-    data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">
+    data: Omit<Participant, "id" | "createdAt" | "organizationId" | "updatedAt">
   ) {
     const response = await this.client.api.participants[":id"].$put({
       param: { id: id.toString() },
@@ -379,8 +379,19 @@ class ApiClient {
     return response.json();
   }
 
-  async addSection(data: { name: string, slug: string }) {
+  async addSection(data: { name: string; slug: string }) {
     const response = await this.client.api.sections.$post({
+      json: data,
+    });
+    return response.json();
+  }
+
+  async editSection(
+    id: number,
+    data: { name: string; slug?: string | null | undefined }
+  ) {
+    const response = await this.client.api.sections[":id"].$put({
+      param: { id: id.toString() },
       json: data,
     });
     return response.json();

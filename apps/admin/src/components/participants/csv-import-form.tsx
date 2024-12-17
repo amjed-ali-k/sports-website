@@ -98,6 +98,8 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
           <li>batch (required)</li>
           <li>gender (required, 'male' or 'female')</li>
           <li>avatar (optional, URL)</li>
+          <li>no (unique identification number like registration no or adminsion number)</li>
+
         </ul>
       </div>
     </div>

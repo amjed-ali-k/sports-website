@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@sports/ui";
+import { Avatar, AvatarFallback, AvatarImage, Button } from "@sports/ui";
 import { formatDate } from "@/lib/utils";
 import { DataTable, DataTableColumnHeader } from "@sports/ui";
 
@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { apiClient } from "@/lib/api";
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import { Edit } from "lucide-react";
 
 interface ParticipantListProps {
   participants: Participant[];
@@ -17,6 +19,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
     queryKey: ["sections"],
     queryFn: () => apiClient.getSections(),
   });
+
   const getSectionName = (sectionId: number) => {
     return sections.find((s) => s.id === sectionId)?.name || "Unknown";
   };
@@ -73,8 +76,21 @@ export function ParticipantList({ participants }: ParticipantListProps) {
           <DataTableColumnHeader column={column} title="Created at" />
         ),
       },
+      {
+        accessorKey: "id",
+        cell: ({ row }) => (
+          <Button size="icon" variant="ghost" asChild>
+            <Link to={`edit/${row.original.id}`}>
+              <Edit className="size-4" />
+            </Link>
+          </Button>
+        ),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Actions" />
+        ),
+      },
     ],
-    []
+    [sections]
   );
 
   return (

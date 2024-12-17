@@ -24,6 +24,7 @@ export const participantPublicRouter = hono()
 
       const allParticipants = await db
         .select({
+          id: participants.id,
           name: participants.fullName,
           chestNo: participants.chestNo,
           batch: participants.batch,
@@ -67,7 +68,6 @@ export const participantPublicRouter = hono()
       })
       .from(participants)
       .where(eq(participants.id, id))
-      .innerJoin(sections, eq(participants.sectionId, sections.id))
       .get();
 
     if (!participant) {
@@ -102,4 +102,17 @@ export const participantPublicRouter = hono()
       .limit(count)
       .all();
     return c.json(topParticipants);
+  })
+  .get("/:id/stats", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+
+    const stats = await db
+      .select()
+      .from(registrations)
+      .where(eq(registrations.participantId, id))
+      .leftJoin(results, eq(registrations.id, results.registrationId))
+      .all();
+
+    return c.json(stats);
   });

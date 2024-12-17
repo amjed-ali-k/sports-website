@@ -5,10 +5,18 @@ import { hono, zodValidator } from "../lib/api";
 
 const createSectionSchema = z.object({
   name: z.string().min(1),
-  logo: z.string().optional().nullable(),
-  color: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
+  logo: z.string().nullish(),
+  color: z.string().nullish(),
+  description: z.string().nullish(),
   slug: z.string().min(1).max(3)
+});
+
+const updateSectionSchema = z.object({
+  name: z.string().min(1).optional(),
+  logo: z.string().nullish(),
+  color: z.string().nullish(),
+  description: z.string().nullish(),
+  slug: z.string().min(1).max(3).nullish()
 });
 
 const router = hono()
@@ -62,6 +70,36 @@ const router = hono()
       .get();
 
     return c.json(section, 201);
+  })
+  .put("/:id", zodValidator(updateSectionSchema), async (c) => {
+    const id = Number(c.req.param("id"));
+    const data = c.req.valid("json");
+    const db = c.get("db");
+
+    // Check if section exists
+    const existingSection = await db
+      .select()
+      .from(sections)
+      .where(
+        and(
+          eq(sections.id, id),
+          eq(sections.organizationId, c.get("user").organizationId)
+        )
+      )
+      .get();
+
+    if (!existingSection) {
+      return c.json({ error: "Section not found" }, 404);
+    }
+
+    const section = await db
+      .update(sections)
+      .set(data)
+      .where(eq(sections.id, id))
+      .returning()
+      .get();
+
+    return c.json(section);
   })
   .delete("/:id", async (c) => {
     const id = Number(c.req.param("id"));

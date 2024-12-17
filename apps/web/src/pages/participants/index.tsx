@@ -22,6 +22,7 @@ import useSWR from "swr";
 import { Icon } from "@iconify-icon/react";
 import { cn } from "@/lib/utils";
 import { SectionName } from "@/components/section-name";
+import { useNavigate } from "react-router-dom";
 
 const api = apiClient.public.participants;
 const url = api.$url();
@@ -43,6 +44,8 @@ export const ParticipantsPage = () => {
     })
   );
 
+  const navigate = useNavigate()
+
   const canNextPage = data && data?.total / 20 > pageNumber - 1;
   const participants = data?.participants;
   return (
@@ -60,7 +63,7 @@ export const ParticipantsPage = () => {
         </TableHeader>
         <TableBody>
           {participants?.map((e) => (
-            <TableRow>
+            <TableRow onClick={() => navigate(`${e.id}`)}>
               <TableCell className="font-medium">
                 <Icon
                   icon={

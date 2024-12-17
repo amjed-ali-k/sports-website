@@ -13,6 +13,7 @@ export const FileUpload = ({
 }) => {
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]); // State to manage accepted files
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
   return (
     <Dropzone
       accept={{
@@ -26,12 +27,16 @@ export const FileUpload = ({
         const fd = new FormData();
         fd.append("image", files[0]);
         console.log("FormData before upload:", fd);
-
+        setError(false);
         setUploading(true);
         apiClient
           .uploadFile(fd)
           .then((res: { url: string }) => {
-            onFileUpload(res)
+            onFileUpload(res);
+          })
+          .catch(() => {
+            setAcceptedFiles([]);
+            setError(true);
           })
           .finally(() => {
             setUploading(false);
@@ -88,6 +93,7 @@ export const FileUpload = ({
               </Button>
             </div>
           )}
+          {error && <p className="text-rose-600 text-xs pb-3">Uploading image failed. Try again!</p>}
         </div>
       )}
     </Dropzone>
