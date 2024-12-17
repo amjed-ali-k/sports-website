@@ -29,7 +29,8 @@ const formSchema = z.object({
   batch: z.string(),
   gender: z.enum(["male", "female"]),
   avatar: z.string().optional(),
-  no: z.string().optional()
+  chestNo: z.string().nullish(),
+  no: z.string().optional(),
 });
 
 interface ParticipantFormProps {
@@ -63,7 +64,7 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
       batch: data.batch,
       sectionId: data.sectionId,
       gender: data.gender,
-      no: undefined
+      no: undefined,
     });
   };
   const image = form.watch("avatar");
@@ -84,7 +85,7 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             </FormItem>
           )}
         />
- <FormField
+        <FormField
           control={form.control}
           name="no"
           render={({ field }) => (
@@ -94,9 +95,25 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
                 <Input placeholder="EL2024" {...field} />
               </FormControl>
               <FormDescription className="text-xs">
-                Enter the unique identification number. Eg. Admisson no, Registration No etc.
-                It can be used to identify participatns in later
-                events.
+                Enter the unique identification number. Eg. Admisson no,
+                Registration No etc. It can be used to identify participatns in
+                later events.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="chestNo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Chest No (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="501" {...field} value={field.value || ""} />
+              </FormControl>
+              <FormDescription className="text-xs">
+                If value is not provided, it will be auto generated
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -137,7 +154,6 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="batch"
@@ -157,7 +173,6 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             </FormItem>
           )}
         />
-
 
         <FormField
           control={form.control}
