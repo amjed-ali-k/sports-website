@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import {
   Card,
@@ -18,28 +18,44 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from "@sports/ui";
 import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
 import { FileUpload } from "@/components/file-upload";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 const sectionSchema = z.object({
   name: z.string().min(1, "Section name is required"),
   logo: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  slug: z.string().min(1).max(3),
+  slug: z.string().min(1).max(3).nullish(),
 });
 
 type SectionFormValues = z.infer<typeof sectionSchema>;
 
 export const NewSectionPage = () => {
+  const sectionId = useParams().sectionId;
   const queryClient = useQueryClient();
+
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => apiClient.getSections(),
+  });
+
+  const section = sections.find((section) => section.id === Number(sectionId));
 
   const form = useForm<SectionFormValues>({
     resolver: zodResolver(sectionSchema),
   });
+
+  useEffect(() => {
+    if (section) {
+      form.reset(section);
+    }
+  }, [section]);
   const { toast } = useToast();
 
   const createSection = useMutation({
-    mutationFn: (data: SectionFormValues) => apiClient.addSection(data),
+    mutationFn: (data: SectionFormValues) =>
+      apiClient.editSection(Number(sectionId), data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sections"] });
       form.reset();
@@ -56,7 +72,7 @@ export const NewSectionPage = () => {
       });
     },
   });
-  
+
   const navigate = useNavigate();
 
   return (
@@ -112,7 +128,7 @@ export const NewSectionPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Section Slug</FormLabel>
-                    <Input {...field} placeholder="e.g., CS, EL, EEE" />
+                    <Input {...field} value={field.value || ""} placeholder="e.g., CS, EL, EEE" />
                     <FormMessage />
                   </FormItem>
                 )}
