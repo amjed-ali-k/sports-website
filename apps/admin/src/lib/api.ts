@@ -48,7 +48,7 @@ class ApiClient {
   }
 
   async createParticipant(
-    data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">
+    data: Omit<Participant, "id" | "organizationId" | "chestNo" | "createdAt" | "updatedAt">
   ) {
     const response = await this.client.api.participants.$post({
       json: data,

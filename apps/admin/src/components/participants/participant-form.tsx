@@ -92,7 +92,7 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
             <FormItem>
               <FormLabel>No</FormLabel>
               <FormControl>
-                <Input placeholder="EL2024" {...field} />
+                <Input placeholder="23424" {...field} />
               </FormControl>
               <FormDescription className="text-xs">
                 Enter the unique identification number. Eg. Admisson no,
