@@ -58,7 +58,7 @@ class ApiClient {
 
   async updateParticipant(
     id: number,
-    data: Omit<Participant, "id" | "chestNo" | "createdAt" | "updatedAt">
+    data: Omit<Participant, "id" | "createdAt" | "organizationId" | "updatedAt">
   ) {
     const response = await this.client.api.participants[":id"].$put({
       param: { id: id.toString() },

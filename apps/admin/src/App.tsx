@@ -62,10 +62,13 @@ function App() {
                   path="/participants"
                   element={
                     <ProtectedRoute requiredRole="rep">
-                      <ParticipantsPage />
+                      <Outlet />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<ParticipantsPage />} />
+                  <Route path="edit/:participantId" element={<div />} />
+                </Route>
                 <Route path="/items" element={<ManagerOnly />}>
                   <Route element={<ItemsPage />} index />
                   <Route path=":itemId" element={<ItemLayout />}>
