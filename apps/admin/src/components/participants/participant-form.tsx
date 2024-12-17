@@ -21,6 +21,7 @@ import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
+import { FileUpload } from "../file-upload";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -60,9 +61,10 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
     form.reset({
       batch: data.batch,
       sectionId: data.sectionId,
-      gender: data.gender
+      gender: data.gender,
     });
   };
+  const image = form.watch("avatar");
 
   return (
     <Form {...form}>
@@ -159,23 +161,8 @@ export function ParticipantForm({ onSubmit, isLoading }: ParticipantFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avatar URL (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com/avatar.jpg"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        {image && <img src={image} className="w-full h-24 object-cover" />}
+        <FileUpload onFileUpload={({ url }) => form.setValue("avatar", url)} />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Creating..." : "Create Participant"}
         </Button>

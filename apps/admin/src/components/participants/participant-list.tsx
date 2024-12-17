@@ -17,6 +17,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
     queryKey: ["sections"],
     queryFn: () => apiClient.getSections(),
   });
+  
   const getSectionName = (sectionId: number) => {
     return sections.find((s) => s.id === sectionId)?.name || "Unknown";
   };
@@ -74,7 +75,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
         ),
       },
     ],
-    []
+    [sections]
   );
 
   return (
