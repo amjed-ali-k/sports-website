@@ -14,7 +14,7 @@ import ParticipantsPage from "./pages/participants";
 import ItemsPage from "./pages/items/index";
 import SettingsPage from "./pages/settings";
 import AdminsPage from "./pages/admins";
-import SectionsPage from "./pages/sections"; // added import statement
+import SectionsPage from "./pages/sections/index"; // added import statement
 import ProfilePage from "./pages/profile";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import EventsPage from "./pages/events";
@@ -37,6 +37,7 @@ import { GroupRegistrationReportPage } from "./pages/group-items/single/reports/
 import { GroupResultReportPage } from "./pages/group-items/single/reports/result-pdf";
 import { ItemEditPage } from "./pages/items/single/edit";
 import { GroupItemEditPage } from "./pages/group-items/single/edit";
+import { NewSectionPage } from "./pages/sections/new";
 
 const queryClient = new QueryClient();
 
@@ -141,7 +142,10 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/sections" element={<SectionsPage />} />
+                <Route path="/sections">
+                  <Route index element={<SectionsPage />} />
+                  <Route path="new" element={<NewSectionPage />} />
+                </Route>
                 <Route
                   path="/profile"
                   element={
