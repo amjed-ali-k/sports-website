@@ -233,7 +233,9 @@ export const EditParticipantsPage = () => {
                 className="w-full"
                 disabled={createParticipant.isPending}
               >
-                {createParticipant.isPending ? "Editing..." : "Edit Section"}
+                {createParticipant.isPending
+                  ? "Editing..."
+                  : "Edit participant"}
               </Button>
             </form>
           </Form>
