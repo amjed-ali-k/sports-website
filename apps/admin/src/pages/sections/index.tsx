@@ -10,11 +10,10 @@ import {
   TableRow,
 } from "@sports/ui";
 import { Button } from "@sports/ui";
-import { Plus, Trash2, FolderIcon } from "lucide-react";
+import { Plus, Trash2, FolderIcon, Edit } from "lucide-react";
 import { useRequireAuth } from "@/lib/auth";
 import { EmptyState } from "@/components/empty-state";
 import { Link } from "react-router-dom";
-
 
 export default function SectionsPage() {
   useRequireAuth("controller");
@@ -98,7 +97,12 @@ export default function SectionsPage() {
                     )}
                   </TableCell>
                   <TableCell>{section.description}</TableCell>
-                  <TableCell>
+                  <TableCell className="flex">
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link to={`/sections/${section.id}/edit`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"

@@ -31,7 +31,7 @@ const sectionSchema = z.object({
 
 type SectionFormValues = z.infer<typeof sectionSchema>;
 
-export const NewSectionPage = () => {
+export const EditSectionPage = () => {
   const sectionId = useParams().sectionId;
   const queryClient = useQueryClient();
 
@@ -78,7 +78,7 @@ export const NewSectionPage = () => {
   return (
     <div className="container max-w-4xl mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">New Section</h1>
+        <h1 className="text-2xl font-bold">Edit Section - {section?.name}</h1>
         <Button variant="outline" onClick={() => navigate(-1)}>
           Cancel
         </Button>
@@ -87,7 +87,7 @@ export const NewSectionPage = () => {
         <CardHeader>
           <CardTitle>Section Details</CardTitle>
           <CardDescription>
-            Create a new section by filling the following form
+            Edit section by filling the following form
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,7 +128,11 @@ export const NewSectionPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Section Slug</FormLabel>
-                    <Input {...field} value={field.value || ""} placeholder="e.g., CS, EL, EEE" />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="e.g., CS, EL, EEE"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -172,7 +176,7 @@ export const NewSectionPage = () => {
                 className="w-full"
                 disabled={createSection.isPending}
               >
-                {createSection.isPending ? "Creating..." : "Create Section"}
+                {createSection.isPending ? "Editing..." : "Edit Section"}
               </Button>
             </form>
           </Form>

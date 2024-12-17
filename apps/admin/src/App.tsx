@@ -38,6 +38,7 @@ import { GroupResultReportPage } from "./pages/group-items/single/reports/result
 import { ItemEditPage } from "./pages/items/single/edit";
 import { GroupItemEditPage } from "./pages/group-items/single/edit";
 import { NewSectionPage } from "./pages/sections/new";
+import { EditSectionPage } from "./pages/sections/edit";
 
 const queryClient = new QueryClient();
 
@@ -145,6 +146,7 @@ function App() {
                 <Route path="/sections">
                   <Route index element={<SectionsPage />} />
                   <Route path="new" element={<NewSectionPage />} />
+                  <Route path=":sectionId/edit" element={<EditSectionPage />} />
                 </Route>
                 <Route
                   path="/profile"
