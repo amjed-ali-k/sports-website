@@ -24,7 +24,7 @@ export const participants = sqliteTable(
   "participants",
   {
     id: integer("id").primaryKey(),
-    chestNo: text("chest_no").notNull(),
+    chestNo: text("chest_no"),
     fullName: text("full_name").notNull(),
     no: text("no").unique(),
     sectionId: integer("section_id")
@@ -42,10 +42,7 @@ export const participants = sqliteTable(
     updatedAt: text("updated_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-  },
-  (table) => ({
-    chestNoIdx: uniqueIndex("chest_no_idx").on(table.chestNo),
-  })
+  }
 );
 
 export const events = sqliteTable("events", {

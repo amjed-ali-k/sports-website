@@ -23,22 +23,20 @@ import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
 import { FileUpload } from "@/components/file-upload";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   sectionId: z.coerce.number().min(1, "Section is required"),
   batch: z.string(),
   gender: z.enum(["male", "female"]),
-  avatar: z.string().nullish(),
-  no: z.string().nullish(),
+  avatar: z.string().optional(),
   chestNo: z.string().nullish(),
+  no: z.string().optional(),
 });
 
 type ParticipantFormValues = z.infer<typeof formSchema>;
 
-export const EditParticipantsPage = () => {
-  const participantId = useParams().participantId;
+export const CreateParticipantsPage = () => {
   const queryClient = useQueryClient();
 
   const { data: sections = [] } = useQuery({
@@ -46,33 +44,26 @@ export const EditParticipantsPage = () => {
     queryFn: () => apiClient.getSections(),
   });
 
-  const { data: participants = [] } = useQuery({
-    queryKey: ["participants"],
-    queryFn: () => apiClient.getParticipants(),
-  });
-
-  const participant = participants.find(
-    (participant) => participant.participant.id === Number(participantId)
-  )?.participant;
-
   const form = useForm<ParticipantFormValues>({
     resolver: zodResolver(formSchema),
   });
-
-  useEffect(() => {
-    if (participant) {
-      form.reset(participant);
-    }
-  }, [participant]);
 
   const { toast } = useToast();
 
   const createParticipant = useMutation({
     mutationFn: (data: ParticipantFormValues) =>
-      apiClient.updateParticipant(Number(participantId), data),
-    onSuccess: () => {
+      apiClient.createParticipant(data),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
-      form.reset();
+      const _data = "error" in data ? null : data;
+      if (_data) {
+        form.reset({
+          batch: _data.batch,
+          sectionId: _data.sectionId,
+          gender: _data.gender,
+          no: undefined,
+        });
+      }
       toast({
         title: "Success",
         description: "participant has been created successfully.",
@@ -92,9 +83,7 @@ export const EditParticipantsPage = () => {
   return (
     <div className="container max-w-4xl mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">
-          Edit Participant - {participant?.fullName}
-        </h1>
+        <h1 className="text-2xl font-bold">Create Participant</h1>
         <Button variant="outline" onClick={() => navigate(-1)}>
           Cancel
         </Button>
@@ -103,7 +92,7 @@ export const EditParticipantsPage = () => {
         <CardHeader>
           <CardTitle>Participant Details</CardTitle>
           <CardDescription>
-            Edit participant by filling the following form
+            Create participant by filling the following form
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -134,7 +123,11 @@ export const EditParticipantsPage = () => {
                   <FormItem>
                     <FormLabel>No</FormLabel>
                     <FormControl>
-                      <Input placeholder="23424" {...field} value={field.value || ""} />
+                      <Input
+                        placeholder="23424"
+                        {...field}
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormDescription className="text-xs">
                       Enter the unique identification number. Eg. Admisson no,
@@ -252,8 +245,8 @@ export const EditParticipantsPage = () => {
                 disabled={createParticipant.isPending}
               >
                 {createParticipant.isPending
-                  ? "Editing..."
-                  : "Edit participant"}
+                  ? "Creating..."
+                  : "Create participant"}
               </Button>
             </form>
           </Form>
