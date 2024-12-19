@@ -24,6 +24,7 @@ import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { FileUpload } from "@/components/file-upload";
 import { useNavigate, useParams } from "react-router-dom";
+import { CertificateInput } from "@/components/certInput";
 
 const eventSchema = z.object({
   id: z.number().optional(),
@@ -41,7 +42,48 @@ const eventSchema = z.object({
   registrationEndDate: z.string().nullish(),
   image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
+  participationCertificate: z.string().optional(),
+  participationBg: z.string().optional(),
+  firstPrizeCertificate: z.string().optional(),
+  firstPrizeCertificateBg: z.string().optional(),
+  secondPrizeCertificate: z.string().optional(),
+  secondPrizeCertificateBg: z.string().optional(),
+  thirdPrizeCertificate: z.string().optional(),
+  thirdPrizeCertificateBg: z.string().optional(),
 });
+
+const singleCertTemplate = z
+  .object({
+    certificateElements: z.array(
+      z.object({
+        text: z.string().optional(),
+        styles: z.object({}),
+        variable: z.enum([
+          "name",
+          "eventName",
+          "itemName",
+          "position",
+          "points",
+          "date",
+          "sectionName",
+        ]).optional(),
+      })
+    ),
+    height: z.number(),
+    width: z.number(),
+    fonts: z.array(z.string()),
+    certificateBackground: z.string().optional(),
+  })
+  .optional();
+
+const certificatesSchema = z
+  .object({
+    participation: singleCertTemplate,
+    first: singleCertTemplate,
+    second: singleCertTemplate,
+    third: singleCertTemplate,
+  })
+  .nullish();
 
 type EventFormValues = z.infer<typeof eventSchema>;
 
@@ -69,6 +111,29 @@ export default function EditEventsPage() {
     if (editingEvent)
       form.reset({
         ...editingEvent,
+        startDate: new Date(editingEvent.startDate).toISOString().split("T")[0],
+        endDate: new Date(editingEvent.endDate).toISOString().split("T")[0],
+        participationCertificate: JSON.stringify(
+          editingEvent.certificateTemplates?.participation
+        ),
+        firstPrizeCertificate: JSON.stringify(
+          editingEvent.certificateTemplates?.first
+        ),
+        secondPrizeCertificate: JSON.stringify(
+          editingEvent.certificateTemplates?.second
+        ),
+        thirdPrizeCertificate: JSON.stringify(
+          editingEvent.certificateTemplates?.third
+        ),
+        participationBg:
+          editingEvent.certificateTemplates?.participation
+            ?.certificateBackground,
+        firstPrizeCertificateBg:
+          editingEvent.certificateTemplates?.first?.certificateBackground,
+        secondPrizeCertificateBg:
+          editingEvent.certificateTemplates?.second?.certificateBackground,
+        thirdPrizeCertificateBg:
+          editingEvent.certificateTemplates?.third?.certificateBackground,
         description: editingEvent.description ?? "",
       });
   }, [editingEvent]);
@@ -76,7 +141,43 @@ export default function EditEventsPage() {
   const mutation = useMutation({
     mutationFn: async (values: EventFormValues) => {
       if (!editingEvent) return;
-      const res = await apiClient.updateEvent(editingEvent.id, values);
+
+      const certificates = certificatesSchema.parse({
+        participation: values.participationCertificate
+          ? JSON.parse(values.participationCertificate)
+          : undefined,
+        first: values.firstPrizeCertificate
+          ? JSON.parse(values.firstPrizeCertificate)
+          : undefined,
+        second: values.secondPrizeCertificate
+          ? JSON.parse(values.secondPrizeCertificate)
+          : undefined,
+        third: values.thirdPrizeCertificate
+          ? JSON.parse(values.thirdPrizeCertificate)
+          : undefined,
+      });
+
+      if (certificates?.first && values.firstPrizeCertificateBg) {
+        certificates.first.certificateBackground =
+          values.firstPrizeCertificateBg;
+      }
+      if (certificates?.second && values.secondPrizeCertificateBg) {
+        certificates.second.certificateBackground =
+          values.secondPrizeCertificateBg;
+      }
+      if (certificates?.third && values.thirdPrizeCertificateBg) {
+        certificates.third.certificateBackground =
+          values.thirdPrizeCertificateBg;
+      }
+      if (certificates?.participation && values.participationBg) {
+        certificates.participation.certificateBackground =
+          values.participationBg;
+      }
+
+      const res = await apiClient.updateEvent(editingEvent.id, {
+        ...values,
+        certificateTemplates: certificates,
+      });
       if ("error" in res) {
         throw new Error("Failed to save event");
       } else {
@@ -153,63 +254,65 @@ export default function EditEventsPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="maxRegistrationPerParticipant"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Registration per Participant</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Date</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="date" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Date</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="date" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="maxRegistrationPerParticipant"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max Registration per Participant</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="date" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="image"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Logo</FormLabel>
+                    <FormLabel>Cover Image</FormLabel>
                     <FormControl>
-                      <div>
+                      <div className="flex gap-4">
                         {field.value && (
                           <img
                             src={field.value}
-                            className="w-full h-24 object-cover"
+                            className="w-full rounded-md overflow-hidden h-[78px] object-cover"
                           />
                         )}
                         <FileUpload
@@ -220,6 +323,11 @@ export default function EditEventsPage() {
                   </FormItem>
                 )}
               />
+              <CertificateInput label="Participation Certificate Config" name="participationCertificate" bgName="participationBg" />
+              <CertificateInput label="First Prize Certificate Config" name="firstPrizeCertificate" bgName="firstPrizeCertificateBg" />
+              <CertificateInput label="Second Prize Certificate Config" name="secondPrizeCertificate" bgName="secondPrizeCertificateBg" />
+              <CertificateInput label="Third Prize Certificate Config" name="thirdPrizeCertificate" bgName="thirdPrizeCertificateBg" />
+            
               <Button type="submit" className="w-full">
                 Update event
               </Button>
@@ -230,3 +338,5 @@ export default function EditEventsPage() {
     </div>
   );
 }
+
+

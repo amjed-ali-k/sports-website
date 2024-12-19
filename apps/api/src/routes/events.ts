@@ -3,6 +3,31 @@ import { events } from "@sports/database";
 import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
+
+const singleCertTemplate =  z
+.object({
+  certificateElements: z.array(
+    z.object({
+      text: z.string().optional(),
+      styles: z.object({}),
+      variable: z.enum([
+        "name",
+        "eventName",
+        "itemName",
+        "position",
+        "points",
+        "date",
+        "sectionName",
+      ]).optional(),
+    })
+  ),
+  height: z.number(),
+  width: z.number(),
+  fonts: z.array(z.string()),
+  certificateBackground: z.string().optional(),
+})
+.optional()
+
 const createEventSchema = z.object({
   name: z.string().min(1),
   startDate: z.string().datetime(),
@@ -13,10 +38,10 @@ const createEventSchema = z.object({
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
   certificateTemplates: z
     .object({
-      participation: z.string(),
-      first: z.string(),
-      second: z.string(),
-      third: z.string(),
+      participation: singleCertTemplate,
+      first: singleCertTemplate,
+      second: singleCertTemplate,
+      third:singleCertTemplate,
     })
     .nullish(),
 });

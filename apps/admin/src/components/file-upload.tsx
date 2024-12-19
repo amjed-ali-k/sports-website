@@ -22,11 +22,9 @@ export const FileUpload = ({
       disabled={uploading}
       multiple={false}
       onDrop={(files) => {
-        console.log("Files dropped:", files);
         setAcceptedFiles(files);
         const fd = new FormData();
         fd.append("image", files[0]);
-        console.log("FormData before upload:", fd);
         setError(false);
         setUploading(true);
         apiClient
