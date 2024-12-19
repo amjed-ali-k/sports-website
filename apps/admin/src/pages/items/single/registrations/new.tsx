@@ -234,7 +234,7 @@ export function NewItemRegistrationPage() {
                           {participant.fullName}
                         </CardTitle>
                         <CardDescription>
-                          Chest No: {participant.chestNo}
+                          Chest No: {participant.chestNo} {participant.no && ` - ID No: ${participant.no}`}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="p-4 pt-0">
