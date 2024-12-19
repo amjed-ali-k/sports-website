@@ -19,10 +19,12 @@ export const ImportParticipantsPage = () => {
   const navigate = useNavigate();
 
   const importParticipants = useMutation({
-    mutationFn: (data: any[]) =>
-      Promise.all(
+    mutationFn: async (data: any[]) => {
+      console.table(data)
+      await Promise.all(
         data.map((participant) => apiClient.createParticipant(participant))
-      ),
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participants"] });
       toast({
@@ -38,6 +40,7 @@ export const ImportParticipantsPage = () => {
       });
     },
   });
+
   return (
     <div className="container max-w-4xl mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
@@ -49,9 +52,7 @@ export const ImportParticipantsPage = () => {
       <Card>
         <CardHeader>
           <CardTitle>Participant Details</CardTitle>
-          <CardDescription>
-           Import participants from a CSV file
-          </CardDescription>
+          <CardDescription>Import participants from a CSV file</CardDescription>
         </CardHeader>
         <CardContent>
           <CSVImportForm
