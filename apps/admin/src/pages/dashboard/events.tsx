@@ -66,7 +66,7 @@ export const DashboardEventsSections = ({
             third: r.individual.third + r.group.third,
           };
           return (
-            <div className="flex gap-4" key={sectionId}>
+            <div className="flex gap-4 max-w-96" key={sectionId}>
               <Card
                 className="flex flex-col border-t-4"
                 style={{
