@@ -45,6 +45,7 @@ export const RegistrationReportPage = () => {
         eventName={event.name}
         registrations={registrations.filter(r => r.item.id === currentItem.id).sort((a, b) => (a.participant.chestNo || '0').localeCompare(b.participant.chestNo || '0'))}
         itemName={currentItem.name}
+        itemGender={currentItem.gender}
       />
     </PDFViewer>
   );
@@ -55,10 +56,12 @@ const ReportRegistrationPdf = ({
   eventDescription,
   registrations,
   itemName,
+  itemGender
 }: {
   eventName?: string;
   eventDescription?: string | null;
   itemName?: string;
+  itemGender?: string;
   registrations: {
     registration: {
       id: number;
@@ -95,12 +98,12 @@ const ReportRegistrationPdf = ({
           </View>
           <View style={tw(" px-4 w-full font-body text-sm")}>
             <Text style={tw("text-sm my-2 text-center font-semibold text-slate-900")}>
-              Registrations for {itemName}
+              Registrations for {itemName} [{itemGender}]
             </Text>
             <View style={tw("flex flex-row w-full ")}>
-              <View style={tw("border border-slate-200 px-1 w-[10%]")}>
+              {/* <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Id</Text>
-              </View>
+              </View> */}
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Chest No</Text>
               </View>
@@ -110,7 +113,7 @@ const ReportRegistrationPdf = ({
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                 <Text>Batch</Text>
               </View>
-              <View style={tw("border border-slate-200 px-1 w-[20%]")}>
+              <View style={tw("border border-slate-200 px-1 w-[30%]")}>
                 <Text>Section</Text>
               </View>
               <View style={tw("border border-slate-200 px-1 w-[10%]")}>
@@ -119,9 +122,9 @@ const ReportRegistrationPdf = ({
             </View>
             {registrations.map((registration) => (
               <View style={tw("flex flex-row w-full ")}>
-                <View style={tw("px-1 border border-slate-200 w-[10%]")}>
+                {/* <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                   <Text>{registration.registration.id}</Text>
-                </View>
+                </View> */}
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                   <Text>{registration.participant.chestNo}</Text>
                 </View>
@@ -131,7 +134,7 @@ const ReportRegistrationPdf = ({
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                   <Text>{registration.participant.batch}</Text>
                 </View>
-                <View style={tw("px-1 border border-slate-200 w-[20%]")}>
+                <View style={tw("px-1 border border-slate-200 w-[30%]")}>
                   <Text>{registration.participant.sectionName}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
