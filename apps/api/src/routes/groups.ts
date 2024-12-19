@@ -29,7 +29,7 @@ const updateGroupItemSchema = z.object({
   minParticipants: z.number().optional(),
   maxParticipants: z.number().optional(),
   eventId: z.number().optional(),
-  gender: z.enum(["male", "female", "any"]).optional(),
+  status: z.enum(["scheduled", "on-going", "finished"]).optional(),
 });
 
 const createGroupRegistrationSchema = z.object({
@@ -209,7 +209,8 @@ export const groupsRouter = hono()
           'id', ${participants.id},
           'name', ${participants.fullName},
           'chestNo', ${participants.chestNo},
-          'sectionId', ${participants.sectionId}
+          'sectionId', ${participants.sectionId},
+           'batch', ${participants.batch}
         ))`.as("participants"),
       })
       .from(groupRegistrations)
@@ -413,7 +414,7 @@ export const groupsRouter = hono()
         groupRegistrationId: data.groupRegistrationId,
         position: data.position,
         points,
-        groupItemId: registration.item.id
+        groupItemId: registration.item.id,
       })
       .returning()
       .get();
