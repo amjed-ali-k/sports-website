@@ -28,6 +28,9 @@ export * from "./components/ui/checkbox"
 export * from "./components/ui/progress"
 export * from "./components/ui/chart"
 export * from "./components/ui/pagination"
+export * from "./components/ui/toggle"
+export * from "./components/ui/toggle-group"
+
 
 // Export styles
 import "./styles.css";

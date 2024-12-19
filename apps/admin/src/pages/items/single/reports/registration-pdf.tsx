@@ -75,6 +75,7 @@ const ReportRegistrationPdf = ({
       chestNo: string | null;
       sectionId: number;
       sectionName: string;
+      batch?: string | null;
     };
   }[];
 }) => {
@@ -128,7 +129,7 @@ const ReportRegistrationPdf = ({
                   <Text>{registration.participant.fullName}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[10%]")}>
-                  <Text>{registration.participant.sectionId}</Text>
+                  <Text>{registration.participant.batch}</Text>
                 </View>
                 <View style={tw("px-1 border border-slate-200 w-[20%]")}>
                   <Text>{registration.participant.sectionName}</Text>

@@ -17,8 +17,7 @@ const createRegistrationSchema = z.object({
 });
 
 const updateRegistrationSchema = z.object({
-  itemId: z.number(),
-  participantId: z.number(),
+  id: z.number(),
   groupId: z.number().optional().nullable(),
   metaInfo: z.string().optional().nullable(),
   status: z
@@ -88,6 +87,7 @@ const router = hono()
           chestNo: participants.chestNo,
           sectionId: sections.id,
           sectionName: sections.name,
+          batch: participants.batch
         },
         item: {
           id: items.id,
@@ -157,13 +157,13 @@ const router = hono()
           organizationId: events.organizationId,
         })
         .from(items)
-        .where(eq(items.id, data.itemId))
+        .where(eq(items.id, existingRegistration.itemId))
         .leftJoin(events, eq(items.eventId, events.id))
         .get(),
       db
         .select()
         .from(participants)
-        .where(eq(participants.id, data.participantId))
+        .where(eq(participants.id, existingRegistration.participantId))
         .get(),
     ]);
 
@@ -188,9 +188,8 @@ const router = hono()
       .from(registrations)
       .where(
         and(
-          eq(registrations.participantId, data.participantId),
-          eq(registrations.itemId, data.itemId),
-          eq(registrations.id, id)
+          eq(registrations.participantId, existingRegistration.participantId),
+          eq(registrations.itemId, existingRegistration.itemId),
         )
       )
       .get();

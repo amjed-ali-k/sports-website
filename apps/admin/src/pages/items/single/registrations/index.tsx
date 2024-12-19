@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Table,
@@ -9,6 +9,9 @@ import {
   TableRow,
   Button,
   Badge,
+  ToggleGroup,
+  ToggleGroupItem,
+  useToast,
 } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
@@ -36,7 +39,7 @@ export function SingleItemRegistrationsPage() {
   )?.item;
 
   if (!currentItem) return <div>Item not found</div>;
-  
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
@@ -54,6 +57,7 @@ export function SingleItemRegistrationsPage() {
             <TableHead>Section</TableHead>
             <TableHead>Meta Info</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,27 +65,7 @@ export function SingleItemRegistrationsPage() {
             ?.filter(
               ({ registration }) => registration.itemId === currentItem?.id
             )
-            .map(({ registration, participant }) => (
-              <TableRow key={registration.id}>
-                <TableCell>{participant.fullName}</TableCell>
-                <TableCell>{participant.chestNo}</TableCell>
-                <TableCell>{participant.sectionName}</TableCell>
-                <TableCell>{registration.metaInfo || "-"}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      registration.status === "participated"
-                        ? "default"
-                        : registration.status === "not_participated"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
-                    {registration.status.replace("_", " ")}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
+            .map((data) => <Row key={data.registration.id} {...data} />)}
           {registrations?.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="h-96">
@@ -98,3 +82,105 @@ export function SingleItemRegistrationsPage() {
     </div>
   );
 }
+
+const Row = ({
+  registration,
+  participant,
+}: {
+  registration: {
+    id: number;
+    createdAt: string | null;
+    updatedAt: string | null;
+    status: "registered" | "participated" | "not_participated";
+    itemId: number;
+    participantId: number;
+    metaInfo: string | null;
+  };
+  participant: {
+    id: number;
+    fullName: string;
+    chestNo: string | null;
+    sectionId: number;
+    sectionName: string;
+  };
+  item: {
+    id: number;
+    name: string;
+  };
+}) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: async (values: { id: number; status: any }) => {
+      await apiClient.updateRegistration(values.id, values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["registrations"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleStatusChange = (status: string) => {
+    mutation.mutate({ id: registration.id, status });
+  };
+
+  return (
+    <TableRow key={registration.id}>
+      <TableCell>{participant.fullName}</TableCell>
+      <TableCell>{participant.chestNo}</TableCell>
+      <TableCell>{participant.sectionName}</TableCell>
+      <TableCell>{registration.metaInfo || "-"}</TableCell>
+      <TableCell>
+        <Badge
+        className="capitalize duration-200 transition-all"
+          variant={
+            registration.status === "participated"
+              ? "default"
+              : registration.status === "not_participated"
+                ? "destructive"
+                : "secondary"
+          }
+        >
+          {registration.status.replace("_", " ")}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <ToggleGroup
+        disabled={mutation.isPending}
+          onValueChange={handleStatusChange}
+          value={registration.status}
+          size="sm"
+          variant="default"
+          type="single"
+          className="text-xs gap-0"
+        >
+          <ToggleGroupItem
+            value="registered"
+            className="text-xs  data-[state=on]:font-bold"
+          >
+            Registered
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="not_participated"
+            className="text-xs data-[state=on]:font-bold data-[state=on]:text-rose-700 data-[state=on]:bg-rose-100"
+          >
+            Not Participated
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="participated"
+            className="text-xs data-[state=on]:font-bold data-[state=on]:text-green-700 data-[state=on]:bg-green-100"
+          >
+            Participated
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </TableCell>
+    </TableRow>
+  );
+};
