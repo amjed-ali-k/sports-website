@@ -71,7 +71,7 @@ export function GroupItemEditPage() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      queryClient.invalidateQueries({ queryKey: ["group-items"] });
       form.reset();
       toast({
         title: "Success",
