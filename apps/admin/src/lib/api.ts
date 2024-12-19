@@ -188,6 +188,14 @@ class ApiClient {
     return response.json();
   }
 
+  async updateRegisrationStatus(id :number, status: "registered" | "participated" | "not_participated") {
+    const response = await this.client.api.registrations[":id"].status.$patch({
+      param: { id: id.toString() },
+      json: { status },
+    });
+    return response.json();
+  }
+
   async deleteRegistration(id: number) {
     const response = await this.client.api.registrations[":id"].$delete({
       param: { id: id.toString() },

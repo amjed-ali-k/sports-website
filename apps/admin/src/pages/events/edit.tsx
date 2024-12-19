@@ -24,7 +24,7 @@ import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { FileUpload } from "@/components/file-upload";
 import { useNavigate, useParams } from "react-router-dom";
-import { CertificateInput } from "@/components/certInput";
+import { CertificateInput, singleCertTemplate } from "@/components/certInput";
 
 const eventSchema = z.object({
   id: z.number().optional(),
@@ -51,30 +51,6 @@ const eventSchema = z.object({
   thirdPrizeCertificate: z.string().optional(),
   thirdPrizeCertificateBg: z.string().optional(),
 });
-
-const singleCertTemplate = z
-  .object({
-    certificateElements: z.array(
-      z.object({
-        text: z.string().optional(),
-        styles: z.object({}),
-        variable: z.enum([
-          "name",
-          "eventName",
-          "itemName",
-          "position",
-          "points",
-          "date",
-          "sectionName",
-        ]).optional(),
-      })
-    ),
-    height: z.number(),
-    width: z.number(),
-    fonts: z.array(z.string()),
-    certificateBackground: z.string().optional(),
-  })
-  .optional();
 
 const certificatesSchema = z
   .object({
@@ -323,11 +299,27 @@ export default function EditEventsPage() {
                   </FormItem>
                 )}
               />
-              <CertificateInput label="Participation Certificate Config" name="participationCertificate" bgName="participationBg" />
-              <CertificateInput label="First Prize Certificate Config" name="firstPrizeCertificate" bgName="firstPrizeCertificateBg" />
-              <CertificateInput label="Second Prize Certificate Config" name="secondPrizeCertificate" bgName="secondPrizeCertificateBg" />
-              <CertificateInput label="Third Prize Certificate Config" name="thirdPrizeCertificate" bgName="thirdPrizeCertificateBg" />
-            
+              <CertificateInput
+                label="Participation Certificate Config"
+                name="participationCertificate"
+                bgName="participationBg"
+              />
+              <CertificateInput
+                label="First Prize Certificate Config"
+                name="firstPrizeCertificate"
+                bgName="firstPrizeCertificateBg"
+              />
+              <CertificateInput
+                label="Second Prize Certificate Config"
+                name="secondPrizeCertificate"
+                bgName="secondPrizeCertificateBg"
+              />
+              <CertificateInput
+                label="Third Prize Certificate Config"
+                name="thirdPrizeCertificate"
+                bgName="thirdPrizeCertificateBg"
+              />
+
               <Button type="submit" className="w-full">
                 Update event
               </Button>
@@ -338,5 +330,3 @@ export default function EditEventsPage() {
     </div>
   );
 }
-
-

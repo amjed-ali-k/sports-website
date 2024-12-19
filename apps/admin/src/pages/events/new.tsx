@@ -23,7 +23,7 @@ import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { FileUpload } from "@/components/file-upload";
 import { useNavigate } from "react-router-dom";
-import { CertificateInput } from "@/components/certInput";
+import { CertificateInput, singleCertTemplate } from "@/components/certInput";
 
 const eventSchema = z.object({
   id: z.number().optional(),
@@ -50,30 +50,6 @@ const eventSchema = z.object({
   thirdPrizeCertificate: z.string().optional(),
   thirdPrizeCertificateBg: z.string().optional(),
 });
-
-const singleCertTemplate = z
-  .object({
-    certificateElements: z.array(
-      z.object({
-        text: z.string().optional(),
-        styles: z.object({}),
-        variable: z.enum([
-          "name",
-          "eventName",
-          "itemName",
-          "position",
-          "points",
-          "date",
-          "sectionName",
-        ]).optional(),
-      })
-    ),
-    height: z.number(),
-    width: z.number(),
-    fonts: z.array(z.string()),
-    certificateBackground: z.string().optional(),
-  })
-  .optional();
 
 const certificatesSchema = z
   .object({

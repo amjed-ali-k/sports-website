@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Dropzone from "react-dropzone";
-// Adjust imports according to your icon library
 import { filesize } from "filesize"; // Ensure you have this library installed
 import { Button, Label } from "@sports/ui";
 import { Image, Loader, Trash } from "lucide-react";

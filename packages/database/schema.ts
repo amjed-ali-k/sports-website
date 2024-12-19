@@ -46,7 +46,14 @@ type Cert = {
   certificateElements: {
     text?: string;
     styles: {};
-    variable?: 'name' | 'eventName' | 'itemName' | 'position' | 'points' | 'date' | 'sectionName';
+    variable?:
+      | "name"
+      | "eventName"
+      | "itemName"
+      | "position"
+      | "points"
+      | "date"
+      | "sectionName";
   }[];
   height: number;
   width: number;
@@ -153,6 +160,7 @@ export const groupRegistrations = sqliteTable("group_registrations", {
   name: text("name"),
   sectionId: integer("section_id").references(() => sections.id),
   participantIds: text("participant_ids").notNull(), // Stored as JSON array of participant IDs
+  certificates: text("certificates", { mode: "json" }).$type<[string]>(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$default(() => new Date()),
@@ -168,6 +176,7 @@ export const groupResults = sqliteTable("group_results", {
     .notNull(),
   position: text("position", { enum: ["first", "second", "third"] }).notNull(),
   points: integer("points").notNull(),
+  certificates: text("certificates", { mode: "json" }).$type<[string]>(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$default(() => new Date()),
@@ -187,6 +196,7 @@ export const registrations = sqliteTable("registrations", {
   })
     .notNull()
     .default("registered"),
+  certificate: text("certificate"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
@@ -201,6 +211,7 @@ export const results = sqliteTable("results", {
     .references(() => registrations.id)
     .notNull(),
   points: integer("points").notNull(),
+  certificate: text("certificate"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });

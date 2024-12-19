@@ -1,6 +1,4 @@
-import {
-  Button,
-} from "@sports/ui";
+import { Button } from "@sports/ui";
 import {
   FormControl,
   FormField,
@@ -12,6 +10,30 @@ import { useFormContext } from "react-hook-form";
 import * as z from "zod";
 import { FileUpload } from "@/components/file-upload";
 import { Editor } from "@monaco-editor/react";
+
+export const singleCertTemplate = z
+  .object({
+    certificateElements: z.array(
+      z.object({
+        text: z.string().optional(),
+        styles: z.object({}).passthrough(),
+        variable: z.enum([
+          "name",
+          "eventName",
+          "itemName",
+          "position",
+          "points",
+          "date",
+          "sectionName",
+        ]).optional(),
+      })
+    ),
+    height: z.number(),
+    width: z.number(),
+    fonts: z.array(z.string()),
+    certificateBackground: z.string().optional(),
+  })
+  .optional();
 
 const eventSchema = z.object({
   participationCertificate: z.string().optional(),
@@ -54,6 +76,8 @@ export const CertificateInput = ({
               <FormLabel>{label}</FormLabel>
 
               <Button
+                role="button"
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() =>
@@ -86,7 +110,12 @@ export const CertificateInput = ({
               </Button>
             </div>
             <FormControl>
-              <Editor height="200px" language="json" {...field} />
+              <Editor
+                height="200px"
+                language="json"
+                value={field.value}
+                onChange={field.onChange}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
