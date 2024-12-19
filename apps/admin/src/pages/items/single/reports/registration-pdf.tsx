@@ -43,7 +43,7 @@ export const RegistrationReportPage = () => {
       <ReportRegistrationPdf
         eventDescription={event.description}
         eventName={event.name}
-        registrations={registrations.filter(r => r.item.id === currentItem.id).sort((a, b) => a.participant.chestNo.localeCompare(b.participant.chestNo))}
+        registrations={registrations.filter(r => r.item.id === currentItem.id).sort((a, b) => (a.participant.chestNo || '0').localeCompare(b.participant.chestNo || '0'))}
         itemName={currentItem.name}
       />
     </PDFViewer>
@@ -72,7 +72,7 @@ const ReportRegistrationPdf = ({
     participant: {
       id: number;
       fullName: string;
-      chestNo: string;
+      chestNo: string | null;
       sectionId: number;
       sectionName: string;
     };
