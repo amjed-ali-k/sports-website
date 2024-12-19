@@ -97,7 +97,7 @@ const ReportRegistrationPdf = ({
             <Text style={tw("text-sm text-slate-700")}>{eventDescription}</Text>
           </View>
           <View style={tw(" px-4 w-full font-body text-sm")}>
-            <Text style={tw("text-sm my-2 text-center font-semibold text-slate-900")}>
+            <Text style={tw("text-sm my-2 captitalize text-center font-semibold text-slate-900")}>
               Registrations for {itemName} [{itemGender}]
             </Text>
             <View style={tw("flex flex-row w-full ")}>
