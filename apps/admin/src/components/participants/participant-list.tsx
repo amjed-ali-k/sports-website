@@ -44,6 +44,12 @@ export function ParticipantList({ participants }: ParticipantListProps) {
         ),
       },
       {
+        accessorKey: "no",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="ID No" />
+        ),
+      },
+      {
         accessorKey: "chestNo",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Chest No" />
@@ -95,7 +101,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
 
   return (
     <div className="">
-      <DataTable columns={columns} data={participants} />
+      <DataTable filterPlaceholder="Search Participants" columns={columns} data={participants} />
     </div>
   );
 }

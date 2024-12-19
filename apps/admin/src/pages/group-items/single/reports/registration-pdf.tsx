@@ -111,7 +111,7 @@ const ReportRegistrationPdf = ({
             <Text style={tw("text-sm text-slate-700")}>{eventDescription}</Text>
           </View>
           <Text
-            style={tw("text-sm my-2 text-center font-body font-semibold text-slate-900")}
+            style={tw("text-sm my-2 text-center capitalize font-body font-semibold text-slate-900")}
           >
             Registrations for {itemName} [{itemGender}]
           </Text>
@@ -134,9 +134,9 @@ const ReportRegistrationPdf = ({
                   {registration.registration.name}
                 </Text>
                 <View style={tw("flex flex-row w-full ")}>
-                  <View style={tw("border border-slate-200 px-1 w-[10%]")}>
+                  {/* <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                     <Text>Id</Text>
-                  </View>
+                  </View> */}
                   <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                     <Text>Chest No</Text>
                   </View>
@@ -146,15 +146,15 @@ const ReportRegistrationPdf = ({
                   <View style={tw("border border-slate-200 px-1 w-[10%]")}>
                     <Text>Batch</Text>
                   </View>
-                  <View style={tw("border border-slate-200 px-1 w-[20%]")}>
+                  <View style={tw("border border-slate-200 px-1 w-[30%]")}>
                     <Text>Section</Text>
                   </View>
                 </View>
                 {participants.map((e) => (
                   <View style={tw("flex flex-row w-full ")}>
-                    <View style={tw("px-1 border border-slate-200 w-[10%]")}>
+                    {/* <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                       <Text>{e.id}</Text>
-                    </View>
+                    </View> */}
                     <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                       <Text>{e.chestNo}</Text>
                     </View>
@@ -164,7 +164,7 @@ const ReportRegistrationPdf = ({
                     <View style={tw("px-1 border border-slate-200 w-[10%]")}>
                       <Text>{e.batch}</Text>
                     </View>
-                    <View style={tw("px-1 border border-slate-200 w-[20%]")}>
+                    <View style={tw("px-1 border border-slate-200 w-[30%]")}>
                       <Text>
                         {sections.find((s) => s.id === e.sectionId)?.name}
                       </Text>
