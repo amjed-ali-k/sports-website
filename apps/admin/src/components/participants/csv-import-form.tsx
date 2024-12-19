@@ -30,7 +30,7 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const requiredFields = ["fullName", "sectionId", "batch", "gender"];
+        const requiredFields = ["fullName", "no", "sectionId"];
         const headers = Object.keys(results.data[0] || {});
 
         const missingFields = requiredFields.filter(
@@ -44,12 +44,11 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
 
         const validData = results.data.filter((row: any) => {
           return (
-            row.fullName &&
-            row.sectionId &&
-            row.semester &&
+            row.fullName && row.sectionId &&
+            row.no &&
             ["male", "female"].includes(row.gender.toLowerCase())
           );
-        });
+        }).map((k: any) => ({...k, sectionId: parseInt(k.sectionId)}));
 
         if (validData.length === 0) {
           setError("No valid data found in CSV");
@@ -94,12 +93,13 @@ export function CSVImportForm({ onImport, isLoading }: CSVImportFormProps) {
         <p>CSV file should contain the following columns:</p>
         <ul className="list-disc list-inside mt-2">
           <li>fullName (required)</li>
-          <li>sectionId (required, number 1-4)</li>
-          <li>batch (required)</li>
+          <li>sectionId (required, number)</li>
+          <li>batch (optional)</li>
           <li>gender (required, 'male' or 'female')</li>
-          <li>avatar (optional, URL)</li>
           <li>no (unique identification number like registration no or adminsion number)</li>
-
+          <li>avatar (optional, URL)</li>
+          <li>chestNo (optional)</li>
+          <li>no (unique identification number like registration no or adminsion number)</li>
         </ul>
       </div>
     </div>

@@ -65,6 +65,7 @@ export default function SectionsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Section ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Logo</TableHead>
               <TableHead>Color</TableHead>
@@ -76,6 +77,7 @@ export default function SectionsPage() {
             {sections.length > 0 ? (
               sections.map((section) => (
                 <TableRow key={section.id}>
+                  <TableCell>{section.id}</TableCell>
                   <TableCell>
                     {section.name} ({section.slug})
                   </TableCell>
