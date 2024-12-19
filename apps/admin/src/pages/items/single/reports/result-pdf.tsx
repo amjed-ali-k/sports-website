@@ -73,7 +73,7 @@ const ReportResultPdf = ({
     };
     participant: {
       id: number;
-      chestNo: string;
+      chestNo: string | null;
       fullName: string;
       sectionId: number;
       sectionName: string;

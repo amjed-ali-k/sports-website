@@ -137,7 +137,7 @@ export function NewItemRegistrationPage() {
       const searchStr = searchQuery.toLowerCase();
       return (
         participant.fullName.toLowerCase().includes(searchStr) ||
-        participant.chestNo.toString().includes(searchStr) ||
+        participant.chestNo?.toString().includes(searchStr) ||
         participant.batch.toString().includes(searchStr)
       );
     });

@@ -22,7 +22,7 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from "@sports/ui";
 import { Input } from "@sports/ui";
 import { Button } from "@sports/ui";
 import { FileUpload } from "@/components/file-upload";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),

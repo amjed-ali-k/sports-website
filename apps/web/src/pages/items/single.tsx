@@ -103,7 +103,7 @@ const Rows = ({
   participants: {
     id: number;
     avatar: string | null;
-    chestNo: string;
+    chestNo: string | null;
     fullName: string;
     batch: string;
     gender: "male" | "female";
