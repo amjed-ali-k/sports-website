@@ -103,8 +103,7 @@ class ApiClient {
 
   async updateItem(
     id: number,
-    data: Omit<Item, "id" | "createdAt" | "updatedAt"> &
-      Required<Pick<Item, "status">>
+    data: Omit<Item, "id" | "createdAt" | "updatedAt">
   ) {
     const response = await this.client.api.items[":id"].$put({
       param: { id: id.toString() },
@@ -290,7 +289,7 @@ class ApiClient {
       eventId?: number;
       gender?: "male" | "female" | "any";
     
-    } & Required<Pick<Item, 'status'>>
+    }
   ) {
     const response = await this.client.api.groups.items[":id"].$put({
       param: { id: id.toString() },

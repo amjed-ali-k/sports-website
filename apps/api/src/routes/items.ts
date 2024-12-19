@@ -24,7 +24,7 @@ const updateItemSchema = z.object({
   pointsSecond: z.number().min(0).optional(),
   pointsThird: z.number().min(0).optional(),
   iconName: z.string().nullish(),
-  status: z.enum(["scheduled", "on-going", "finished"]),
+  status: z.enum(["scheduled", "on-going", "finished"]).optional(),
 });
 
 const router = hono()
