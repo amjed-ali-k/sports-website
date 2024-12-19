@@ -11,6 +11,14 @@ const createEventSchema = z.object({
   logo: z.string().nullish(),
   image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
+  certificateTemplates: z
+    .object({
+      participation: z.string(),
+      first: z.string(),
+      second: z.string(),
+      third: z.string(),
+    })
+    .nullish(),
 });
 
 const router = hono()
@@ -33,7 +41,6 @@ const router = hono()
   .get("/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
-
     const event = await db.select().from(events).where(eq(events.id, id)).get();
 
     if (!event) {
