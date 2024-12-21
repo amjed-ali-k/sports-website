@@ -258,6 +258,7 @@ export const certificates = sqliteTable("certificates", {
   }),
   data: text("data", {mode: 'json'}),
   ref: integer("ref"),
+  itemId: integer("itemId"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

@@ -44,6 +44,7 @@ import { ImportParticipantsPage } from "./pages/participants/import";
 import { CreateParticipantsPage } from "./pages/participants/new";
 import EditEventsPage from "./pages/events/edit";
 import NewEventsPage from "./pages/events/new";
+import { SingleItemCertificatesPage } from "./pages/items/single/certificates";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,11 @@ function App() {
                     <Route
                       path="registrations/new"
                       element={<NewItemRegistrationPage />}
+                    />
+
+                    <Route
+                      path="certificates"
+                      element={<SingleItemCertificatesPage />}
                     />
                     <Route path="results" element={<ItemResultsPage />} />
                     <Route path="reports">

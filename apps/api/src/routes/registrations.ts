@@ -5,6 +5,7 @@ import {
   participants,
   sections,
   events,
+  results,
 } from "@sports/database";
 import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
@@ -87,7 +88,7 @@ const router = hono()
           chestNo: participants.chestNo,
           sectionId: sections.id,
           sectionName: sections.name,
-          batch: participants.batch
+          batch: participants.batch,
         },
         item: {
           id: items.id,
@@ -189,7 +190,7 @@ const router = hono()
       .where(
         and(
           eq(registrations.participantId, existingRegistration.participantId),
-          eq(registrations.itemId, existingRegistration.itemId),
+          eq(registrations.itemId, existingRegistration.itemId)
         )
       )
       .get();
@@ -248,7 +249,7 @@ const router = hono()
       const id = parseInt(c.req.param("id"));
       const { status } = c.req.valid("json");
       const db = c.get("db");
-      
+
       // TODO: Add organiizationId check
       const registration = await db
         .update(registrations)
@@ -275,10 +276,13 @@ const router = hono()
           id: participants.id,
           fullName: participants.fullName,
           chestNo: participants.chestNo,
+          sectionId: participants.sectionId,
         },
+        result: results,
       })
       .from(registrations)
       .innerJoin(participants, eq(registrations.participantId, participants.id))
+      .leftJoin(results, eq(results.registrationId, registrations.id))
       .where(eq(registrations.itemId, itemId))
       .all();
 

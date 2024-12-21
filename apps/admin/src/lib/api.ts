@@ -158,6 +158,16 @@ class ApiClient {
     return response.json();
   }
 
+  // Registrations
+  async getRegistrationsForItem(itemId: string) {
+    const response = await this.client.api.registrations.item[":itemId"].$get({
+      param: {
+        itemId,
+      },
+    });
+    return response.json();
+  }
+
   async getRegistration(id: number) {
     const response = await this.client.api.registrations[":id"].$get({
       param: { id: id.toString() },
@@ -188,7 +198,10 @@ class ApiClient {
     return response.json();
   }
 
-  async updateRegisrationStatus(id :number, status: "registered" | "participated" | "not_participated") {
+  async updateRegisrationStatus(
+    id: number,
+    status: "registered" | "participated" | "not_participated"
+  ) {
     const response = await this.client.api.registrations[":id"].status.$patch({
       param: { id: id.toString() },
       json: { status },
@@ -296,7 +309,6 @@ class ApiClient {
       maxParticipants?: number;
       eventId?: number;
       gender?: "male" | "female" | "any";
-    
     }
   ) {
     const response = await this.client.api.groups.items[":id"].$put({

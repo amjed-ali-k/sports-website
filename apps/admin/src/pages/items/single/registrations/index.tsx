@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Table,
@@ -16,29 +16,13 @@ import {
 import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
 import { Plus, Users } from "lucide-react";
+import { SectionName } from "@/components/section-name";
+import { useRegistrations } from "@/hooks/use-registrations";
 
 export function SingleItemRegistrationsPage() {
   const navigate = useNavigate();
-  const { itemId } = useParams();
-
-  const { data: items = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ["items"],
-    queryFn: () => apiClient.getItems(),
-  });
-
-  const { data: registrations = [], isLoading: registrationsLoading } =
-    useQuery({
-      queryKey: ["registrations"],
-      queryFn: () => apiClient.getRegistrations(),
-    });
-
-  const isLoading = itemsLoading || registrationsLoading;
+  const { registrations, isLoading } = useRegistrations();
   if (isLoading) return <div>Loading...</div>;
-  const currentItem = items?.find(
-    (item) => item.item.id === Number(itemId)
-  )?.item;
-
-  if (!currentItem) return <div>Item not found</div>;
 
   return (
     <div className="container mx-auto py-6">
@@ -61,11 +45,9 @@ export function SingleItemRegistrationsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {registrations
-            ?.filter(
-              ({ registration }) => registration.itemId === currentItem?.id
-            )
-            .map((data) => <Row key={data.registration.id} {...data} />)}
+          {registrations?.map((data) => (
+            <Row key={data.registration.id} {...data} />
+          ))}
           {registrations?.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="h-96">
@@ -83,10 +65,7 @@ export function SingleItemRegistrationsPage() {
   );
 }
 
-const Row = ({
-  registration,
-  participant,
-}: {
+type RowProps = {
   registration: {
     id: number;
     createdAt: string | null;
@@ -101,22 +80,36 @@ const Row = ({
     fullName: string;
     chestNo: string | null;
     sectionId: number;
-    sectionName: string;
   };
-  item: {
-    id: number;
-    name: string;
-  };
-}) => {
+};
+
+const updatorFun = (d: RowProps[], res: RowProps["registration"]) => {
+  if (!d) return d;
+  const newData = d.map((row) => {
+    if (row.registration.id !== res.id) return row;
+    return {
+      ...row,
+      registration: res,
+    };
+  });
+  return newData;
+};
+
+const Row = ({ registration, participant }: RowProps) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { itemId } = useParams();
 
   const mutation = useMutation({
     mutationFn: async (values: { id: number; status: any }) => {
-      await apiClient.updateRegistration(values.id, values);
+      const res = await apiClient.updateRegistration(values.id, values);
+      if ("error" in res) throw Error(res.error);
+      return res;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["registrations"] });
+    onSuccess: (updatedRes) => {
+      queryClient.setQueryData(["registrations-item", itemId], (e) =>
+        updatorFun(e as RowProps[], updatedRes)
+      );
     },
     onError: (error) => {
       toast({
@@ -128,6 +121,7 @@ const Row = ({
   });
 
   const handleStatusChange = (status: string) => {
+    if(!status) return
     mutation.mutate({ id: registration.id, status });
   };
 
@@ -135,11 +129,13 @@ const Row = ({
     <TableRow key={registration.id}>
       <TableCell>{participant.fullName}</TableCell>
       <TableCell>{participant.chestNo}</TableCell>
-      <TableCell>{participant.sectionName}</TableCell>
+      <TableCell>
+        <SectionName id={participant.sectionId} />
+      </TableCell>
       <TableCell>{registration.metaInfo || "-"}</TableCell>
       <TableCell>
         <Badge
-        className="capitalize duration-200 transition-all"
+          className="capitalize duration-200 transition-all"
           variant={
             registration.status === "participated"
               ? "default"
@@ -153,7 +149,7 @@ const Row = ({
       </TableCell>
       <TableCell>
         <ToggleGroup
-        disabled={mutation.isPending}
+          disabled={mutation.isPending}
           onValueChange={handleStatusChange}
           value={registration.status}
           size="sm"
@@ -163,6 +159,7 @@ const Row = ({
         >
           <ToggleGroupItem
             value="registered"
+            
             className="text-xs  data-[state=on]:font-bold"
           >
             Registered
