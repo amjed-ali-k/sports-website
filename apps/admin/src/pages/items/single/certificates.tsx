@@ -14,6 +14,8 @@ import { Eye, EyeClosed, Users } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { useRegistrations } from "@/hooks/use-registrations";
 import { apiClient } from "@/lib/api";
+import { useResultsForItem } from "@/hooks/use-results";
+import { first } from "radash";
 
 export function SingleItemCertificatesPage() {
   const { registrations, isLoading } = useRegistrations();
@@ -84,6 +86,24 @@ const Row = ({
         ? apiClient.getCertificates(itemId.toString(), "participation")
         : null,
   });
+
+  const results = useResultsForItem(itemId);
+  const result = results?.find(
+    (r) => r.result.registrationId === registration.id
+  );
+
+  const position = result?.result.position;
+
+  const { data: _rcerts } = useQuery({
+    queryKey: ["certificates", itemId, position],
+    queryFn: () =>
+      itemId && position
+        ? apiClient.getCertificates(itemId.toString(), position)
+        : null,
+  });
+
+  const rCert = _rcerts ? ("error" in _rcerts ? null : first(_rcerts)) : null;
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const pCertMutation = useMutation({
@@ -110,7 +130,34 @@ const Row = ({
       });
     },
   });
+
+  const rCertMutation = useMutation({
+    mutationFn: async () => {
+      if (!result) throw new Error("Result not found");
+      const res = await apiClient.generateCertificate({
+        id: result?.result.id,
+        itemId: registration.itemId,
+        participantId: registration.participantId,
+        type: position!,
+      });
+      if ("error" in res) throw new Error(res.error);
+      return res;
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(
+        ["certificates", itemId, position],
+        (d: typeof pCerts) => (d ? [...d, newData] : d)
+      );
+    },
+    onError: (e) => {
+      toast({
+        title: e.message,
+        variant: "destructive",
+      });
+    },
+  });
   const handleClick = () => pCertMutation.mutate();
+  const handleResultClick = () => rCertMutation.mutate();
   const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
   const pCert = pCerts.find((c) => c.id === registration.id);
   return (
@@ -147,29 +194,37 @@ const Row = ({
         )}
       </TableCell>
       <TableCell>
-        {!pCert ? (
-          <Button onClick={handleClick} size="sm">
-           Generate
-          </Button>
+        {result ? (
+          !rCert ? (
+            <Button
+              onClick={handleResultClick}
+              size="sm"
+              className="capitalize"
+            >
+              Generate {result.result.position}
+            </Button>
+          ) : (
+            <div className="flex gap-x-2">
+              <Button asChild size="icon" variant="outline">
+                <a
+                  target="_blank"
+                  href={`http://localhost:5173/cert/${rCert.key}/image.svg`}
+                >
+                  <Eye className="size-4" />
+                </a>
+              </Button>
+              <Button asChild size="icon" variant="outline">
+                <a
+                  target="_blank"
+                  href={`http://localhost:5173/cert/${rCert.key}/image.svg?bg=false`}
+                >
+                  <EyeClosed className="size-4" />
+                </a>
+              </Button>
+            </div>
+          )
         ) : (
-          <div className="flex gap-x-2">
-            <Button asChild size="icon" variant="outline">
-              <a
-                target="_blank"
-                href={`http://localhost:5173/cert/${pCert.key}/image.svg`}
-              >
-                <Eye className="size-4" />
-              </a>
-            </Button>
-            <Button asChild size="icon" variant="outline">
-              <a
-                target="_blank"
-                href={`http://localhost:5173/cert/${pCert.key}/image.svg?bg=false`}
-              >
-                <EyeClosed className="size-4" />
-              </a>
-            </Button>
-          </div>
+          <div />
         )}
       </TableCell>
     </TableRow>

@@ -32,6 +32,7 @@ import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
 import { Award } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { useResults } from "@/hooks/use-results";
 
 const resultSchema = z.object({
   position: z.enum(["first", "second", "third"]),
@@ -71,11 +72,7 @@ export function ItemResultsPage() {
     enabled: !!currentItem,
   });
 
-  const { data: results, isLoading: resultsLoading } = useQuery({
-    queryKey: ["results"],
-    queryFn: () => apiClient.getResults(),
-    enabled: !!currentItem,
-  });
+  const { results, isLoading: resultsLoading } = useResults()
 
   const mutation = useMutation({
     mutationFn: async (values: ResultFormValues) => {
