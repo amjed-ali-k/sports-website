@@ -7,6 +7,8 @@ type Bindings = {
   DB: D1Database;
   JWT_SECRET: string;
   IMGBB_API_KEY: string;
+  CERT_API: string;
+  CERT_KEY: string;
 };
 
 type Variables = {

@@ -158,6 +158,16 @@ class ApiClient {
     return response.json();
   }
 
+  // Registrations
+  async getRegistrationsForItem(itemId: string) {
+    const response = await this.client.api.registrations.item[":itemId"].$get({
+      param: {
+        itemId,
+      },
+    });
+    return response.json();
+  }
+
   async getRegistration(id: number) {
     const response = await this.client.api.registrations[":id"].$get({
       param: { id: id.toString() },
@@ -188,11 +198,52 @@ class ApiClient {
     return response.json();
   }
 
+  async updateRegisrationStatus(
+    id: number,
+    status: "registered" | "participated" | "not_participated"
+  ) {
+    const response = await this.client.api.registrations[":id"].status.$patch({
+      param: { id: id.toString() },
+      json: { status },
+    });
+    return response.json();
+  }
+
   async deleteRegistration(id: number) {
     const response = await this.client.api.registrations[":id"].$delete({
       param: { id: id.toString() },
     });
     return response.json();
+  }
+
+  async getCertificates(
+    itemId: string,
+    type: string
+  ): Promise<Certificate[] | { error: string }> {
+    const response = await this.client.api.certificates.all[":itemId"][
+      ":type"
+    ].$get({
+      param: {
+        itemId,
+        type,
+      },
+    });
+    return response.json();
+  }
+  async generateCertificate(data: {
+    id: number;
+    type: "participation" | "first" | "second" | "third";
+    itemId: number;
+    participantId: number;
+  }) {
+    const response = await this.client.api.certificates.new.$post({
+      json: data,
+    });
+    return response.json() as unknown as
+      | Certificate
+      | {
+          error: string;
+        };
   }
 
   // Results
@@ -288,7 +339,6 @@ class ApiClient {
       maxParticipants?: number;
       eventId?: number;
       gender?: "male" | "female" | "any";
-    
     }
   ) {
     const response = await this.client.api.groups.items[":id"].$put({
@@ -505,3 +555,14 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+
+type Certificate = {
+  type: "custom" | "participation" | "first" | "second" | "third" | null;
+  id: number;
+  data: unknown;
+  ref: number | null;
+  createdAt: string;
+  updatedAt: string;
+  itemId: number | null;
+  key: string;
+};

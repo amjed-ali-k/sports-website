@@ -23,6 +23,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { useMemo } from "react";
+import { useIndividualItem } from "@/hooks/use-item";
+import { useRegistrations } from "@/hooks/use-registrations";
+import { sift } from "radash";
 
 const registrationSchema = z.object({
   itemId: z.number(),
@@ -51,39 +54,40 @@ export function NewItemRegistrationPage() {
     },
   });
 
-  const { data: items = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ["items"],
-    queryFn: () => apiClient.getItems(),
-  });
-
-  const selectedItem = items?.find(
-    (item) => item.item.id === Number(itemId)
-  )?.item;
+  const selectedItem = useIndividualItem(itemId);
 
   const { data: participants = [], isLoading: participantsLoading } = useQuery({
     queryKey: ["participants"],
     queryFn: () => apiClient.getParticipants(),
   });
 
-  const { data: registrations = [] } = useQuery({
-    queryKey: ["registrations"],
-    queryFn: () => apiClient.getRegistrations(),
-  });
-
+  const { registrations } = useRegistrations();
   const mutation = useMutation({
     mutationFn: async (
       values: RegistrationFormValues & {
         participantIds: number[];
       }
     ) => {
-      await Promise.all(
+      const res = await Promise.all(
         values.participantIds.map((participantId: number) => {
           return apiClient.createRegistration({ ...values, participantId });
         })
       );
+
+      const newData = sift(
+        res.map((e) => {
+          if ("error" in e) return;
+          return e;
+        })
+      );
+      return newData;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["registrations"] });
+      queryClient.invalidateQueries({
+        queryKey: ["registrations-item", "registrations", itemId],
+      });
+
+      queryClient;
       toast({
         title: "Success",
         description: "Registration created successfully",
@@ -114,16 +118,11 @@ export function NewItemRegistrationPage() {
     });
   };
 
-  const isLoading = itemsLoading || participantsLoading;
+  const isLoading = selectedItem?.isLoading || participantsLoading;
 
   const filteredParticipants = participants?.filter(({ participant: p }) => {
     if (!selectedItem) return true;
-    if (
-      registrations.find(
-        ({ participant, item }) =>
-          participant.id === p.id && item.id === selectedItem.id
-      )
-    )
+    if (registrations?.find(({ participant }) => participant.id === p.id))
       return false;
     // Filter by gender if item is gender-specific
     if (selectedItem.gender !== "any") {
@@ -234,7 +233,8 @@ export function NewItemRegistrationPage() {
                           {participant.fullName}
                         </CardTitle>
                         <CardDescription>
-                          Chest No: {participant.chestNo} {participant.no && ` - ID No: ${participant.no}`}
+                          Chest No: {participant.chestNo}{" "}
+                          {participant.no && ` - ID No: ${participant.no}`}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="p-4 pt-0">

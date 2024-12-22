@@ -42,6 +42,9 @@ import { EditSectionPage } from "./pages/sections/edit";
 import { EditParticipantsPage } from "./pages/participants/edit";
 import { ImportParticipantsPage } from "./pages/participants/import";
 import { CreateParticipantsPage } from "./pages/participants/new";
+import EditEventsPage from "./pages/events/edit";
+import NewEventsPage from "./pages/events/new";
+import { SingleItemCertificatesPage } from "./pages/items/single/certificates";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +93,11 @@ function App() {
                     <Route
                       path="registrations/new"
                       element={<NewItemRegistrationPage />}
+                    />
+
+                    <Route
+                      path="certificates"
+                      element={<SingleItemCertificatesPage />}
                     />
                     <Route path="results" element={<ItemResultsPage />} />
                     <Route path="reports">
@@ -150,10 +158,14 @@ function App() {
                   path="/events"
                   element={
                     <ProtectedRoute requiredRole="controller">
-                      <EventsPage />
+                      <Outlet />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<EventsPage />} />
+                  <Route path="new" element={<NewEventsPage />} />
+                  <Route path="edit/:eventId" element={<EditEventsPage />} />
+                </Route>
                 <Route path="/sections">
                   <Route index element={<SectionsPage />} />
                   <Route path="new" element={<NewSectionPage />} />

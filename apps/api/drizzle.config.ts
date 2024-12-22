@@ -21,6 +21,6 @@ export default defineConfig({
     schema: '../../packages/database/schema.ts',
   // dbCredentials needs only for connect drizzle studio
     dbCredentials: {
-     url: './drizzle/local/v3/d1/miniflare-D1DatabaseObject/6e43194546f211ee1e4c13e0ada4aca104342f596859f2d2a19c1da261566494.sqlite' 
+     url: './.wrangler/state/v3/d1/miniflare-D1DatabaseObject/fd64bedb721f1db6c7f78a770f06f2fe88e3a329e1c810f7d63bf185a3fd20b9.sqlite' 
     },
   });

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Dropzone from "react-dropzone";
-// Adjust imports according to your icon library
 import { filesize } from "filesize"; // Ensure you have this library installed
 import { Button, Label } from "@sports/ui";
 import { Image, Loader, Trash } from "lucide-react";
@@ -22,11 +21,9 @@ export const FileUpload = ({
       disabled={uploading}
       multiple={false}
       onDrop={(files) => {
-        console.log("Files dropped:", files);
         setAcceptedFiles(files);
         const fd = new FormData();
         fd.append("image", files[0]);
-        console.log("FormData before upload:", fd);
         setError(false);
         setUploading(true);
         apiClient

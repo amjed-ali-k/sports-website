@@ -20,30 +20,46 @@ export const sections = sqliteTable("sections", {
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const participants = sqliteTable(
-  "participants",
-  {
-    id: integer("id").primaryKey(),
-    chestNo: text("chest_no"),
-    fullName: text("full_name").notNull(),
-    no: text("no").unique(),
-    sectionId: integer("section_id")
-      .references(() => sections.id)
-      .notNull(),
-    avatar: text("avatar"),
-    organizationId: integer("organization_id")
-      .references(() => organizations.id)
-      .notNull(),
-    batch: text("batch").notNull(),
-    gender: text("gender", { enum: ["male", "female"] }).notNull(),
-    createdAt: text("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: text("updated_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  }
-);
+export const participants = sqliteTable("participants", {
+  id: integer("id").primaryKey(),
+  chestNo: text("chest_no"),
+  fullName: text("full_name").notNull(),
+  no: text("no").unique(),
+  sectionId: integer("section_id")
+    .references(() => sections.id)
+    .notNull(),
+  avatar: text("avatar"),
+  organizationId: integer("organization_id")
+    .references(() => organizations.id)
+    .notNull(),
+  batch: text("batch").notNull(),
+  gender: text("gender", { enum: ["male", "female"] }).notNull(),
+  createdAt: text("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+type Cert = {
+  certificateElements: {
+    text?: string;
+    styles: {};
+    variable?:
+      | "name"
+      | "eventName"
+      | "itemName"
+      | "position"
+      | "points"
+      | "date"
+      | "sectionName";
+  }[];
+  height: number;
+  width: number;
+  fonts: string[];
+  certificateBackground?: string | undefined;
+};
 
 export const events = sqliteTable("events", {
   id: integer("id").primaryKey(),
@@ -57,10 +73,10 @@ export const events = sqliteTable("events", {
   registrationEndDate: text("registration_end_date"),
   image: text("image"),
   certificateTemplates: text("certificate_templates", { mode: "json" }).$type<{
-    participation: string;
-    first: string;
-    second: string;
-    third: string;
+    participation?: Cert | undefined;
+    first?: Cert | undefined;
+    second?: Cert | undefined;
+    third?: Cert | undefined;
   }>(),
   logo: text("logo"),
   maxRegistrationPerParticipant: integer(
@@ -226,6 +242,23 @@ export const settings = sqliteTable("settings", {
   organizationId: integer("organization_id")
     .references(() => organizations.id)
     .notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const certificates = sqliteTable("certificates", {
+  id: integer("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  type: text("type", {
+    enum: ["participation", "first", "second", "third", "custom"],
+  }),
+  data: text("data", {mode: 'json'}),
+  ref: integer("ref"),
+  itemId: integer("itemId"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

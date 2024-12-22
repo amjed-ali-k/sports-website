@@ -3,6 +3,30 @@ import { events } from "@sports/database";
 import { and, eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
+ const singleCertTemplate = z
+  .object({
+    certificateElements: z.array(
+      z.object({
+        text: z.string().optional(),
+        styles: z.object({}).passthrough(),
+        variable: z.enum([
+          "name",
+          "eventName",
+          "itemName",
+          "position",
+          "points",
+          "date",
+          "sectionName",
+        ]).optional(),
+      })
+    ),
+    height: z.number(),
+    width: z.number(),
+    fonts: z.array(z.string()),
+    certificateBackground: z.string().optional(),
+  })
+  .optional();
+
 const createEventSchema = z.object({
   name: z.string().min(1),
   startDate: z.string().datetime(),
@@ -11,6 +35,14 @@ const createEventSchema = z.object({
   logo: z.string().nullish(),
   image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
+  certificateTemplates: z
+    .object({
+      participation: singleCertTemplate,
+      first: singleCertTemplate,
+      second: singleCertTemplate,
+      third:singleCertTemplate,
+    })
+    .nullish(),
 });
 
 const router = hono()
@@ -33,7 +65,6 @@ const router = hono()
   .get("/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
-
     const event = await db.select().from(events).where(eq(events.id, id)).get();
 
     if (!event) {

@@ -1,5 +1,5 @@
-import { events, participants, settings, items, groupItems, results, registrations, groupRegistrations, groupResults } from "@sports/database";
-import { eq, or, sql, and, isNotNull } from "drizzle-orm";
+import { events, participants, items, groupItems, results, registrations, groupRegistrations, groupResults } from "@sports/database";
+import { eq, sql, and, isNotNull } from "drizzle-orm";
 import { hono } from "../lib/api";
 
 
