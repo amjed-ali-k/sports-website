@@ -21,6 +21,7 @@ import { eventPublicrouter } from "./publicRoutes/events";
 import { sectionPublicRouter } from "./publicRoutes/sections";
 import { publicItemsRouter } from "./publicRoutes/items";
 import { participantPublicRouter } from "./publicRoutes/participants";
+import { certificateRouter } from "./routes/certificates";
 
 export * from "./types";
 
@@ -37,7 +38,8 @@ const api = hono()
   .route("/settings", settingsRouter)
   .route("/groups", groupsRouter)
   .route("/stats", statsRouter)
-  .route("/file", filerouter);
+  .route("/file", filerouter)
+  .route("/certificates", certificateRouter)
 
 const publicRouter = hono()
   .route("/envts", eventPublicrouter)

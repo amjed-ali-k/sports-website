@@ -4,7 +4,8 @@ compatibility_date = "2024-11-30"
 
 [vars]
 JWT_SECRET = "hello-boye"
-
+IMGBB_API_KEY=""
+CERT_API=""
 
 [[d1_databases]]
 binding = "DB"

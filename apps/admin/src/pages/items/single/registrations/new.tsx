@@ -25,6 +25,7 @@ import { apiClient } from "@/lib/api";
 import { useMemo } from "react";
 import { useIndividualItem } from "@/hooks/use-item";
 import { useRegistrations } from "@/hooks/use-registrations";
+import { sift } from "radash";
 
 const registrationSchema = z.object({
   itemId: z.number(),
@@ -53,30 +54,40 @@ export function NewItemRegistrationPage() {
     },
   });
 
-  const selectedItem = useIndividualItem(itemId)
+  const selectedItem = useIndividualItem(itemId);
 
   const { data: participants = [], isLoading: participantsLoading } = useQuery({
     queryKey: ["participants"],
     queryFn: () => apiClient.getParticipants(),
   });
 
-  const {registrations} =  useRegistrations()
+  const { registrations } = useRegistrations();
   const mutation = useMutation({
     mutationFn: async (
       values: RegistrationFormValues & {
         participantIds: number[];
       }
     ) => {
-      await Promise.all(
+      const res = await Promise.all(
         values.participantIds.map((participantId: number) => {
           return apiClient.createRegistration({ ...values, participantId });
         })
       );
+
+      const newData = sift(
+        res.map((e) => {
+          if ("error" in e) return;
+          return e;
+        })
+      );
+      return newData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["registrations-item", "registrations", itemId],
       });
+
+      queryClient;
       toast({
         title: "Success",
         description: "Registration created successfully",

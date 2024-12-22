@@ -216,6 +216,36 @@ class ApiClient {
     return response.json();
   }
 
+  async getCertificates(
+    itemId: string,
+    type: string
+  ): Promise<Certificate[] | { error: string }> {
+    const response = await this.client.api.certificates.all[":itemId"][
+      ":type"
+    ].$get({
+      param: {
+        itemId,
+        type,
+      },
+    });
+    return response.json();
+  }
+  async generateCertificate(data: {
+    id: number;
+    type: "participation" | "first" | "second" | "third";
+    itemId: number;
+    participantId: number;
+  }) {
+    const response = await this.client.api.certificates.new.$post({
+      json: data,
+    });
+    return response.json() as unknown as
+      | Certificate
+      | {
+          error: string;
+        };
+  }
+
   // Results
   async getResults() {
     const response = await this.client.api.results.$get({});
@@ -525,3 +555,14 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+
+type Certificate = {
+  type: "custom" | "participation" | "first" | "second" | "third" | null;
+  id: number;
+  data: unknown;
+  ref: number | null;
+  createdAt: string;
+  updatedAt: string;
+  itemId: number | null;
+  key: string;
+};

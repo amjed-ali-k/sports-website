@@ -278,11 +278,9 @@ const router = hono()
           chestNo: participants.chestNo,
           sectionId: participants.sectionId,
         },
-        result: results,
       })
       .from(registrations)
       .innerJoin(participants, eq(registrations.participantId, participants.id))
-      .leftJoin(results, eq(results.registrationId, registrations.id))
       .where(eq(registrations.itemId, itemId))
       .all();
 

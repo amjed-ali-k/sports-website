@@ -25,7 +25,9 @@ jobs:
           [vars]
           JWT_SECRET = "${{ secrets.JWT_SECRET }}"
           IMGBB_API_KEY = "${{ secrets.IMGBB_API_KEY }}"
-
+          CERT_API="http://localhost:5173"
+          CERT_KEY = "my-super-secret-key"
+          
           [[d1_databases]]
           binding = "DB"
           database_name = "gptc-pmna-sports-db"

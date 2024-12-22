@@ -1,5 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -9,12 +10,14 @@ import {
   useToast,
 } from "@sports/ui";
 import { EmptyState } from "@/components/empty-state";
-import { Users } from "lucide-react";
+import { Eye, EyeClosed, Users } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { useRegistrations } from "@/hooks/use-registrations";
+import { apiClient } from "@/lib/api";
 
 export function SingleItemCertificatesPage() {
   const { registrations, isLoading } = useRegistrations();
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -28,7 +31,8 @@ export function SingleItemCertificatesPage() {
             <TableHead>Participant</TableHead>
             <TableHead>Chest No</TableHead>
             <TableHead>Section</TableHead>
-            <TableHead>Certificates</TableHead>
+            <TableHead>Participation Certificate</TableHead>
+            <TableHead>Result Certificate</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,9 +76,43 @@ const Row = ({
     sectionId: number;
   };
 }) => {
+  const itemId = registration.itemId;
+  const { data: _pcerts } = useQuery({
+    queryKey: ["certificates", itemId, "participation"],
+    queryFn: () =>
+      itemId
+        ? apiClient.getCertificates(itemId.toString(), "participation")
+        : null,
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
+  const pCertMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.generateCertificate({
+        id: registration.id,
+        itemId: registration.itemId,
+        participantId: registration.participantId,
+        type: "participation",
+      });
+      if ("error" in res) throw new Error(res.error);
+      return res;
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(
+        ["certificates", itemId, "participation"],
+        (d: typeof pCerts) => (d ? [...d, newData] : d)
+      );
+    },
+    onError: (e) => {
+      toast({
+        title: e.message,
+        variant: "destructive",
+      });
+    },
+  });
+  const handleClick = () => pCertMutation.mutate();
+  const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
+  const pCert = pCerts.find((c) => c.id === registration.id);
   return (
     <TableRow key={registration.id}>
       <TableCell>{participant.fullName}</TableCell>
@@ -82,7 +120,58 @@ const Row = ({
       <TableCell>
         <SectionName id={participant.sectionId} />
       </TableCell>
-      <TableCell></TableCell>
+      <TableCell>
+        {!pCert ? (
+          <Button onClick={handleClick} size="sm">
+            Generate
+          </Button>
+        ) : (
+          <div className="flex gap-x-2">
+            <Button asChild size="icon" variant="outline">
+              <a
+                target="_blank"
+                href={`http://localhost:5173/cert/${pCert.key}/image.svg`}
+              >
+                <Eye className="size-4" />
+              </a>
+            </Button>
+            <Button asChild size="icon" variant="outline">
+              <a
+                target="_blank"
+                href={`http://localhost:5173/cert/${pCert.key}/image.svg?bg=false`}
+              >
+                <EyeClosed className="size-4" />
+              </a>
+            </Button>
+          </div>
+        )}
+      </TableCell>
+      <TableCell>
+        {!pCert ? (
+          <Button onClick={handleClick} size="sm">
+           Generate
+          </Button>
+        ) : (
+          <div className="flex gap-x-2">
+            <Button asChild size="icon" variant="outline">
+              <a
+                target="_blank"
+                href={`http://localhost:5173/cert/${pCert.key}/image.svg`}
+              >
+                <Eye className="size-4" />
+              </a>
+            </Button>
+            <Button asChild size="icon" variant="outline">
+              <a
+                target="_blank"
+                href={`http://localhost:5173/cert/${pCert.key}/image.svg?bg=false`}
+              >
+                <EyeClosed className="size-4" />
+              </a>
+            </Button>
+          </div>
+        )}
+      </TableCell>
     </TableRow>
   );
 };
