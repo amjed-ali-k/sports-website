@@ -21,6 +21,7 @@ jobs:
           name = "sports-api"
           main = "src/index.ts"
           compatibility_date = "2024-11-30"
+          compatibility_flags = [ "nodejs_compat" ]
 
           [vars]
           JWT_SECRET = "${{ secrets.JWT_SECRET }}"
