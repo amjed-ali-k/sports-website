@@ -17,7 +17,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@sports/ui";
-import { useAuth } from "../lib/auth";
+import { ProtectedView, useAuth } from "../lib/auth";
 import {
   Shield,
   ShieldAlert,
@@ -170,12 +170,15 @@ export function NavigationMenuComp() {
               <ListItem href="/participants" title="Participants">
                 Event participants can be managed here.
               </ListItem>
+              <ProtectedView requiredRole="controller">
+
               <ListItem href="/sections" title="Sections">
                 Departments/Sections can be created and manged here.
               </ListItem>
               <ListItem href="/events" title="Events">
                 Manage events here.
               </ListItem>
+              </ProtectedView>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -195,11 +198,13 @@ export function NavigationMenuComp() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
+        <ProtectedView requiredRole="controller">
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/settings">Settings</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
+        </ProtectedView>
       </NavigationMenuList>
     </NavigationMenu>
   );

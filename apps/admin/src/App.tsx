@@ -80,93 +80,91 @@ function App() {
                     element={<EditParticipantsPage />}
                   />
                 </Route>
-                <Route path="/items" element={<ManagerOnly />}>
+                <Route path="/items" element={<RepOnly />}>
                   <Route element={<ItemsPage />} index />
                   <Route path=":itemId" element={<ItemLayout />}>
-                    <Route element={<ItemsSinglePage />} index />
-                    <Route element={<ItemEditPage />} path="edit" />
-
-                    <Route
-                      path="registrations"
-                      element={<SingleItemRegistrationsPage />}
-                    />
-                    <Route
-                      path="registrations/new"
-                      element={<NewItemRegistrationPage />}
-                    />
-
-                    <Route
-                      path="certificates"
-                      element={<SingleItemCertificatesPage />}
-                    />
-                    <Route path="results" element={<ItemResultsPage />} />
-                    <Route path="reports">
-                      <Route index element={<ItemReportsPage />} />
+                    <Route element={<RepOnly />}>
                       <Route
-                        path="registration"
-                        element={<RegistrationReportPage />}
+                        path="registrations"
+                        element={<SingleItemRegistrationsPage />}
                       />
-                      <Route path="results" element={<ResultReportPage />} />
+                      <Route
+                        path="registrations/new"
+                        element={<NewItemRegistrationPage />}
+                      />
+                      <Route element={<ItemsSinglePage />} index />
+                    </Route>
+                    <Route element={<ManagerOnly />}>
+                      <Route element={<ItemEditPage />} path="edit" />
+                      <Route
+                        path="certificates"
+                        element={<SingleItemCertificatesPage />}
+                      />
+                      <Route path="results" element={<ItemResultsPage />} />
+                      <Route path="reports">
+                        <Route index element={<ItemReportsPage />} />
+                        <Route
+                          path="registration"
+                          element={<RegistrationReportPage />}
+                        />
+                        <Route path="results" element={<ResultReportPage />} />
+                      </Route>
                     </Route>
                   </Route>
                 </Route>
-                <Route path="/group-items" element={<ManagerOnly />}>
+                <Route path="/group-items" element={<RepOnly />}>
                   <Route element={<GroupItemsPage />} index />
                   <Route path=":itemId" element={<GroupItemLayout />}>
-                    <Route element={<GroupItemsSinglePage />} index />
-                    <Route element={<GroupItemEditPage />} path="edit" />
-                    <Route
-                      path="registrations"
-                      element={<SingleGroupItemRegistrationsPage />}
-                    />
-                    <Route
-                      path="registrations/new"
-                      element={<NewGroupItemRegistrationPage />}
-                    />
-                    <Route path="results" element={<GroupItemResultsPage />} />
-                    <Route path="reports">
-                      <Route index element={<GroupItemReportsPage />} />
+                    <Route element={<RepOnly />}>
+                      <Route element={<GroupItemsSinglePage />} index />
                       <Route
-                        path="registration"
-                        element={<GroupRegistrationReportPage />}
+                        path="registrations"
+                        element={<SingleGroupItemRegistrationsPage />}
                       />
+                      <Route
+                        path="registrations/new"
+                        element={<NewGroupItemRegistrationPage />}
+                      />
+                    </Route>
+                    <Route element={<ManagerOnly />}>
+                      <Route element={<GroupItemEditPage />} path="edit" />
                       <Route
                         path="results"
-                        element={<GroupResultReportPage />}
+                        element={<GroupItemResultsPage />}
                       />
+                      <Route path="reports">
+                        <Route index element={<GroupItemReportsPage />} />
+                        <Route
+                          path="registration"
+                          element={<GroupRegistrationReportPage />}
+                        />
+                        <Route
+                          path="results"
+                          element={<GroupResultReportPage />}
+                        />
+                      </Route>
                     </Route>
                   </Route>
                 </Route>
 
                 <Route
                   path="/settings"
-                  element={
-                    <ProtectedRoute requiredRole="controller">
-                      <SettingsPage />
-                    </ProtectedRoute>
-                  }
+                  element={<ControllerOnly />}
                 />
                 <Route
                   path="/admins"
-                  element={
-                    <ProtectedRoute requiredRole="controller">
-                      <AdminsPage />
-                    </ProtectedRoute>
-                  }
+                  element={<ControllerOnly />}
                 />
                 <Route
                   path="/events"
-                  element={
-                    <ProtectedRoute requiredRole="controller">
-                      <Outlet />
-                    </ProtectedRoute>
-                  }
+                  element={<ControllerOnly />}
                 >
                   <Route index element={<EventsPage />} />
                   <Route path="new" element={<NewEventsPage />} />
                   <Route path="edit/:eventId" element={<EditEventsPage />} />
                 </Route>
-                <Route path="/sections">
+                
+                <Route path="/sections" element={<ControllerOnly />}>
                   <Route index element={<SectionsPage />} />
                   <Route path="new" element={<NewSectionPage />} />
                   <Route path=":sectionId/edit" element={<EditSectionPage />} />
@@ -194,6 +192,22 @@ export default App;
 const ManagerOnly = () => {
   return (
     <ProtectedRoute requiredRole="manager">
+      <Outlet />
+    </ProtectedRoute>
+  );
+};
+
+const ControllerOnly = () => {
+  return (
+    <ProtectedRoute requiredRole="controller">
+      <Outlet />
+    </ProtectedRoute>
+  );
+};
+
+const RepOnly = () => {
+  return (
+    <ProtectedRoute requiredRole="rep">
       <Outlet />
     </ProtectedRoute>
   );

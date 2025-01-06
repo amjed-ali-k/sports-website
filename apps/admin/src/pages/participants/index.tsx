@@ -30,7 +30,6 @@ export default function ParticipantsPage() {
           </Button>
         </div>
       </div>
-
       <ParticipantList participants={participants.map((p) => p.participant)} />
     </div>
   );
