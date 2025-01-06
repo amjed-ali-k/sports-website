@@ -11,11 +11,13 @@ import { hono, zodQueryValidator } from "../lib/api";
 
 export const participantPublicRouter = hono()
   .get(
-    "/",
+    "/all/:eventId",
     zodQueryValidator(
       z.object({ page: z.string().optional(), limit: z.string().optional() })
     ),
     async (c) => {
+      const eventId = Number(c.req.param("eventId"));
+
       const db = c.get("db");
       // Get pagination parameters from query parameters
       const page = Number(c.req.query("page")) || 1; // Default to page 1
@@ -34,6 +36,8 @@ export const participantPublicRouter = hono()
         })
         .from(participants)
         .innerJoin(sections, eq(participants.sectionId, sections.id))
+        .innerJoin(registrations, eq(participants.id, registrations.participantId))
+        .leftJoin(items, eq(registrations.itemId, items.id))
         .limit(limit) // Set limit for pagination
         .offset(offset) // Set offset for pagination
         .all();
@@ -43,6 +47,8 @@ export const participantPublicRouter = hono()
         .select({ count: sql<number>`count(*)` })
         .from(participants)
         .innerJoin(sections, eq(participants.sectionId, sections.id))
+        .innerJoin(registrations, eq(participants.id, registrations.participantId))
+        .leftJoin(items, eq(registrations.itemId, items.id))
         .get();
 
       return c.json({
@@ -53,7 +59,7 @@ export const participantPublicRouter = hono()
       });
     }
   )
-  .get("/:id", async (c) => {
+  .get("/single/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
 
@@ -103,7 +109,7 @@ export const participantPublicRouter = hono()
       .all();
     return c.json(topParticipants);
   })
-  .get("/:id/stats", async (c) => {
+  .get("/stats/:id", async (c) => {
     const id = Number(c.req.param("id"));
     const db = c.get("db");
 
