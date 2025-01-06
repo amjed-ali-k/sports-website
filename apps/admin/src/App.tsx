@@ -43,6 +43,8 @@ import { CreateParticipantsPage } from "./pages/participants/new";
 import EditEventsPage from "./pages/events/edit";
 import NewEventsPage from "./pages/events/new";
 import { SingleItemCertificatesPage } from "./pages/items/single/certificates";
+import AdminsPage from "./pages/admins";
+import Settings from "./pages/settings";
 
 const queryClient = new QueryClient();
 
@@ -138,8 +140,11 @@ function App() {
                   </Route>
                 </Route>
 
-                <Route path="/settings" element={<ControllerOnly />} />
-                <Route path="/admins" element={<ControllerOnly />} />
+                <Route path="/settings" element={<ControllerOnly />}>
+                <Route index element={<Settings />} /></Route>
+                <Route path="/admins" element={<ControllerOnly />}>
+                  <Route index element={<AdminsPage />} />
+                </Route>
                 <Route path="/events" element={<ControllerOnly />}>
                   <Route index element={<EventsPage />} />
                   <Route path="new" element={<NewEventsPage />} />
