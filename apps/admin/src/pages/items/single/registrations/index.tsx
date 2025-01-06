@@ -18,6 +18,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Plus, Users } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { useRegistrations } from "@/hooks/use-registrations";
+import { ProtectedView } from "@/lib/auth";
 
 export function SingleItemRegistrationsPage() {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const Row = ({ registration, participant }: RowProps) => {
       return res;
     },
     onSuccess: (updatedRes) => {
-      queryClient.setQueryData(["registrations-item", itemId], (e) =>
+      queryClient.setQueryData(["registrations-item", itemId], (e: any) =>
         updatorFun(e as RowProps[], updatedRes)
       );
     },
@@ -121,7 +122,7 @@ const Row = ({ registration, participant }: RowProps) => {
   });
 
   const handleStatusChange = (status: string) => {
-    if(!status) return
+    if (!status) return;
     mutation.mutate({ id: registration.id, status });
   };
 
@@ -148,35 +149,36 @@ const Row = ({ registration, participant }: RowProps) => {
         </Badge>
       </TableCell>
       <TableCell>
-        <ToggleGroup
-          disabled={mutation.isPending}
-          onValueChange={handleStatusChange}
-          value={registration.status}
-          size="sm"
-          variant="default"
-          type="single"
-          className="text-xs gap-0"
-        >
-          <ToggleGroupItem
-            value="registered"
-            
-            className="text-xs  data-[state=on]:font-bold"
+        <ProtectedView requiredRole="manager">
+          <ToggleGroup
+            disabled={mutation.isPending}
+            onValueChange={handleStatusChange}
+            value={registration.status}
+            size="sm"
+            variant="default"
+            type="single"
+            className="text-xs gap-0"
           >
-            Registered
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="not_participated"
-            className="text-xs data-[state=on]:font-bold data-[state=on]:text-rose-700 data-[state=on]:bg-rose-100"
-          >
-            Not Participated
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            value="participated"
-            className="text-xs data-[state=on]:font-bold data-[state=on]:text-green-700 data-[state=on]:bg-green-100"
-          >
-            Participated
-          </ToggleGroupItem>
-        </ToggleGroup>
+            <ToggleGroupItem
+              value="registered"
+              className="text-xs  data-[state=on]:font-bold"
+            >
+              Registered
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="not_participated"
+              className="text-xs data-[state=on]:font-bold data-[state=on]:text-rose-700 data-[state=on]:bg-rose-100"
+            >
+              Not Participated
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="participated"
+              className="text-xs data-[state=on]:font-bold data-[state=on]:text-green-700 data-[state=on]:bg-green-100"
+            >
+              Participated
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </ProtectedView>
       </TableCell>
     </TableRow>
   );

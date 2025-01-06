@@ -27,7 +27,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const TOKEN_KEY = 'sports_admin_token';
+export const TOKEN_KEY = "sports_admin_token";
 
 // Function to handle 401 responses globally
 const setup401Handler = (logoutFn: () => Promise<any> | any) => {
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await bareApiClient.auth.logout.$post();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     } finally {
       localStorage.removeItem(TOKEN_KEY);
       setAdmin(null);
@@ -60,7 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up 401 handler once when component mounts
   useEffect(() => {
-    setup401Handler(() => {console.log("401 handled"); });
+    setup401Handler(() => {
+      console.log("401 handled");
+    });
   }, []);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Verify token validity
       try {
-        const decoded = jwtDecode<Admin & { exp: number}>(token);
+        const decoded = jwtDecode<Admin & { exp: number }>(token);
         // Check if token is expired (if exp claim exists)
         if (decoded.exp && decoded.exp * 1000 < Date.now()) {
           await logout();
@@ -85,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setAdmin(decoded);
       } catch (error) {
-        console.error('Invalid token:', error);
+        console.error("Invalid token:", error);
         await logout();
       }
     } catch (error) {
@@ -178,4 +180,34 @@ export function ProtectedRoute({
   }
 
   return <>{children}</>;
+}
+
+const useRole = (requiredRole?: "rep" | "manager" | "controller") => {
+  const { admin, isLoading } = useAuth();
+
+  if (!isLoading && admin && requiredRole) {
+    const roleLevel = {
+      rep: 1,
+      manager: 2,
+      controller: 3,
+    };
+
+    if (roleLevel[admin.role] >= roleLevel[requiredRole]) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export function ProtectedView({
+  children,
+  requiredRole,
+}: {
+  children: ReactNode;
+  requiredRole?: "rep" | "manager" | "controller";
+}) {
+  const isDisplay = useRole(requiredRole);
+
+  return isDisplay ? <>{children}</> : null;
 }

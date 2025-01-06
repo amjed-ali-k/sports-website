@@ -23,8 +23,9 @@ import { Icon } from "@iconify-icon/react";
 import { cn } from "@/lib/utils";
 import { SectionName } from "@/components/section-name";
 import { useNavigate } from "react-router-dom";
+import { useEvent } from "@/hooks/use-event";
 
-const api = apiClient.public.participants;
+const api = apiClient.public.participants.all[":eventId"];
 const url = api.$url();
 const $get = api.$get;
 const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
@@ -34,6 +35,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
 
 export const ParticipantsPage = () => {
   const [pageNumber, setPageNumber] = useState(1);
+  const event = useEvent();
   const { data, isLoading } = useSWR(
     [url, pageNumber],
     fetcher({
@@ -41,10 +43,13 @@ export const ParticipantsPage = () => {
         limit: "10",
         page: pageNumber.toString(),
       },
+      param: {
+        eventId: event?.id.toString() ?? "1",
+      },
     })
   );
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const canNextPage = data && data?.total / 20 > pageNumber - 1;
   const participants = data?.participants;
@@ -79,7 +84,9 @@ export const ParticipantsPage = () => {
                 <span className="mr-2">{e.name}</span>
               </TableCell>
               <TableCell>{e.batch}</TableCell>
-              <TableCell><SectionName id={e.sectionId} /></TableCell>
+              <TableCell>
+                <SectionName id={e.sectionId} />
+              </TableCell>
             </TableRow>
           ))}
           {participants?.length === 0 && (

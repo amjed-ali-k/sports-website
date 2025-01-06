@@ -22,7 +22,7 @@ import { IconFromName } from "@/components/icon";
 import useSWRImmutable from "swr/immutable";
 import { useSection } from "@/hooks/use-section";
 
-const Api = apiClient.public.participants[":id"];
+const Api = apiClient.public.participants.single[":id"];
 const url = Api.$url();
 const $get = Api.$get;
 const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
@@ -30,7 +30,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
   return await res.json();
 };
 
-const statsApi = apiClient.public.participants[":id"].stats;
+const statsApi = apiClient.public.participants.stats[":id"];
 const statusurl = statsApi.$url();
 const status$get = statsApi.$get;
 const statusfetcher =
