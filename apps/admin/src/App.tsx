@@ -62,14 +62,7 @@ function App() {
                 }
               >
                 <Route path="/" element={<DashboardPage />} />
-                <Route
-                  path="/participants"
-                  element={
-                    <ProtectedRoute requiredRole="rep">
-                      <Outlet />
-                    </ProtectedRoute>
-                  }
-                >
+                <Route path="/participants" element={<Outlet />}>
                   <Route index element={<ParticipantsPage />} />
                   <Route path="new" element={<CreateParticipantsPage />} />
                   <Route path="import" element={<ImportParticipantsPage />} />
@@ -145,36 +138,20 @@ function App() {
                   </Route>
                 </Route>
 
-                <Route
-                  path="/settings"
-                  element={<ControllerOnly />}
-                />
-                <Route
-                  path="/admins"
-                  element={<ControllerOnly />}
-                />
-                <Route
-                  path="/events"
-                  element={<ControllerOnly />}
-                >
+                <Route path="/settings" element={<ControllerOnly />} />
+                <Route path="/admins" element={<ControllerOnly />} />
+                <Route path="/events" element={<ControllerOnly />}>
                   <Route index element={<EventsPage />} />
                   <Route path="new" element={<NewEventsPage />} />
                   <Route path="edit/:eventId" element={<EditEventsPage />} />
                 </Route>
-                
+
                 <Route path="/sections" element={<ControllerOnly />}>
                   <Route index element={<SectionsPage />} />
                   <Route path="new" element={<NewSectionPage />} />
                   <Route path=":sectionId/edit" element={<EditSectionPage />} />
                 </Route>
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <ProfilePage />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/profile" element={<ProfilePage />} />
               </Route>
             </Routes>
           </AuthProvider>
