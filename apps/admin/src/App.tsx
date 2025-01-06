@@ -12,8 +12,6 @@ import LoginPage from "./pages/login";
 import DashboardPage from "./pages/dashboard";
 import ParticipantsPage from "./pages/participants";
 import ItemsPage from "./pages/items/index";
-import SettingsPage from "./pages/settings";
-import AdminsPage from "./pages/admins";
 import SectionsPage from "./pages/sections/index"; // added import statement
 import ProfilePage from "./pages/profile";
 import { AuthProvider, ProtectedRoute } from "./lib/auth";
