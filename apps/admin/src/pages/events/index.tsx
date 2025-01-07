@@ -61,7 +61,10 @@ export default function EventsPage() {
               <TableCell className="capitalize">
                 {event.maxRegistrationPerParticipant}
               </TableCell>
-              <TableCell>
+              <TableCell className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                  <Link to={`view/${event.id}`}>View</Link>
+                </Button>
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`edit/${event.id}`}>Edit</Link>
                 </Button>
