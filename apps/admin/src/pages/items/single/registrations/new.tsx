@@ -158,7 +158,7 @@ export function NewItemRegistrationPage() {
   );
 
   return (
-    <div className="container max-w-4xl mx-auto py-6">
+    <div className="lg:container  max-w-4xl mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">New Registration</h1>
         <Button variant="outline" onClick={() => navigate(-1)}>
@@ -192,8 +192,8 @@ export function NewItemRegistrationPage() {
                 )}
               />
               <div className="space-y-4">
-                <FormLabel>Select Participants</FormLabel>
-                <div className="flex items-center gap-4">
+                <FormLabel>Select Participants <Badge className="font-bold pt-1" variant="default">{selectedParticipants.length} Selected</Badge>  </FormLabel>
+                <div className="lg:flex-row flex flex-col items-center gap-4">
                   <Input
                     placeholder="Search by name, chest no, or semester..."
                     value={searchQuery}
@@ -208,7 +208,7 @@ export function NewItemRegistrationPage() {
                     {filteredAndSearchedParticipants?.length || 0} participants
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto">
+                <div className="grid lg:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto">
                   {paginatedParticipants?.map(({ participant, section }) => (
                     <Card
                       key={participant.id}
@@ -239,8 +239,9 @@ export function NewItemRegistrationPage() {
                       </CardHeader>
                       <CardContent className="p-4 pt-0">
                         <div className="flex gap-2">
-                          <Badge>{section.name}</Badge>
-                          <Badge variant="outline">{participant.batch}</Badge>
+                          <Badge className="h-4 truncate">{section.name}</Badge>
+
+                          <Badge className="h-4 truncate" variant="outline">{participant.batch}</Badge>
                         </div>
                       </CardContent>
                     </Card>
