@@ -324,7 +324,8 @@ export default function EditEventsPage() {
                 Update event
               </Button>
             </form>
-          </Form>
+        
+        </Form>
         </CardContent>
       </Card>
     </div>

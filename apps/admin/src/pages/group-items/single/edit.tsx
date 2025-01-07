@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, FormControl, Input } from "@sports/ui";
+import {
+  Button,
+  FormControl,
+  FormDescription,
+  Input,
+  Switch,
+} from "@sports/ui";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "@sports/ui";
 import {
   Select,
@@ -26,7 +32,7 @@ const itemSchema = z.object({
   pointsSecond: z.number(),
   pointsThird: z.number(),
   iconName: z.string().nullish(),
-  canRegister: z.number(),
+  canRegister: z.coerce.number(),
   isFinished: z.number(),
   isResultPublished: z.number(),
   maxParticipants: z.number(),
@@ -218,6 +224,26 @@ export function GroupItemEditPage() {
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="canRegister"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Registration</FormLabel>
+                    <FormDescription>
+                      Enable or disable registration to this item
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value == 1}
+                      onCheckedChange={(e) => field.onChange(e ? 1 : 0)}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

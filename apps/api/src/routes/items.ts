@@ -23,6 +23,7 @@ const updateItemSchema = z.object({
   pointsFirst: z.number().min(0).optional(),
   pointsSecond: z.number().min(0).optional(),
   pointsThird: z.number().min(0).optional(),
+  canRegister: z.number().optional(),
   iconName: z.string().nullish(),
   status: z.enum(["scheduled", "on-going", "finished"]).optional(),
 });

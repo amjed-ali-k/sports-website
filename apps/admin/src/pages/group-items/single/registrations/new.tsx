@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { useMemo } from "react";
+import { useRole } from "@/lib/auth";
 
 const registrationSchema = z.object({
   itemId: z.number(),
@@ -102,7 +103,17 @@ export function NewGroupItemRegistrationPage() {
     },
   });
 
+  const isAdmin = useRole("controller");
+
   const onSubmit = (values: RegistrationFormValues) => {
+    if(!isAdmin && selectedItem?.canRegister === 0) {
+      toast({
+        title: "Error",
+        description: "Registration is closed for this item",
+        variant: "destructive",
+      });
+      return;
+    }
     if (selectedParticipants.length === 0) {
       toast({
         title: "Error",

@@ -18,21 +18,27 @@ import { EmptyState } from "@/components/empty-state";
 import { Plus, Users } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { useRegistrations } from "@/hooks/use-registrations";
-import { ProtectedView } from "@/lib/auth";
+import { ProtectedView, useRole } from "@/lib/auth";
+import { useItem } from "../layout";
 
 export function SingleItemRegistrationsPage() {
   const navigate = useNavigate();
   const { registrations, isLoading } = useRegistrations();
+  const { currentItem } = useItem();
+  const isAdmin = useRole("controller");
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Registrations Management</h1>
-        <Button onClick={() => navigate("new")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Registration
-        </Button>
+        {(currentItem?.canRegister || isAdmin) && (
+          <Button onClick={() => navigate("new")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Registration
+          </Button>
+        )}
       </div>
       <Table>
         <TableHeader>
