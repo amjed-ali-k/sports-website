@@ -29,7 +29,7 @@ export const ItemLayout = () => {
   return (
     <div>
       <Card className="overflow-hidden">
-        <CardContent className="p-6 flex justify-between">
+        <CardContent className="lg:p-6 flex flex-col lg:flex-row justify-between">
           <div className="flex items-center justify-between">
             <Button variant="ghost" asChild>
               <Link to="/items">Individual Items</Link>
@@ -47,7 +47,7 @@ export const ItemLayout = () => {
               </Button>
             </div>
           </div>
-          <div className=" text-sm flex gap-x-4">
+          <div className=" text-sm flex gap-x-4 lg:mt-6">
             <div className="flex gap-x-3">
               <span className="text-muted-foreground">Event:</span>
               <span className="font-medium">

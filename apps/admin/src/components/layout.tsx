@@ -56,7 +56,7 @@ export default function Layout() {
     <div className="min-h-screen bg-background font-body">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
+          <Link to="/" className="mr-6 hidden lg:flex items-center space-x-2">
           <Trophy className="h-6 w-6" />
             <span className="font-bold">Sports Admin</span>
           </Link>
@@ -120,7 +120,7 @@ export default function Layout() {
           </div>
         </div>
       </header>
-      <main className="container py-6">
+      <main className="px-1 lg:container py-6">
         <Outlet />
       </main>
     </div>
