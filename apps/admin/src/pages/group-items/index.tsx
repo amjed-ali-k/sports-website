@@ -8,6 +8,7 @@ import { Popcorn } from "lucide-react";
 import { Link } from "react-router-dom";
 import { iconsList } from "@/components/icon";
 import { ProtectedView } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 // Helper function to get the appropriate icon for each event
 export function getEventIcon(iconName?: string | null) {
@@ -48,7 +49,10 @@ export default function GroupItemsPage() {
           const ItemIcon = getEventIcon(item.iconName);
           return (
             <Link key={item.id} to={`/group-items/${item.id}`}>
-              <Card className="overflow-hidden">
+                <Card className={cn("overflow-hidden", {
+                'bg-pink-50 border border-pink-600': item.gender === 'female',
+                'bg-blue-50 border border-blue-600': item.gender === 'male',
+              })}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
