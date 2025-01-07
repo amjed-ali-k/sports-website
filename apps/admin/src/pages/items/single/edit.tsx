@@ -1,6 +1,12 @@
 import { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, FormControl, Input } from "@sports/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Button,
+  FormControl,
+  FormDescription,
+  Input,
+  Switch,
+} from "@sports/ui";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "@sports/ui";
 import {
   Select,
@@ -14,9 +20,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
-import { useParams } from "react-router-dom";
 import { iconsList } from "@/components/icon";
 import { cn } from "@/lib/utils";
+import { useItem } from "./layout";
 
 const itemSchema = z.object({
   status: z.enum(["scheduled", "on-going", "finished"]),
@@ -35,7 +41,6 @@ const itemSchema = z.object({
 type ItemFormValues = z.infer<typeof itemSchema>;
 
 export function ItemEditPage() {
-  const { itemId } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,14 +48,7 @@ export function ItemEditPage() {
     resolver: zodResolver(itemSchema),
   });
 
-  const { data: items = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ["items"],
-    queryFn: () => apiClient.getItems(),
-  });
-
-  const currentItem = items?.find(
-    (item) => item.item.id === Number(itemId)
-  )?.item;
+  const { currentItem, isLoading: itemsLoading } = useItem();
 
   useEffect(() => {
     if (currentItem) {
@@ -189,6 +187,26 @@ export function ItemEditPage() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="canRegister"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Registration</FormLabel>
+                    <FormDescription>
+                      Enable or disable registration to this item
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value == 1}
+                      onCheckedChange={(e) => field.onChange(e ? 1 : 0)}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
           <FormField
             control={form.control}
@@ -221,7 +239,7 @@ export function ItemEditPage() {
             )}
           />
           <Button type="submit" className="w-fit">
-            Edit Item   
+            Edit Item
           </Button>
         </form>
       </Form>

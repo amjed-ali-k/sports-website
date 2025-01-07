@@ -26,6 +26,7 @@ import { useMemo } from "react";
 import { useIndividualItem } from "@/hooks/use-item";
 import { useRegistrations } from "@/hooks/use-registrations";
 import { sift } from "radash";
+import { useRole } from "@/lib/auth";
 
 const registrationSchema = z.object({
   itemId: z.number(),
@@ -102,8 +103,17 @@ export function NewItemRegistrationPage() {
       });
     },
   });
+  const isAdmin = useRole("controller");
 
   const onSubmit = (values: RegistrationFormValues) => {
+    if (!isAdmin && selectedItem?.canRegister === 0) {
+      toast({
+        title: "Error",
+        description: "Registration is closed for this item",
+        variant: "destructive",
+      });
+      return;
+    }
     if (selectedParticipants.length === 0) {
       toast({
         title: "Error",
@@ -192,7 +202,12 @@ export function NewItemRegistrationPage() {
                 )}
               />
               <div className="space-y-4">
-                <FormLabel>Select Participants <Badge className="font-bold pt-1" variant="default">{selectedParticipants.length} Selected</Badge>  </FormLabel>
+                <FormLabel>
+                  Select Participants{" "}
+                  <Badge className="font-bold pt-1" variant="default">
+                    {selectedParticipants.length} Selected
+                  </Badge>{" "}
+                </FormLabel>
                 <div className="lg:flex-row flex flex-col items-center gap-4">
                   <Input
                     placeholder="Search by name, chest no, or semester..."
@@ -241,7 +256,9 @@ export function NewItemRegistrationPage() {
                         <div className="flex gap-2">
                           <Badge className="h-4 truncate">{section.name}</Badge>
 
-                          <Badge className="h-4 truncate" variant="outline">{participant.batch}</Badge>
+                          <Badge className="h-4 truncate" variant="outline">
+                            {participant.batch}
+                          </Badge>
                         </div>
                       </CardContent>
                     </Card>

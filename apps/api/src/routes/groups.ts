@@ -28,6 +28,7 @@ const updateGroupItemSchema = z.object({
   pointsThird: z.number().optional(),
   minParticipants: z.number().optional(),
   maxParticipants: z.number().optional(),
+  canRegister: z.number().optional(),
   eventId: z.number().optional(),
   status: z.enum(["scheduled", "on-going", "finished"]).optional(),
 });

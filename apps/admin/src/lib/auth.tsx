@@ -182,7 +182,7 @@ export function ProtectedRoute({
   return <>{children}</>;
 }
 
-const useRole = (requiredRole?: "rep" | "manager" | "controller") => {
+export const useRole = (requiredRole?: "rep" | "manager" | "controller") => {
   const { admin, isLoading } = useAuth();
 
   if (!isLoading && admin && requiredRole) {

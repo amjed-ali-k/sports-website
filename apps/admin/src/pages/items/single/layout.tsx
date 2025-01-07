@@ -6,24 +6,30 @@ import { useParams } from "react-router-dom";
 import { getEventIcon } from "..";
 import { ChevronRight } from "lucide-react";
 
-export const ItemLayout = () => {
+export const useItem = () => {
   const params = useParams();
   const { data: items, isLoading } = useQuery({
     queryKey: ["items"],
     queryFn: () => apiClient.getItems(),
   });
 
-  const { data: events } = useQuery({
-    queryKey: ["events"],
-    queryFn: () => apiClient.getEvents(),
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-
   const currentItem = items?.find(
     (item) => item.item.id === Number(params.itemId)
   )?.item;
 
+  return {
+    currentItem,
+    isLoading,
+  };
+};
+
+export const ItemLayout = () => {
+  const { data: events } = useQuery({
+    queryKey: ["events"],
+    queryFn: () => apiClient.getEvents(),
+  });
+  const { isLoading, currentItem } = useItem();
+  if (isLoading) return <div>Loading...</div>;
   if (!currentItem) return <div>Item not found</div>;
   const ItemIcon = getEventIcon(currentItem.iconName);
   return (
