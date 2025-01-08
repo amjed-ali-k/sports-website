@@ -177,7 +177,7 @@ const Row = ({
             <Button asChild size="icon" variant="outline">
               <a
                 target="_blank"
-                href={`http://localhost:5173/cert/${pCert.key}/image.svg`}
+                href={`${import.meta.env.VITE_CERTIFICATE_URL}/cert/${pCert.key}/image.svg`}
               >
                 <Eye className="size-4" />
               </a>
@@ -185,7 +185,7 @@ const Row = ({
             <Button asChild size="icon" variant="outline">
               <a
                 target="_blank"
-                href={`http://localhost:5173/cert/${pCert.key}/image.svg?bg=false`}
+                href={`${import.meta.env.VITE_CERTIFICATE_URL}/cert/${pCert.key}/image.svg?bg=false`}
               >
                 <EyeClosed className="size-4" />
               </a>
@@ -208,7 +208,7 @@ const Row = ({
               <Button asChild size="icon" variant="outline">
                 <a
                   target="_blank"
-                  href={`http://localhost:5173/cert/${rCert.key}/image.svg`}
+                  href={`${import.meta.env.VITE_CERTIFICATE_URL}/cert/${rCert.key}/image.svg`}
                 >
                   <Eye className="size-4" />
                 </a>
@@ -216,7 +216,7 @@ const Row = ({
               <Button asChild size="icon" variant="outline">
                 <a
                   target="_blank"
-                  href={`http://localhost:5173/cert/${rCert.key}/image.svg?bg=false`}
+                  href={`${import.meta.env.VITE_CERTIFICATE_URL}/cert/${rCert.key}/image.svg?bg=false`}
                 >
                   <EyeClosed className="size-4" />
                 </a>
