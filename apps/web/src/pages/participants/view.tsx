@@ -14,13 +14,14 @@ import { Zap } from "lucide-react";
 import { Icon } from "@iconify-icon/react";
 import { apiClient } from "@/lib/api";
 import { InferRequestType } from "hono/client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 import { cn } from "@/lib/utils";
 import { useIndividualItem } from "@/hooks/use-item";
 import { IconFromName } from "@/components/icon";
 import useSWRImmutable from "swr/immutable";
 import { useSection } from "@/hooks/use-section";
+import { useEvent } from "@/hooks/use-event";
 
 const Api = apiClient.public.participants.single[":id"];
 const url = Api.$url();
@@ -183,8 +184,11 @@ const Rows = ({
   } | null;
 }) => {
   const item = useIndividualItem(registrations.itemId)?.item;
+  const navigate = useNavigate();
+  const event = useEvent();
   return (
     <TableRow
+      onClick={() => navigate(`/${event?.id}/items/${registrations.itemId}/individual`)}
       className={cn({
         "opacity-40": registrations.status === "not_participated",
         "bg-yellow-600/10": results?.position === "first",

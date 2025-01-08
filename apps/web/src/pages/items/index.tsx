@@ -91,7 +91,12 @@ export const ItemsPage = () => {
                   })}
                 />
               </TableCell>
-              <TableCell className="capitalize text-xs">
+              <TableCell
+                className={cn("capitalize text-xs", {
+                  "text-green-500": item.status === "finished",
+                  "text-amber-400": item.status === "on-going",
+                })}
+              >
                 {item.status}
               </TableCell>
               <TableCell>{registrationCount}</TableCell>
