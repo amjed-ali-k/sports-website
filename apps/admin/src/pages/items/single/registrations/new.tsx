@@ -35,7 +35,7 @@ const registrationSchema = z.object({
 
 type RegistrationFormValues = z.infer<typeof registrationSchema>;
 
-export function NewItemRegistrationPage() {
+export function Component() {
   const { itemId } = useParams();
 
   const [selectedParticipants, setSelectedParticipants] = useState<number[]>(

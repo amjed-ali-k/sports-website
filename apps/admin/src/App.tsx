@@ -18,7 +18,6 @@ import { AuthProvider, ProtectedRoute } from "./lib/auth";
 import EventsPage from "./pages/events";
 import { ItemsSinglePage } from "./pages/items/single";
 import { SingleItemRegistrationsPage } from "./pages/items/single/registrations";
-import { NewItemRegistrationPage } from "./pages/items/single/registrations/new";
 import { ItemLayout } from "./pages/items/single/layout";
 import { ItemResultsPage } from "./pages/items/single/results";
 import { ItemReportsPage } from "./pages/items/single/reports";
@@ -45,6 +44,7 @@ import NewEventsPage from "./pages/events/new";
 import { SingleItemCertificatesPage } from "./pages/items/single/certificates";
 import AdminsPage from "./pages/admins";
 import Settings from "./pages/settings";
+import EventSinglePage from "./pages/events/single";
 
 const queryClient = new QueryClient();
 
@@ -83,7 +83,7 @@ function App() {
                       />
                       <Route
                         path="registrations/new"
-                        element={<NewItemRegistrationPage />}
+                        lazy={() => import("./pages/items/single/registrations/new")}
                       />
                       <Route element={<ItemsSinglePage />} index />
                     </Route>
@@ -149,6 +149,8 @@ function App() {
                   <Route index element={<EventsPage />} />
                   <Route path="new" element={<NewEventsPage />} />
                   <Route path="edit/:eventId" element={<EditEventsPage />} />
+                  <Route path="view/:eventId" element={<EventSinglePage />} />
+
                 </Route>
 
                 <Route path="/sections" element={<ControllerOnly />}>

@@ -215,7 +215,26 @@ export const CreateParticipantsPage = () => {
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="chestNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chest No</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="42"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Optional Chest No
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="avatar"
