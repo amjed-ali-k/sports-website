@@ -118,11 +118,10 @@ export default function GroupItemsPage() {
 
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
-                                Points:
+                                Status:
                               </span>
-                              <span className="font-medium">
-                                {item.pointsFirst}/{item.pointsSecond}/
-                                {item.pointsThird}
+                              <span className="font-medium capitalize">
+                                {item.status}
                               </span>
                             </div>
                           </div>
