@@ -128,6 +128,6 @@ const router = hono()
 
     await db.delete(events).where(eq(events.id, id));
     return c.json({ success: true });
-  });
+  })
 
 export default router;

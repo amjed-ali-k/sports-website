@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  SelectGroup,
   Table,
   TableBody,
   TableCell,
@@ -147,9 +148,12 @@ export function GroupItemResultsPage() {
                                 "border-primary bg-primary/10":
                                   field.value === position,
                                 "border-muted": field.value !== position,
-                                "bg-amber-100 hover:bg-amber-100": position === "first",
-                                "bg-gray-100 hover:bg-gray-100": position === "second",
-                                "bg-rose-50 hover:bg-rose-100": position === "third",
+                                "bg-amber-100 hover:bg-amber-100":
+                                  position === "first",
+                                "bg-gray-100 hover:bg-gray-100":
+                                  position === "second",
+                                "bg-rose-50 hover:bg-rose-100":
+                                  position === "third",
                               }
                             )}
                           >
@@ -193,38 +197,40 @@ export function GroupItemResultsPage() {
                           <SelectTrigger>
                             <SelectValue placeholder="Select participant" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {registrations
-                              ?.filter(
-                                ({ registration: reg }) =>
-                                  reg.groupItemId === Number(itemId) &&
-                                  !results?.find(
-                                    (e) =>
-                                      e.result.groupRegistrationId === reg.id
-                                  )
-                              )
-                              .map(({ registration: reg, participants }) => {
-                                const users = JSON.parse(participants) as {
-                                  id: number;
-                                  name: string;
-                                  chestNo: string;
-                                  sectionId: string;
-                                  batch: string;
-                                }[];
+                          <SelectContent className="overflow-y-auto max-h-[10rem]">
+                            <SelectGroup>
+                              {registrations
+                                ?.filter(
+                                  ({ registration: reg }) =>
+                                    reg.groupItemId === Number(itemId) &&
+                                    !results?.find(
+                                      (e) =>
+                                        e.result.groupRegistrationId === reg.id
+                                    )
+                                )
+                                .map(({ registration: reg, participants }) => {
+                                  const users = JSON.parse(participants) as {
+                                    id: number;
+                                    name: string;
+                                    chestNo: string;
+                                    sectionId: string;
+                                    batch: string;
+                                  }[];
 
-                                const user = users[0];
+                                  const user = users[0];
 
-                                return (
-                                  <SelectItem
-                                    key={reg.id}
-                                    value={reg.id.toString()}
-                                  >
-                                    {reg.name ?? "-"} {" | "}
-                                    {user.name} ({user.chestNo}) and{" "}
-                                    {users.length - 1} others
-                                  </SelectItem>
-                                );
-                              })}
+                                  return (
+                                    <SelectItem
+                                      key={reg.id}
+                                      value={reg.id.toString()}
+                                    >
+                                      {reg.name ?? "-"} {" | "}
+                                      {user.name} ({user.chestNo}) and{" "}
+                                      {users.length - 1} others
+                                    </SelectItem>
+                                  );
+                                })}
+                            </SelectGroup>
                           </SelectContent>
                         </Select>
                         <FormMessage />
