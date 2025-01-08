@@ -19,6 +19,7 @@ jobs:
         run: bun run build --filter @sports/admin
         env:
           VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_CERTIFICATE_URL: https://cert-gen.pages.dev
         
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
