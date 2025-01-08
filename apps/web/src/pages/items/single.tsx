@@ -133,7 +133,7 @@ const Rows = ({
   return (
     <TableRow
       className={cn({
-        "opacity-40": registrations.status === "not_participated",
+        "opacity-40": registrations.status !== "participated",
         "bg-yellow-600/30": results?.position === "first",
         "bg-slate-600/30": results?.position === "second",
         "bg-teal-600/30": results?.position === "third",

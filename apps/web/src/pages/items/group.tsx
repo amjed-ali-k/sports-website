@@ -31,7 +31,7 @@ export const GroupItemPage = () => {
   const itemId = useParams().itemId || "";
 
   const { data } = useSWR(
-    url,
+    [url, itemId],
     fetcher({
       param: {
         itemId,
@@ -123,7 +123,7 @@ const Rows = ({
     <>
       <TableRow
         className={cn({
-          "bg-yellow-600": results?.position === "first",
+          "bg-yellow-700": results?.position === "first",
           "bg-slate-700": results?.position === "second",
           "bg-teal-950": results?.position === "third",
         })}
