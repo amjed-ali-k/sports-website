@@ -52,7 +52,9 @@ export default function GroupItemsPage() {
           const event = events?.find((event) => event.id === Number(eventId));
           return (
             <div key={eventId}>
-              <h2 className="text-xl font-semibold mb-4 border-t pt-4 mt-4">{event?.name}</h2>
+              <h2 className="text-xl font-semibold mb-4 border-t pt-4 mt-4">
+                {event?.name}
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
                 {items?.map((item) => {
                   const ItemIcon = getEventIcon(item?.iconName);
@@ -65,6 +67,10 @@ export default function GroupItemsPage() {
                             item.gender === "female",
                           "bg-blue-50 border border-blue-600":
                             item.gender === "male",
+                          "border-4 border-amber-600":
+                            item.status === "on-going",
+                          "border-4 border-green-600":
+                            item.status === "finished",
                         })}
                       >
                         <CardContent className="p-6">
