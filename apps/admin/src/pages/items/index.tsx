@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@sports/ui";
-import { Button } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { ItemFormValues, NewItemFormDialog } from "./new";
 import { Popcorn } from "lucide-react";
