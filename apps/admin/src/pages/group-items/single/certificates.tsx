@@ -133,13 +133,13 @@ const Row = ({
         : null,
   });
 
-  const rCert = _rcerts ? ("error" in _rcerts ? null : first(_rcerts)) : null;
+  const rCert = _rcerts ? ("error" in _rcerts ? null : _rcerts.find((c) => c.ref === participant.id)) : null;
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const pCertMutation = useMutation({
     mutationFn: async () => {
       const res = await apiClient.generateCertificate({
-        id: registration.id,
+        id: participant.id,
         itemId: registration.groupItemId,
         participantId: participant.id,
         type: "participation",
@@ -166,7 +166,7 @@ const Row = ({
     mutationFn: async () => {
       if (!result) throw new Error("Result not found");
       const res = await apiClient.generateCertificate({
-        id: result?.result.id,
+        id: participant.id,
         itemId: registration.groupItemId,
         participantId: participant.id,
         type: position!,
@@ -191,7 +191,7 @@ const Row = ({
   const handleClick = () => pCertMutation.mutate();
   const handleResultClick = () => rCertMutation.mutate();
   const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
-  const pCert = pCerts.find((c) => c.ref === registration.id);
+  const pCert = pCerts.find((c) => c.ref === participant.id);
 
   return (
     <TableRow key={registration.id}>
