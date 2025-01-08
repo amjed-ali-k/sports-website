@@ -28,7 +28,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
 const useResult = () => {
   const event = useEvent();
   const { data } = useSWR(
-  event ?  [url, event?.id] : null,
+    event ? [url, event?.id] : null,
     fetcher({
       param: {
         eventId: event?.id.toString() ?? "1",
@@ -39,16 +39,11 @@ const useResult = () => {
 };
 
 export const EventPage = () => {
-  const sections = useAllSections();
   return (
     <div>
       <LinkMenu />
-
       <ChartSection />
-
-      {sections?.map((section) => (
-        <SectionScore key={section.id} id={section.id} />
-      ))}
+      <SectionScoreList />
       <div>
         <Top5 />
       </div>
@@ -110,10 +105,49 @@ const ChartSection = () => {
     </div>
   );
 };
-const SectionScore = ({ id }: { id: number }) => {
+
+const SectionScoreList = () => {
+  const sections = useAllSections();
   const results = useResult();
+  const props = sections?.map((section) => {
+    const result = results?.results.find(
+      (result) => result.sectionId === section.id
+    );
+    return {
+      id: section.id,
+      result,
+    };
+  });
+  return props
+    ?.sort(
+      (a, b) => (b.result?.totalPoints || 0) - (a.result?.totalPoints || 0)
+    )
+    .map((prop) => <SectionScore key={prop.id} {...prop} />);
+};
+
+const SectionScore = ({
+  id,
+  result,
+}: {
+  id: number;
+  result?: {
+    sectionId: number | null;
+    totalPoints: number;
+    individual: {
+      points: number;
+      first: number;
+      second: number;
+      third: number;
+    };
+    group: {
+      points: number;
+      first: number;
+      second: number;
+      third: number;
+    };
+  };
+}) => {
   const section = useSection(id);
-  const result = results?.results.find((result) => result.sectionId === id);
   return (
     <div
       style={{
@@ -121,7 +155,9 @@ const SectionScore = ({ id }: { id: number }) => {
       }}
       className="grid grid-cols-6 items-center py-2 border-b border-l-4 "
     >
-      <div className="col-span-3 px-4 font-bold"><SectionName id={id} /></div>
+      <div className="col-span-3 px-4 font-bold">
+        <SectionName id={id} />
+      </div>
       <div className="text-xs col-span-2">
         {result ? result?.individual.first + result?.group.first : "0"} First
         Prizes
@@ -153,7 +189,7 @@ const top5fetcher = (arg: InferRequestType<typeof top5$get>) => async () => {
 const Top5 = () => {
   const event = useEvent();
   const { data } = useSWR(
-   event ? [top5url, event?.id] : null,
+    event ? [top5url, event?.id] : null,
     top5fetcher({
       param: {
         eventId: event?.id.toString() ?? "1",
@@ -161,7 +197,7 @@ const Top5 = () => {
       },
     })
   );
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <div>
       <div className="text-center font-bold mt-4">TOP 5 Participants</div>
@@ -176,12 +212,16 @@ const Top5 = () => {
         </TableHeader>
         <TableBody>
           {data?.map((e) => (
-            <TableRow onClick={() => navigate(`/${event?.id}/participants/${e.id}`)}>
+            <TableRow
+              onClick={() => navigate(`/${event?.id}/participants/${e.id}`)}
+            >
               <TableCell className="font-medium">
                 <span className="mr-2">{e.name}</span>
               </TableCell>
               <TableCell>{e.batch}</TableCell>
-              <TableCell><SectionName id={e.sectionId}/></TableCell>
+              <TableCell>
+                <SectionName id={e.sectionId} />
+              </TableCell>
               <TableCell>{e.points}</TableCell>
             </TableRow>
           ))}
