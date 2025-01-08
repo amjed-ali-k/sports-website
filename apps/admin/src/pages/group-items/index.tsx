@@ -67,10 +67,8 @@ export default function GroupItemsPage() {
                             item.gender === "female",
                           "bg-blue-50 border border-blue-600":
                             item.gender === "male",
-                          "border-4 border-amber-600":
-                            item.status === "on-going",
-                          "border-4 border-green-600":
-                            item.status === "finished",
+                          "border border-amber-600": item.status === "on-going",
+                          "border border-green-600": item.status === "finished",
                         })}
                       >
                         <CardContent className="p-6">

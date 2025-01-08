@@ -87,13 +87,13 @@ function App() {
                         element={<NewRegistrationPage />}
                       />
                       <Route element={<ItemsSinglePage />} index />
-                    </Route>
-                    <Route element={<ManagerOnly />}>
-                      <Route element={<ItemEditPage />} path="edit" />
                       <Route
                         path="certificates"
                         element={<SingleItemCertificatesPage />}
                       />
+                    </Route>
+                    <Route element={<ManagerOnly />}>
+                      <Route element={<ItemEditPage />} path="edit" />
                       <Route path="results" element={<ItemResultsPage />} />
                       <Route path="reports">
                         <Route index element={<ItemReportsPage />} />
