@@ -38,7 +38,7 @@ export function SingleItemCertificatesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {registrations?.map((data) => (
+          {registrations?.filter(e => e.registration.status === "participated").map((data) => (
             <Row key={data.registration.id} {...data} />
           ))}
           {registrations?.length === 0 && (
