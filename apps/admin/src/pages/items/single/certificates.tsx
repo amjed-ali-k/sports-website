@@ -38,9 +38,9 @@ export function SingleItemCertificatesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {registrations?.filter(e => e.registration.status === "participated").map((data) => (
-            <Row key={data.registration.id} {...data} />
-          ))}
+          {registrations
+            ?.filter((e) => e.registration.status === "participated")
+            .map((data) => <Row key={data.registration.id} {...data} />)}
           {registrations?.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="h-96">
@@ -112,6 +112,7 @@ const Row = ({
         itemId: registration.itemId,
         participantId: registration.participantId,
         type: "participation",
+        itemType: "item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -138,6 +139,7 @@ const Row = ({
         itemId: registration.itemId,
         participantId: registration.participantId,
         type: position!,
+        itemType: "item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -169,7 +171,9 @@ const Row = ({
   //   });
   return (
     <TableRow key={registration.id}>
-      <TableCell>{participant.fullName} ({registration.id})</TableCell>
+      <TableCell>
+        {participant.fullName} ({registration.id})
+      </TableCell>
       <TableCell>{participant.chestNo}</TableCell>
       <TableCell>
         <SectionName id={participant.sectionId} />

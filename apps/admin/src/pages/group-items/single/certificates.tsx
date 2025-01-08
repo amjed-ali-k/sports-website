@@ -16,7 +16,7 @@ import { apiClient } from "@/lib/api";
 import { first, flat } from "radash";
 import { useParams } from "react-router-dom";
 
-export function SingleItemCertificatesPage() {
+export function SingleGroupItemCertificatesPage() {
   const { itemId } = useParams();
 
   const { data: registrations = [], isLoading } = useQuery({
@@ -109,7 +109,7 @@ const Row = ({
     queryKey: ["certificates", itemId, "participation"],
     queryFn: () =>
       itemId
-        ? apiClient.getCertificates(itemId.toString(), "participation")
+        ? apiClient.getGroupCertificates(itemId.toString(), "participation")
         : null,
   });
 
@@ -129,7 +129,7 @@ const Row = ({
     queryKey: ["certificates", itemId, position],
     queryFn: () =>
       itemId && position
-        ? apiClient.getCertificates(itemId.toString(), position)
+        ? apiClient.getGroupCertificates(itemId.toString(), position)
         : null,
   });
 
@@ -143,6 +143,7 @@ const Row = ({
         itemId: registration.groupItemId,
         participantId: participant.id,
         type: "participation",
+        itemType: "group-item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -169,6 +170,7 @@ const Row = ({
         itemId: registration.groupItemId,
         participantId: participant.id,
         type: position!,
+        itemType: "group-item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -190,14 +192,7 @@ const Row = ({
   const handleResultClick = () => rCertMutation.mutate();
   const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
   const pCert = pCerts.find((c) => c.ref === registration.id);
-  // if (registration.id === 23)
-  //   console.log({
-  //     registration,
-  //     rCert,
-  //     pCert,
-  //     pCerts,
-  //     url: import.meta.env.VITE_CERTIFICATE_URL,
-  //   });
+
   return (
     <TableRow key={registration.id}>
       <TableCell>

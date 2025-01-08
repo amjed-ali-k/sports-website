@@ -46,6 +46,7 @@ import AdminsPage from "./pages/admins";
 import Settings from "./pages/settings";
 import EventSinglePage from "./pages/events/single";
 import { NewRegistrationPage } from "./pages/items/single/registrations/new";
+import { SingleGroupItemCertificatesPage } from "./pages/group-items/single/certificates";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,10 @@ function App() {
                       <Route
                         path="registrations/new"
                         element={<NewGroupItemRegistrationPage />}
+                      />
+                      <Route
+                        path="certificates"
+                        element={<SingleGroupItemCertificatesPage />}
                       />
                       <Route
                         path="results"

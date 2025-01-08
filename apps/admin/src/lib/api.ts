@@ -163,6 +163,7 @@ class ApiClient {
     const response = await this.client.api.registrations.item[":itemId"].$get({
       param: {
         itemId,
+
       },
     });
     return response.json();
@@ -230,11 +231,28 @@ class ApiClient {
     });
     return response.json();
   }
+
+  async getGroupCertificates(
+    itemId: string,
+    type: string
+  ): Promise<Certificate[] | { error: string }> {
+    const response = await this.client.api.certificates.allgroup[":itemId"][
+      ":type"
+    ].$get({
+      param: {
+        itemId,
+        type,
+      },
+    });
+    return response.json();
+  }
+
   async generateCertificate(data: {
     id: number;
     type: "participation" | "first" | "second" | "third";
     itemId: number;
     participantId: number;
+    itemType: "item" | "group-item";
   }) {
     const response = await this.client.api.certificates.new.$post({
       json: data,

@@ -12,10 +12,14 @@ export const GroupItemsSinglePage = () => {
         <Button size="lg" asChild className="px-16 text-lg py-12">
           <Link to="results">Results</Link>
         </Button>
+        <Button size="lg" asChild className="px-16 text-lg py-12">
+            <Link to="certificates">Certificates</Link>
+          </Button>
         <ProtectedView requiredRole="manager">
           <Button size="lg" asChild className="px-16 text-lg py-12">
             <Link to="reports">Reports</Link>
           </Button>
+
         </ProtectedView>
         <ProtectedView requiredRole="controller">
           <Button size="lg" asChild className="px-16 text-lg py-12">
