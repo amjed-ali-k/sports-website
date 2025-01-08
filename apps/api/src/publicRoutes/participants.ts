@@ -6,7 +6,7 @@ import {
   results,
   sections,
 } from "@sports/database";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { hono, zodQueryValidator } from "../lib/api";
 
 export const participantPublicRouter = hono()
@@ -109,15 +109,17 @@ export const participantPublicRouter = hono()
       .all();
     return c.json(topParticipants);
   })
-  .get("/stats/:id", async (c) => {
+  .get("/stats/:id/:eventId", async (c) => {
     const id = Number(c.req.param("id"));
+    const eventId = Number(c.req.param("eventId"));
     const db = c.get("db");
 
     const stats = await db
-      .select()
+      .select({registrations, results})
       .from(registrations)
-      .where(eq(registrations.participantId, id))
+      .where(and(eq(registrations.participantId, id), eq(items.eventId, eventId)))
       .leftJoin(results, eq(registrations.id, results.registrationId))
+      .leftJoin(items, eq(items.id, registrations.itemId))
       .all();
 
     return c.json(stats);

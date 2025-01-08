@@ -31,7 +31,7 @@ const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
   return await res.json();
 };
 
-const statsApi = apiClient.public.participants.stats[":id"];
+const statsApi = apiClient.public.participants.stats[":id"][":eventId"];
 const statusurl = statsApi.$url();
 const status$get = statsApi.$get;
 const statusfetcher =
@@ -42,6 +42,7 @@ const statusfetcher =
 
 export const SingleParticipantPage = () => {
   const participantId = useParams().participantId || "";
+  const eventId = useParams().eventId || "";
 
   const { data } = useSWRImmutable(
     [url, participantId],
@@ -55,10 +56,11 @@ export const SingleParticipantPage = () => {
   const participant = data && "error" in data ? null : data || null;
 
   const { data: stats } = useSWR(
-    statusurl,
+    [statusurl, participantId, eventId],
     statusfetcher({
       param: {
         id: participantId,
+        eventId: eventId,
       },
     })
   );
@@ -98,10 +100,6 @@ export const SingleParticipantPage = () => {
           />
           {participant?.gender === "male" ? "Male" : "Female"}
         </div>
-        {/* <div className="text-sm">
-            {participant?.pointsFirst}/{participant?.pointsSecond}/
-            {participant?.pointsThird} Points
-          </div> */}
         <Badge variant="outline" className="gap-1.5 mt-2 capitalize">
           CHEST NO
           <span
@@ -188,7 +186,9 @@ const Rows = ({
   const event = useEvent();
   return (
     <TableRow
-      onClick={() => navigate(`/${event?.id}/items/${registrations.itemId}/individual`)}
+      onClick={() =>
+        navigate(`/${event?.id}/items/${registrations.itemId}/individual`)
+      }
       className={cn({
         "opacity-40": registrations.status === "not_participated",
         "bg-yellow-600/10": results?.position === "first",
