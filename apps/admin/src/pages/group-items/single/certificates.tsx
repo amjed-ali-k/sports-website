@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Award, Eye, EyeClosed } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { apiClient } from "@/lib/api";
-import { first, flat } from "radash";
+import { flat } from "radash";
 import { useParams } from "react-router-dom";
 
 export function SingleGroupItemCertificatesPage() {

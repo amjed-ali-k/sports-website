@@ -17,6 +17,7 @@ import { hono, zodValidator } from "../lib/api";
           "points",
           "date",
           "sectionName",
+          "id"
         ]).optional(),
       })
     ),

@@ -64,9 +64,9 @@ export default function ItemsPage() {
                             item.gender === "female",
                           "bg-blue-50 border border-blue-600":
                             item.gender === "male",
-                          "border-2 border-amber-600":
+                          "border-t-[6px] border-t-amber-600":
                             item.status === "on-going",
-                          "border-2 border-green-600":
+                          "border-t-[6px] border-t-green-600":
                             item.status === "finished",
                         })}
                       >
