@@ -45,6 +45,7 @@ import { SingleItemCertificatesPage } from "./pages/items/single/certificates";
 import AdminsPage from "./pages/admins";
 import Settings from "./pages/settings";
 import EventSinglePage from "./pages/events/single";
+import { NewRegistrationPage } from "./pages/items/single/registrations/new";
 
 const queryClient = new QueryClient();
 
@@ -83,7 +84,7 @@ function App() {
                       />
                       <Route
                         path="registrations/new"
-                        lazy={() => import("./pages/items/single/registrations/new")}
+                        element={<NewRegistrationPage />}
                       />
                       <Route element={<ItemsSinglePage />} index />
                     </Route>
