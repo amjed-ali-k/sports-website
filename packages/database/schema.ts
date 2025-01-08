@@ -53,7 +53,8 @@ type Cert = {
       | "position"
       | "points"
       | "date"
-      | "sectionName";
+      | "sectionName"
+      | "id";
   }[];
   height: number;
   width: number;
@@ -256,6 +257,9 @@ export const certificates = sqliteTable("certificates", {
   type: text("type", {
     enum: ["participation", "first", "second", "third", "custom"],
   }),
+  itemtype: text("itemtype", {
+    enum: ["event", "item", "group-item"],
+  }).default('item'),
   data: text("data", {mode: 'json'}),
   ref: integer("ref"),
   itemId: integer("itemId"),

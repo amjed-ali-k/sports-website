@@ -4,6 +4,7 @@ import { hono, zodValidator } from "../lib/api";
 import {
   certificates,
   events,
+  groupItems,
   items,
   participants,
   sections,
@@ -37,6 +38,7 @@ const newCertGenSchema = z.object({
   id: z.number(),
   type: z.enum(["participation", "first", "second", "third"]),
   participantId: z.number(),
+  itemType: z.enum(["item", "group-item"]),
 });
 
 type inputType = z.infer<typeof newCertGenSchema>;
@@ -71,6 +73,7 @@ export const certificateRouter = hono()
       .where(
         and(
           eq(certificates.itemId, Number(itemId)),
+          eq(certificates.itemtype, "item"),
           eq(
             certificates.type,
             type as "participation" | "first" | "second" | "third"
@@ -84,14 +87,24 @@ export const certificateRouter = hono()
     const details = c.req.valid("json");
     const db = c.get("db");
 
-    const res = await db
-      .select()
-      .from(items)
-      .where(eq(items.id, details.itemId))
-      .leftJoin(events, eq(events.id, items.eventId))
-      .get();
+    const res =
+      details.itemType === "item"
+        ? await db
+            .select()
+            .from(items)
+            .where(eq(items.id, details.itemId))
+            .leftJoin(events, eq(events.id, items.eventId))
+            .get()
+        : await db
+            .select({ items: groupItems, events })
+            .from(groupItems)
+            .where(eq(groupItems.id, details.itemId))
+            .leftJoin(events, eq(events.id, groupItems.eventId))
+            .get();
 
-    const item = res?.items;
+    if (!res)
+      return c.json({ error: "An Error occured!. Item not found" }, 404);
+    const item = res.items;
     if (!item)
       return c.json({ error: "An Error occured!. Item not found" }, 404);
     const event = res.events;
@@ -113,6 +126,7 @@ export const certificateRouter = hono()
       .get();
     if (!participant)
       return c.json({ error: "An Error occured!. Participant not found" }, 404);
+    const id = uuid();
 
     const certificateElements = certificate.certificateElements.map((elm) => {
       if (!elm.variable) return elm;
@@ -122,12 +136,12 @@ export const certificateRouter = hono()
       if (elm.variable === "itemName") text = item.name;
       if (elm.variable === "name") text = participant.participants.fullName;
       if (elm.variable === "position") text = details.type;
+      if (elm.variable === "id") text = id;
       if (elm.variable === "sectionName")
         text = participant.sections?.name || "";
       return { ...elm, text };
     });
 
-    const id = uuid();
     const body = {
       ...certificate,
       certificateElements,
@@ -160,7 +174,8 @@ export const certificateRouter = hono()
         console.log("Certificate Generated!");
       }
     } catch (error) {
-        return c.json({ error: "An Error occured!. Generation failed" }, 404);    }
+      return c.json({ error: "An Error occured!. Generation failed" }, 404);
+    }
     const cert = await db
       .insert(certificates)
       .values({
@@ -169,9 +184,34 @@ export const certificateRouter = hono()
         itemId: item.id,
         type: details.type,
         ref: details.id,
+        itemtype: details.itemType,
       })
       .returning()
       .get();
 
     return c.json(cert);
+  })
+  .get("/allgroup/:itemId/:type", async (c) => {
+    const { type, itemId } = c.req.param();
+
+    if (!type) return c.json({ error: "Certificates not found" }, 404);
+    if (!itemId) return c.json({ error: "certificate not found" }, 404);
+
+    const db = c.get("db");
+
+    const certs = await db
+      .select()
+      .from(certificates)
+      .where(
+        and(
+          eq(certificates.itemId, Number(itemId)),
+          eq(certificates.itemtype, "group-item"),
+          eq(
+            certificates.type,
+            type as "participation" | "first" | "second" | "third"
+          )
+        )
+      )
+      .all();
+    return c.json(certs as Certificate[]);
   });

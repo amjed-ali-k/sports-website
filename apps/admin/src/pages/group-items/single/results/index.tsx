@@ -34,6 +34,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Award } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/lib/auth";
 
 const resultSchema = z.object({
   position: z.enum(["first", "second", "third"]),
@@ -108,7 +109,17 @@ export function GroupItemResultsPage() {
     },
   });
 
+  const isAdmin = useRole("controller");
+
   const onSubmit = (values: ResultFormValues) => {
+    if (!isAdmin) {
+      toast({
+        title: "Error",
+        description: "You don't have permission to perform this action",
+        variant: "destructive",
+      });
+      return;
+    }
     mutation.mutate(values);
   };
 
@@ -119,133 +130,140 @@ export function GroupItemResultsPage() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Results Management</h1>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Result</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Result</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Position</FormLabel>
-                      <div className="grid grid-cols-3 gap-4">
-                        {["first", "second", "third"].map((position) => (
-                          <label
-                            key={position}
-                            className={cn(
-                              "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 p-4 text-center hover:bg-accent",
-                              {
-                                "border-primary bg-primary/10":
-                                  field.value === position,
-                                "border-muted": field.value !== position,
-                                "bg-amber-100 hover:bg-amber-100":
-                                  position === "first",
-                                "bg-gray-100 hover:bg-gray-100":
-                                  position === "second",
-                                "bg-rose-50 hover:bg-rose-100":
-                                  position === "third",
-                              }
-                            )}
-                          >
-                            <input
-                              type="radio"
-                              className="sr-only"
-                              {...field}
-                              value={position}
-                              checked={field.value === position}
-                            />
-                            <span className="text-lg font-semibold capitalize">
-                              {position}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {position === "first"
-                                ? "Gold"
-                                : position === "second"
-                                  ? "Silver"
-                                  : "Bronze"}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="registrationId"
-                  render={({ field }) => {
-                    return (
-                      <FormItem>
-                        <FormLabel>Participant</FormLabel>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(parseInt(value))
-                          }
-                          value={field.value?.toString()}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select participant" />
-                          </SelectTrigger>
-                          <SelectContent className="overflow-y-auto max-h-[10rem]">
-                            <SelectGroup>
-                              {registrations
-                                ?.filter(
-                                  ({ registration: reg }) =>
-                                    reg.groupItemId === Number(itemId) &&
-                                    !results?.find(
-                                      (e) =>
-                                        e.result.groupRegistrationId === reg.id
-                                    )
-                                )
-                                .map(({ registration: reg, participants }) => {
-                                  const users = JSON.parse(participants) as {
-                                    id: number;
-                                    name: string;
-                                    chestNo: string;
-                                    sectionId: string;
-                                    batch: string;
-                                  }[];
-
-                                  const user = users[0];
-
-                                  return (
-                                    <SelectItem
-                                      key={reg.id}
-                                      value={reg.id.toString()}
-                                    >
-                                      {reg.name ?? "-"} {" | "}
-                                      {user.name} ({user.chestNo}) and{" "}
-                                      {users.length - 1} others
-                                    </SelectItem>
-                                  );
-                                })}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+        {isAdmin && (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button>Add Result</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Result</DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Position</FormLabel>
+                        <div className="grid grid-cols-3 gap-4">
+                          {["first", "second", "third"].map((position) => (
+                            <label
+                              key={position}
+                              className={cn(
+                                "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 p-4 text-center hover:bg-accent",
+                                {
+                                  "border-primary bg-primary/10":
+                                    field.value === position,
+                                  "border-muted": field.value !== position,
+                                  "bg-amber-100 hover:bg-amber-100":
+                                    position === "first",
+                                  "bg-gray-100 hover:bg-gray-100":
+                                    position === "second",
+                                  "bg-rose-50 hover:bg-rose-100":
+                                    position === "third",
+                                }
+                              )}
+                            >
+                              <input
+                                type="radio"
+                                className="sr-only"
+                                {...field}
+                                value={position}
+                                checked={field.value === position}
+                              />
+                              <span className="text-lg font-semibold capitalize">
+                                {position}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                {position === "first"
+                                  ? "Gold"
+                                  : position === "second"
+                                    ? "Silver"
+                                    : "Bronze"}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
-                    );
-                  }}
-                />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="registrationId"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>Participant</FormLabel>
+                          <Select
+                            onValueChange={(value) =>
+                              field.onChange(parseInt(value))
+                            }
+                            value={field.value?.toString()}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select participant" />
+                            </SelectTrigger>
+                            <SelectContent className="overflow-y-auto max-h-[10rem]">
+                              <SelectGroup>
+                                {registrations
+                                  ?.filter(
+                                    ({ registration: reg }) =>
+                                      reg.groupItemId === Number(itemId) &&
+                                      !results?.find(
+                                        (e) =>
+                                          e.result.groupRegistrationId ===
+                                          reg.id
+                                      )
+                                  )
+                                  .map(
+                                    ({ registration: reg, participants }) => {
+                                      const users = JSON.parse(
+                                        participants
+                                      ) as {
+                                        id: number;
+                                        name: string;
+                                        chestNo: string;
+                                        sectionId: string;
+                                        batch: string;
+                                      }[];
 
-                <Button type="submit" className="w-full">
-                  Add Result
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                                      const user = users[0];
+
+                                      return (
+                                        <SelectItem
+                                          key={reg.id}
+                                          value={reg.id.toString()}
+                                        >
+                                          {reg.name ?? "-"} {" | "}
+                                          {user.name} ({user.chestNo}) and{" "}
+                                          {users.length - 1} others
+                                        </SelectItem>
+                                      );
+                                    }
+                                  )}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <Button type="submit" className="w-full">
+                    Add Result
+                  </Button>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Table>

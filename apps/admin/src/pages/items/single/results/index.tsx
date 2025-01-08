@@ -34,6 +34,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Award } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useResults } from "@/hooks/use-results";
+import { useRole } from "@/lib/auth";
 
 const resultSchema = z.object({
   position: z.enum(["first", "second", "third"]),
@@ -47,6 +48,7 @@ export function ItemResultsPage() {
   const { itemId } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isAdmin = useRole("controller");
 
   const form = useForm<ResultFormValues>({
     resolver: zodResolver(resultSchema),
@@ -106,6 +108,14 @@ export function ItemResultsPage() {
   });
 
   const onSubmit = (values: ResultFormValues) => {
+    if (!isAdmin) {
+      toast({
+        title: "Error",
+        description: "You don't have permission to perform this action",
+        variant: "destructive",
+      });
+      return;
+    }
     mutation.mutate(values);
   };
 
@@ -116,94 +126,97 @@ export function ItemResultsPage() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Results Management</h1>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Result</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Result</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Position</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select position" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="first">First</SelectItem>
-                          <SelectItem value="second">Second</SelectItem>
-                          <SelectItem value="third">Third</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="registrationId"
-                  render={({ field }) => {
-                    return (
+        {(isAdmin) && (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button>Add Result</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Result</DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Participant</FormLabel>
+                        <FormLabel>Position</FormLabel>
                         <Select
-                          onValueChange={(value) =>
-                            field.onChange(parseInt(value))
-                          }
-                          value={field.value?.toString()}
+                          onValueChange={field.onChange}
+                          value={field.value}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select participant" />
+                            <SelectValue placeholder="Select position" />
                           </SelectTrigger>
-                          <SelectContent className="overflow-y-auto max-h-[10rem]">
-                            <SelectGroup>
-                              {registrations
-                                ?.filter(
-                                  ({ registration: reg }) =>
-                                    reg.itemId === Number(itemId) &&
-                                    !results?.find(
-                                      (e) => e.result.registrationId === reg.id
-                                    )
-                                )
-                                .map(({ registration: reg, participant }) => (
-                                  <SelectItem
-                                    key={reg.id}
-                                    value={reg.id.toString()}
-                                  >
-                                    {participant.fullName} (
-                                    {participant.chestNo})
-                                  </SelectItem>
-                                ))}
-                            </SelectGroup>
+                          <SelectContent>
+                            <SelectItem value="first">First</SelectItem>
+                            <SelectItem value="second">Second</SelectItem>
+                            <SelectItem value="third">Third</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
-                    );
-                  }}
-                />
+                    )}
+                  />
 
-                <Button type="submit" className="w-full">
-                  Add Result
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <FormField
+                    control={form.control}
+                    name="registrationId"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>Participant</FormLabel>
+                          <Select
+                            onValueChange={(value) =>
+                              field.onChange(parseInt(value))
+                            }
+                            value={field.value?.toString()}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select participant" />
+                            </SelectTrigger>
+                            <SelectContent className="overflow-y-auto max-h-[10rem]">
+                              <SelectGroup>
+                                {registrations
+                                  ?.filter(
+                                    ({ registration: reg }) =>
+                                      reg.itemId === Number(itemId) &&
+                                      !results?.find(
+                                        (e) =>
+                                          e.result.registrationId === reg.id
+                                      )
+                                  )
+                                  .map(({ registration: reg, participant }) => (
+                                    <SelectItem
+                                      key={reg.id}
+                                      value={reg.id.toString()}
+                                    >
+                                      {participant.fullName} (
+                                      {participant.chestNo})
+                                    </SelectItem>
+                                  ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <Button type="submit" className="w-full">
+                    Add Result
+                  </Button>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Table>

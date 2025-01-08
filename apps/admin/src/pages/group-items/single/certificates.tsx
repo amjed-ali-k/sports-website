@@ -12,15 +12,44 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { Award, Eye, EyeClosed } from "lucide-react";
 import { SectionName } from "@/components/section-name";
-import { useRegistrations } from "@/hooks/use-registrations";
 import { apiClient } from "@/lib/api";
-import { useResultsForItem } from "@/hooks/use-results";
-import { first } from "radash";
+import { first, flat } from "radash";
+import { useParams } from "react-router-dom";
 
-export function SingleItemCertificatesPage() {
-  const { registrations, isLoading } = useRegistrations();
+export function SingleGroupItemCertificatesPage() {
+  const { itemId } = useParams();
 
+  const { data: registrations = [], isLoading } = useQuery({
+    queryKey: ["group-registrations"],
+    queryFn: () => apiClient.getGroupRegistration(Number(itemId)),
+  });
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: () => apiClient.getSections(),
+  });
   if (isLoading) return <div>Loading...</div>;
+  const regs = "error" in registrations ? [] : registrations;
+
+  const data = flat(
+    regs.map(({ registration, participants }) => {
+      const users = JSON.parse(participants) as {
+        id: number;
+        name: string;
+        chestNo: string;
+        sectionId: string;
+        batch: string;
+      }[];
+      const section = sections.find(
+        (section) => section.id === registration.sectionId
+      );
+
+      return users.map((user) => ({
+        registration,
+        participant: user,
+        section,
+      }));
+    })
+  );
 
   return (
     <div className="container mx-auto py-6">
@@ -38,10 +67,8 @@ export function SingleItemCertificatesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {registrations
-            ?.filter((e) => e.registration.status === "participated")
-            .map((data) => <Row key={data.registration.id} {...data} />)}
-          {registrations?.length === 0 && (
+          {data?.map((data) => <Row key={data.registration.id} {...data} />)}
+          {data?.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="h-96">
                 <EmptyState
@@ -64,32 +91,36 @@ const Row = ({
 }: {
   registration: {
     id: number;
-    createdAt: string | null;
-    updatedAt: string | null;
-    status: "registered" | "participated" | "not_participated";
-    itemId: number;
-    participantId: number;
-    metaInfo: string | null;
+    name: string | null;
+    createdAt: string;
+    sectionId: number | null;
+    groupItemId: number;
   };
   participant: {
     id: number;
-    fullName: string;
-    chestNo: string | null;
-    sectionId: number;
+    name: string;
+    chestNo: string;
+    sectionId: string;
+    batch: string;
   };
 }) => {
-  const itemId = registration.itemId;
+  const itemId = registration.groupItemId;
   const { data: _pcerts } = useQuery({
     queryKey: ["certificates", itemId, "participation"],
     queryFn: () =>
       itemId
-        ? apiClient.getCertificates(itemId.toString(), "participation")
+        ? apiClient.getGroupCertificates(itemId.toString(), "participation")
         : null,
   });
 
-  const results = useResultsForItem(itemId);
+  const { data: results } = useQuery({
+    queryKey: ["group-results"],
+    queryFn: () => apiClient.getGroupResults(),
+    enabled: !!itemId,
+  });
+
   const result = results?.find(
-    (r) => r.result.registrationId === registration.id
+    (r) => r.result.groupRegistrationId === registration.id
   );
 
   const position = result?.result.position;
@@ -98,21 +129,21 @@ const Row = ({
     queryKey: ["certificates", itemId, position],
     queryFn: () =>
       itemId && position
-        ? apiClient.getCertificates(itemId.toString(), position)
+        ? apiClient.getGroupCertificates(itemId.toString(), position)
         : null,
   });
 
-  const rCert = _rcerts ? ("error" in _rcerts ? null : first(_rcerts)) : null;
+  const rCert = _rcerts ? ("error" in _rcerts ? null : _rcerts.find((c) => c.ref === participant.id)) : null;
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const pCertMutation = useMutation({
     mutationFn: async () => {
       const res = await apiClient.generateCertificate({
-        id: registration.id,
-        itemId: registration.itemId,
-        participantId: registration.participantId,
+        id: participant.id,
+        itemId: registration.groupItemId,
+        participantId: participant.id,
         type: "participation",
-        itemType: "item",
+        itemType: "group-item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -135,11 +166,11 @@ const Row = ({
     mutationFn: async () => {
       if (!result) throw new Error("Result not found");
       const res = await apiClient.generateCertificate({
-        id: result?.result.id,
-        itemId: registration.itemId,
-        participantId: registration.participantId,
+        id: participant.id,
+        itemId: registration.groupItemId,
+        participantId: participant.id,
         type: position!,
-        itemType: "item",
+        itemType: "group-item",
       });
       if ("error" in res) throw new Error(res.error);
       return res;
@@ -160,23 +191,16 @@ const Row = ({
   const handleClick = () => pCertMutation.mutate();
   const handleResultClick = () => rCertMutation.mutate();
   const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
-  const pCert = pCerts.find((c) => c.ref === registration.id);
-  // if (registration.id === 23)
-  //   console.log({
-  //     registration,
-  //     rCert,
-  //     pCert,
-  //     pCerts,
-  //     url: import.meta.env.VITE_CERTIFICATE_URL,
-  //   });
+  const pCert = pCerts.find((c) => c.ref === participant.id);
+
   return (
     <TableRow key={registration.id}>
       <TableCell>
-        {participant.fullName} ({registration.id})
+        {participant.name} ({participant.chestNo})
       </TableCell>
       <TableCell>{participant.chestNo}</TableCell>
       <TableCell>
-        <SectionName id={participant.sectionId} />
+        <SectionName id={Number(participant.sectionId)} />
       </TableCell>
       <TableCell>
         {!pCert ? (
