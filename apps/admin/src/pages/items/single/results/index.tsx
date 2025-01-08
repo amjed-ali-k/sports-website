@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  SelectGroup,
   Table,
   TableBody,
   TableCell,
@@ -72,7 +73,7 @@ export function ItemResultsPage() {
     enabled: !!currentItem,
   });
 
-  const { results, isLoading: resultsLoading } = useResults()
+  const { results, isLoading: resultsLoading } = useResults();
 
   const mutation = useMutation({
     mutationFn: async (values: ResultFormValues) => {
@@ -168,23 +169,26 @@ export function ItemResultsPage() {
                           <SelectTrigger>
                             <SelectValue placeholder="Select participant" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {registrations
-                              ?.filter(
-                                ({ registration: reg }) =>
-                                  reg.itemId === Number(itemId) &&
-                                  !results?.find(
-                                    (e) => e.result.registrationId === reg.id
-                                  )
-                              )
-                              .map(({ registration: reg, participant }) => (
-                                <SelectItem
-                                  key={reg.id}
-                                  value={reg.id.toString()}
-                                >
-                                  {participant.fullName} ({participant.chestNo})
-                                </SelectItem>
-                              ))}
+                          <SelectContent className="overflow-y-auto max-h-[10rem]">
+                            <SelectGroup>
+                              {registrations
+                                ?.filter(
+                                  ({ registration: reg }) =>
+                                    reg.itemId === Number(itemId) &&
+                                    !results?.find(
+                                      (e) => e.result.registrationId === reg.id
+                                    )
+                                )
+                                .map(({ registration: reg, participant }) => (
+                                  <SelectItem
+                                    key={reg.id}
+                                    value={reg.id.toString()}
+                                  >
+                                    {participant.fullName} (
+                                    {participant.chestNo})
+                                  </SelectItem>
+                                ))}
+                            </SelectGroup>
                           </SelectContent>
                         </Select>
                         <FormMessage />
