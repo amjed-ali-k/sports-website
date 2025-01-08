@@ -75,15 +75,6 @@ export default function ItemsPage() {
                                 {item.name}
                               </h3>
                             </div>
-                            <ProtectedView requiredRole="controller">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setEditingItem(item)}
-                              >
-                                Edit
-                              </Button>
-                            </ProtectedView>
                           </div>
 
                           <div className="space-y-2 text-sm">
@@ -111,11 +102,10 @@ export default function ItemsPage() {
 
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
-                                Points:
+                                Status:
                               </span>
-                              <span className="font-medium">
-                                {item.pointsFirst}/{item.pointsSecond}/
-                                {item.pointsThird}
+                              <span className="font-medium capitalize">
+                                {item.status}
                               </span>
                             </div>
                           </div>
