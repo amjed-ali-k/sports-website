@@ -115,7 +115,7 @@ export const participantPublicRouter = hono()
     const db = c.get("db");
 
     const stats = await db
-      .select()
+      .select({registrations, results})
       .from(registrations)
       .where(and(eq(registrations.participantId, id), eq(items.eventId, eventId)))
       .leftJoin(results, eq(registrations.id, results.registrationId))
