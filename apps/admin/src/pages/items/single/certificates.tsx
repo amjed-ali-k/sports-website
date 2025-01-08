@@ -103,7 +103,6 @@ const Row = ({
   });
 
   const rCert = _rcerts ? ("error" in _rcerts ? null : first(_rcerts)) : null;
-
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const pCertMutation = useMutation({
@@ -159,10 +158,18 @@ const Row = ({
   const handleClick = () => pCertMutation.mutate();
   const handleResultClick = () => rCertMutation.mutate();
   const pCerts = _pcerts ? ("error" in _pcerts ? [] : _pcerts) : [];
-  const pCert = pCerts.find((c) => c.id === registration.id);
+  const pCert = pCerts.find((c) => c.ref === registration.id);
+  // if (registration.id === 23)
+  //   console.log({
+  //     registration,
+  //     rCert,
+  //     pCert,
+  //     pCerts,
+  //     url: import.meta.env.VITE_CERTIFICATE_URL,
+  //   });
   return (
     <TableRow key={registration.id}>
-      <TableCell>{participant.fullName}</TableCell>
+      <TableCell>{participant.fullName} ({registration.id})</TableCell>
       <TableCell>{participant.chestNo}</TableCell>
       <TableCell>
         <SectionName id={participant.sectionId} />
