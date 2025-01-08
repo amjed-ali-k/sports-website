@@ -91,10 +91,10 @@ function App() {
                         path="certificates"
                         element={<SingleItemCertificatesPage />}
                       />
+                      <Route path="results" element={<ItemResultsPage />} />
                     </Route>
                     <Route element={<ManagerOnly />}>
                       <Route element={<ItemEditPage />} path="edit" />
-                      <Route path="results" element={<ItemResultsPage />} />
                       <Route path="reports">
                         <Route index element={<ItemReportsPage />} />
                         <Route
@@ -119,13 +119,13 @@ function App() {
                         path="registrations/new"
                         element={<NewGroupItemRegistrationPage />}
                       />
-                    </Route>
-                    <Route element={<ManagerOnly />}>
-                      <Route element={<GroupItemEditPage />} path="edit" />
                       <Route
                         path="results"
                         element={<GroupItemResultsPage />}
                       />
+                    </Route>
+                    <Route element={<ManagerOnly />}>
+                      <Route element={<GroupItemEditPage />} path="edit" />
                       <Route path="reports">
                         <Route index element={<GroupItemReportsPage />} />
                         <Route
@@ -142,7 +142,8 @@ function App() {
                 </Route>
 
                 <Route path="/settings" element={<ControllerOnly />}>
-                <Route index element={<Settings />} /></Route>
+                  <Route index element={<Settings />} />
+                </Route>
                 <Route path="/admins" element={<ControllerOnly />}>
                   <Route index element={<AdminsPage />} />
                 </Route>
@@ -151,7 +152,6 @@ function App() {
                   <Route path="new" element={<NewEventsPage />} />
                   <Route path="edit/:eventId" element={<EditEventsPage />} />
                   <Route path="view/:eventId" element={<EventSinglePage />} />
-
                 </Route>
 
                 <Route path="/sections" element={<ControllerOnly />}>

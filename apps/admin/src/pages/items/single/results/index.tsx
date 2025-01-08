@@ -126,7 +126,7 @@ export function ItemResultsPage() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Results Management</h1>
-        {(currentItem?.canRegister || isAdmin) && (
+        {(isAdmin) && (
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button>Add Result</Button>
