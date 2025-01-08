@@ -150,7 +150,7 @@ export const EditParticipantsPage = () => {
                 name="chestNo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cgest No</FormLabel>
+                    <FormLabel>Chest No</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="42"
