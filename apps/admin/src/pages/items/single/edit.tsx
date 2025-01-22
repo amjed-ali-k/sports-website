@@ -15,6 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sports/ui";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@sports/ui";
 import { useToast } from "@sports/ui";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +34,7 @@ import { apiClient } from "@/lib/api";
 import { iconsList } from "@/components/icon";
 import { cn } from "@/lib/utils";
 import { useItem } from "./layout";
+import { useNavigate } from "react-router-dom";
 
 const itemSchema = z.object({
   status: z.enum(["scheduled", "on-going", "finished"]),
@@ -238,11 +250,51 @@ export function ItemEditPage() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-fit">
-            Edit Item
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button type="submit" className="w-fit">
+              Edit Item
+            </Button>
+            <DeleteButton id={currentItem?.id || 0} />
+          </div>
         </form>
       </Form>
     </div>
   );
 }
+
+const DeleteButton = ({ id }: { id: number }) => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const handleDelete = async () => {
+    await apiClient.deleteItem(id);
+    queryClient.invalidateQueries({ queryKey: ["items"] });
+    toast({
+      title: "Success",
+      description: "Item deleted successfully",
+    });
+    navigate("/items");
+  };
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="destructive" >
+          Delete Item
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete item and
+            remove your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

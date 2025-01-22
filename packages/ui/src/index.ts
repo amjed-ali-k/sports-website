@@ -30,7 +30,7 @@ export * from "./components/ui/chart"
 export * from "./components/ui/pagination"
 export * from "./components/ui/toggle"
 export * from "./components/ui/toggle-group"
-
+export * from "./components/ui/alert-dialog"
 
 // Export styles
 import "./styles.css";

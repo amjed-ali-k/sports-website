@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { items, events } from "@sports/database";
+import { items, events, registrations, results } from "@sports/database";
 import { eq } from "drizzle-orm";
 import { hono, zodValidator } from "../lib/api";
 
@@ -139,10 +139,10 @@ const router = hono()
       return c.json({ error: "Item not found" }, 404);
     }
 
-    // TODO: You might want to check if item has any registrations
-    // and handle that case appropriately (either prevent deletion or cascade delete)
-
+    await db.delete(results).where(eq(results.itemId, id));
+    await db.delete(registrations).where(eq(registrations.itemId, id));
     await db.delete(items).where(eq(items.id, id));
+    
     return c.json({ success: true });
   });
 
