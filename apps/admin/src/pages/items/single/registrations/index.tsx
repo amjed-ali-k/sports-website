@@ -26,13 +26,14 @@ export function SingleItemRegistrationsPage() {
   const { registrations, isLoading } = useRegistrations();
   const { currentItem } = useItem();
   const isAdmin = useRole("controller");
+  const isManager = useRole("manager");
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Registrations Management</h1>
+      <div className="flex lg:flex-row flex-col justify-between items-center mb-6">
+        <h1 className="mb-2 lg:text-2xl font-bold">Registrations Management</h1>
         {(currentItem?.canRegister || isAdmin) && (
           <Button onClick={() => navigate("new")}>
             <Plus className="h-4 w-4 mr-2" />
@@ -46,9 +47,8 @@ export function SingleItemRegistrationsPage() {
             <TableHead>Participant</TableHead>
             <TableHead>Chest No</TableHead>
             <TableHead>Section</TableHead>
-            <TableHead>Meta Info</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Action</TableHead>
+            {isManager && <TableHead>Action</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -131,6 +131,7 @@ const Row = ({ registration, participant }: RowProps) => {
     if (!status) return;
     mutation.mutate({ id: registration.id, status });
   };
+  const isManager = useRole("manager");
 
   return (
     <TableRow key={registration.id}>
@@ -139,7 +140,6 @@ const Row = ({ registration, participant }: RowProps) => {
       <TableCell>
         <SectionName id={participant.sectionId} />
       </TableCell>
-      <TableCell>{registration.metaInfo || "-"}</TableCell>
       <TableCell>
         <Badge
           className="capitalize duration-200 transition-all"
@@ -154,38 +154,40 @@ const Row = ({ registration, participant }: RowProps) => {
           {registration.status.replace("_", " ")}
         </Badge>
       </TableCell>
-      <TableCell>
-        <ProtectedView requiredRole="manager">
-          <ToggleGroup
-            disabled={mutation.isPending}
-            onValueChange={handleStatusChange}
-            value={registration.status}
-            size="sm"
-            variant="default"
-            type="single"
-            className="text-xs gap-0"
-          >
-            <ToggleGroupItem
-              value="registered"
-              className="text-xs  data-[state=on]:font-bold"
+      {isManager && (
+        <TableCell>
+          <ProtectedView requiredRole="manager">
+            <ToggleGroup
+              disabled={mutation.isPending}
+              onValueChange={handleStatusChange}
+              value={registration.status}
+              size="sm"
+              variant="default"
+              type="single"
+              className="text-xs gap-0"
             >
-              Registered
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="not_participated"
-              className="text-xs data-[state=on]:font-bold data-[state=on]:text-rose-700 data-[state=on]:bg-rose-100"
-            >
-              Not Participated
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="participated"
-              className="text-xs data-[state=on]:font-bold data-[state=on]:text-green-700 data-[state=on]:bg-green-100"
-            >
-              Participated
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </ProtectedView>
-      </TableCell>
+              <ToggleGroupItem
+                value="registered"
+                className="text-xs  data-[state=on]:font-bold"
+              >
+                Registered
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="not_participated"
+                className="text-xs data-[state=on]:font-bold data-[state=on]:text-rose-700 data-[state=on]:bg-rose-100"
+              >
+                Not Participated
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="participated"
+                className="text-xs data-[state=on]:font-bold data-[state=on]:text-green-700 data-[state=on]:bg-green-100"
+              >
+                Participated
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </ProtectedView>
+        </TableCell>
+      )}
     </TableRow>
   );
 };

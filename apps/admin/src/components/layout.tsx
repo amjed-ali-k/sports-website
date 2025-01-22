@@ -63,7 +63,7 @@ export default function Layout() {
           <NavigationMenuComp />
           <div className="flex ml-auto items-center space-x-4">
             <div
-              className={`flex items-center space-x-1.5 px-3 py-1 rounded-full ${roleSettings.color}`}
+              className={`hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full ${roleSettings.color}`}
             >
               <RoleIcon className="h-3.5 w-3.5" />
               <span className="text-xs font-medium capitalize">
@@ -148,8 +148,8 @@ export function NavigationMenuComp() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Main</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
+            <ul className="grid gap-3 p-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+              <li className="row-span-3 hidden md:list-item">
                 <NavigationMenuLink asChild>
                   <a
                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"

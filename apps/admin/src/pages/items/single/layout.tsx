@@ -34,9 +34,9 @@ export const ItemLayout = () => {
   const ItemIcon = getEventIcon(currentItem.iconName);
   return (
     <div>
-      <Card className="overflow-hidden">
-        <CardContent className="lg:p-6 flex flex-col lg:flex-row justify-between">
-          <div className="flex items-center justify-between">
+      <div className="overflow-hidden -mt-6 border-b">
+      <CardContent className="p-2 lg:p-6 flex flex-col lg:flex-row justify-between">
+          <div className="flex border-b lg:border-b-0 mb-4 lg:mb-0 items-center justify-between">
             <Button variant="ghost" asChild>
               <Link to="/items">Individual Items</Link>
             </Button>
@@ -53,7 +53,7 @@ export const ItemLayout = () => {
               </Button>
             </div>
           </div>
-          <div className=" text-sm flex gap-x-4 lg:mt-6">
+          <div className=" text-sm flex flex-wrap gap-x-4 px-4 items-center lg:mt-6">
             <div className="flex gap-x-3">
               <span className="text-muted-foreground">Event:</span>
               <span className="font-medium">
@@ -77,7 +77,7 @@ export const ItemLayout = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </div>
       <Outlet />
     </div>
   );
