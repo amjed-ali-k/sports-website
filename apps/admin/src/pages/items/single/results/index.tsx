@@ -204,12 +204,12 @@ export function ItemResultsPage() {
                             </SelectContent>
                           </Select>
                           <FormMessage />
-                        </FormItem>
+                        </FormItem> 
                       );
                     }}
                   />
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={mutation.isPending}>
                     Add Result
                   </Button>
                 </form>
