@@ -54,12 +54,13 @@ export const SingleItemPage = () => {
                 ? "material-symbols:male"
                 : "material-symbols:female"
             }
-            className={cn("text-base", {
+            className={cn("text-base capitalize", {
               "text-blue-500": item?.item.gender === "male",
               "text-pink-500": item?.item.gender === "female",
+              hidden: item?.item.gender === "any",
             })}
           />
-          {item?.item.gender === "male" ? "Male" : "Female"}
+          {item?.item.gender}
         </div>
         <div className="text-sm">
           {item?.item.pointsFirst}/{item?.item.pointsSecond}/
