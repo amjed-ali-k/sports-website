@@ -35,6 +35,7 @@ export function SingleGroupItemRegistrationsPage() {
   });
 
   const isAdmin = useRole("controller");
+
   const isLoading = itemsLoading || registrationsLoading;
   if (isLoading) return <div>Loading...</div>;
   const currentItem = items?.find((item) => item.id === Number(itemId));
@@ -43,17 +44,20 @@ export function SingleGroupItemRegistrationsPage() {
 
   const regs = "error" in registrations ? [] : registrations;
 
-
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Registrations Management</h1>
-        {(currentItem.canRegister || isAdmin) && (
-          <Button onClick={() => navigate("new")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Registration
-          </Button>
-        )}
+    <div>
+      <div className="container mx-auto py-6">
+        <div className="flex lg:flex-row flex-col justify-between items-center mb-6">
+          <h1 className="mb-2 lg:text-2xl font-bold">
+            Registrations Management
+          </h1>
+          {(currentItem.canRegister || isAdmin) && (
+            <Button onClick={() => navigate("new")}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Registration
+            </Button>
+          )}
+        </div>
       </div>
       <Table>
         <TableHeader>
@@ -61,7 +65,7 @@ export function SingleGroupItemRegistrationsPage() {
             <TableHead>Name</TableHead>
             <TableHead>Participant</TableHead>
             <TableHead>Section</TableHead>
-            <TableHead>Meta Info</TableHead>
+            <TableHead>Batch</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>

@@ -3,11 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
   FormLabel,
-  FormMessage,
   Input,
   Button,
   Card,
@@ -185,22 +181,6 @@ export function NewRegistrationPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="metaInfo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meta Info</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Enter additional information"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="space-y-4">
                 <FormLabel>
                   Select Participants{" "}

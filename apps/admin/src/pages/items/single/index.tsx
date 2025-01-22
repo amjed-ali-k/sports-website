@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 export const ItemsSinglePage = () => {
   return (
     <div>
-      <div className="flex gap-4 mt-4 flex-wrap">
+      <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         <Button size="lg" asChild className="px-16 text-lg py-12">
           <Link to="registrations">Registration</Link>
         </Button>
