@@ -121,7 +121,6 @@ export const NewItemFormDialog = ({
   const onSubmit = (values: ItemFormValues) => {
     mutation.mutate(values);
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -279,7 +278,8 @@ export const NewItemFormDialog = ({
                           type="button"
                           role="button"
                           className={cn("p-2", {
-                            "bg-slate-200 ring-slate-500 ring-2": field.value === name,
+                            "bg-slate-200 ring-slate-500 ring-2":
+                              field.value === name,
                           })}
                           onClick={() => field.onChange(name)}
                           aria-pressed={field.value === name}
@@ -293,35 +293,12 @@ export const NewItemFormDialog = ({
                 </FormItem>
               )}
             />
-            {/* <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yet_to_begin">
-                      Yet to Begin
-                    </SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                    <SelectItem value="hidden">Hidden</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={mutation.isPending}
+            >
               {editingItem ? "Update" : "Create"} Item
             </Button>
           </form>

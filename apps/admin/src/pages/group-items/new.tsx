@@ -73,7 +73,6 @@ export const NewItemFormDialog = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
@@ -177,8 +176,6 @@ export const NewItemFormDialog = ({
                 </FormItem>
               )}
             />
-
-          
 
             <FormField
               control={form.control}
@@ -367,7 +364,11 @@ export const NewItemFormDialog = ({
             )}
           /> */}
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={mutation.isPending}
+            >
               {editingItem ? "Update" : "Create"} Item
             </Button>
           </form>
