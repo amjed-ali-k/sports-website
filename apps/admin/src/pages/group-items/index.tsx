@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@sports/ui";
-import { Button } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { ItemFormValues, NewItemFormDialog } from "./new";
 import { Popcorn } from "lucide-react";
@@ -82,15 +81,6 @@ export default function GroupItemsPage() {
                                   {item.name}
                                 </h3>
                               </div>
-                              <ProtectedView requiredRole="controller">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setEditingItem(item)}
-                                >
-                                  Edit
-                                </Button>
-                              </ProtectedView>
                             </div>
 
                             <div className="space-y-2 text-sm">
