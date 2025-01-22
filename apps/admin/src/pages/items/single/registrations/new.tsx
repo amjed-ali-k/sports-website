@@ -118,6 +118,7 @@ export function NewRegistrationPage() {
       });
       return;
     }
+    if(!mutation.isPending)
     mutation.mutate({
       ...values,
       participantIds: selectedParticipants,
@@ -278,6 +279,7 @@ export function NewRegistrationPage() {
                   type="button"
                   variant="outline"
                   onClick={() => navigate(-1)}
+                  disabled={mutation.isPending}
                 >
                   Cancel
                 </Button>
