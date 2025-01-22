@@ -65,7 +65,6 @@ export const ItemsPage = () => {
             <TableHead className="min-w-[100px]">Program</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Participants</TableHead>
-            <TableHead className="text-right">Points</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,17 +78,19 @@ export const ItemsPage = () => {
                   />
                 </span>
                 <span>{item.name}</span>
-                <Icon
-                  icon={
-                    item.gender === "male"
-                      ? "material-symbols:male"
-                      : "material-symbols:female"
-                  }
-                  className={cn("ml-1", {
-                    "text-blue-500": item.gender === "male",
-                    "text-pink-500": item.gender === "female",
-                  })}
-                />
+                {["male", "female"].includes(item.gender) && (
+                  <Icon
+                    icon={
+                      item.gender === "male"
+                        ? "material-symbols:male"
+                        : "material-symbols:female"
+                    }
+                    className={cn("ml-1", {
+                      "text-blue-500": item.gender === "male",
+                      "text-pink-500": item.gender === "female",
+                    })}
+                  />
+                )}
               </TableCell>
               <TableCell
                 className={cn("capitalize text-xs", {
@@ -100,9 +101,6 @@ export const ItemsPage = () => {
                 {item.status}
               </TableCell>
               <TableCell>{registrationCount}</TableCell>
-              <TableCell className="text-right">
-                {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
-              </TableCell>
             </TableRow>
           ))}
           {individualItems?.length === 0 && (
@@ -123,33 +121,29 @@ export const ItemsPage = () => {
           <TableRow>
             <TableHead className="min-w-[100px]">Program</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Participants</TableHead>
-            <TableHead className="text-right">Points</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {groupItems?.map(({ item, registrationCount }) => (
+          {groupItems?.map(({ item }) => (
             <TableRow onClick={() => navigate(`${item.id}/group`)}>
               <TableCell className="font-medium">
-                <Icon
-                  icon={
-                    item.gender === "male"
-                      ? "material-symbols:male"
-                      : "material-symbols:female"
-                  }
-                  className={cn("mr-1", {
-                    "text-blue-500": item.gender === "male",
-                    "text-pink-500": item.gender === "female",
-                  })}
-                />
+                {["male", "female"].includes(item.gender) && (
+                  <Icon
+                    icon={
+                      item.gender === "male"
+                        ? "material-symbols:male"
+                        : "material-symbols:female"
+                    }
+                    className={cn("mr-1", {
+                      "text-blue-500": item.gender === "male",
+                      "text-pink-500": item.gender === "female",
+                    })}
+                  />
+                )}
                 <span>{item.name}</span>
               </TableCell>
               <TableCell className="capitalize text-xs">
                 {item.status}
-              </TableCell>
-              <TableCell>{registrationCount}</TableCell>
-              <TableCell className="text-right">
-                {item.pointsFirst}/{item.pointsSecond}/{item.pointsThird}
               </TableCell>
             </TableRow>
           ))}
