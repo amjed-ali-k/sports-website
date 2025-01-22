@@ -1,6 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { apiClient } from "@/lib/api";
-import { Button, Card, CardContent } from "@sports/ui";
+import { Button, CardContent } from "@sports/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { getEventIcon } from "..";
