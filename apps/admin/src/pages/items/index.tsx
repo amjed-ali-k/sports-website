@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { iconsList } from "@/components/icon";
 import { ProtectedView } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { group } from "radash";
+import { group, sort } from "radash";
 
 // Helper function to get the appropriate icon for each event
 export function getEventIcon(iconName?: string | null) {
@@ -46,7 +46,7 @@ export default function ItemsPage() {
         />
       </ProtectedView>
       <div className="">
-        {Object.entries(eventsAndItems).map(([eventId, items]) => {
+        {sort(Object.entries(eventsAndItems), e => Number(e[0]), true).map(([eventId, items]) => {
           const event = events?.find((event) => event.id === Number(eventId));
           return (
             <div key={eventId}>
@@ -79,21 +79,7 @@ export default function ItemsPage() {
                               </h3>
                             </div>
                           </div>
-
                           <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                Event:
-                              </span>
-                              <span className="font-medium">
-                                {
-                                  events?.find(
-                                    (c: any) => c.id === item.eventId
-                                  )?.name
-                                }
-                              </span>
-                            </div>
-
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
                                 Gender:
@@ -102,7 +88,6 @@ export default function ItemsPage() {
                                 {item.gender}
                               </span>
                             </div>
-
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">
                                 Status:
