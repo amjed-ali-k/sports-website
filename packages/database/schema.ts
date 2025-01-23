@@ -60,6 +60,8 @@ type Cert = {
   width: number;
   fonts: string[];
   certificateBackground?: string | undefined;
+  issuer?: string;
+  issuerDescription?: string;
 };
 
 export const events = sqliteTable("events", {
