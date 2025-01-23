@@ -26,7 +26,7 @@ export function SingleItemCertificatesPage() {
   const { registrations, isLoading } = useRegistrations();
   const { itemId } = useParams();
   const { data: _pcerts } = useQuery({
-    queryKey: ["certificates", itemId, "participation"],
+    queryKey: ["certificates", Number(itemId), "participation"],
     queryFn: () =>
       itemId
         ? apiClient.getCertificates(itemId.toString(), "participation")

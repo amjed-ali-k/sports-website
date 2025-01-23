@@ -31,7 +31,6 @@ export function SingleGroupItemCertificatesPage() {
     queryKey: ["sections"],
     queryFn: () => apiClient.getSections(),
   });
-  if (isLoading) return <div>Loading...</div>;
   const regs = "error" in registrations ? [] : registrations;
 
   const data = flat(
@@ -56,7 +55,7 @@ export function SingleGroupItemCertificatesPage() {
   );
 
   const { data: _pcerts } = useQuery({
-    queryKey: ["certificates", itemId, "participation"],
+    queryKey: ["certificates", Number(itemId), "participation"],
     queryFn: () =>
       itemId
         ? apiClient.getGroupCertificates(itemId.toString(), "participation")
@@ -107,6 +106,7 @@ export function SingleGroupItemCertificatesPage() {
 
     const text = `
 Participation Certificates
+${currentItem?.name} (${currentItem?.gender}) 
 ---
 ${links
   .map((e) => {
@@ -118,6 +118,7 @@ ${links
 `;
     navigator.clipboard.writeText(text);
   };
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto py-6">
