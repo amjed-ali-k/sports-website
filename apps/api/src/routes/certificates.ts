@@ -148,8 +148,6 @@ export const certificateRouter = hono()
       id,
       reciptent: participant.participants.fullName,
       reciptentDescription: participant.sections?.name,
-      issuer: "Sports Cordinator",
-      issuerDescription: "Govt polytechnic college, Perinthalmanna",
       issuedFor: details.type,
       issuedForDescription:
         details.type === "participation"

@@ -25,6 +25,8 @@ import { hono, zodValidator } from "../lib/api";
     width: z.number(),
     fonts: z.array(z.string()),
     certificateBackground: z.string().optional(),
+    issuer: z.string().optional(),
+    issuerDescription: z.string().optional(),
   })
   .optional();
 

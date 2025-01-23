@@ -574,7 +574,7 @@ class ApiClient {
 
 export const apiClient = new ApiClient();
 
-type Certificate = {
+export type Certificate = {
   type: "custom" | "participation" | "first" | "second" | "third" | null;
   id: number;
   data: unknown;
