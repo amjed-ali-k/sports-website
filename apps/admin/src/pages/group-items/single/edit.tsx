@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Button,
   FormControl,
@@ -23,6 +23,7 @@ import { apiClient } from "@/lib/api";
 import { useParams } from "react-router-dom";
 import { iconsList } from "@/components/icon";
 import { cn } from "@/lib/utils";
+import { useGroupItem } from "@/hooks/use-item";
 
 const itemSchema = z.object({
   status: z.enum(["scheduled", "on-going", "finished"]),
@@ -50,13 +51,8 @@ export function GroupItemEditPage() {
     resolver: zodResolver(itemSchema),
   });
 
-  const { data: items = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ["group-items"],
-    queryFn: () => apiClient.getGroupItems(),
-  });
-
-  const currentItem = items?.find((item) => item.id === Number(itemId));
-
+  const { currentItem, isLoading: itemsLoading } = useGroupItem(itemId);
+  
   useEffect(() => {
     if (currentItem) {
       form.reset(currentItem);
