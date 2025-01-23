@@ -27,21 +27,21 @@ export const GroupItemLayout = () => {
   return (
     <div>
       <div className="overflow-hidden -mt-6 border-b">
-      <CardContent className="p-2 lg:p-6 flex flex-col lg:flex-row justify-between">
-      <div className="flex border-b lg:border-b-0 mb-4 lg:mb-0 items-center justify-between">
-      <Button variant="ghost" asChild>
+        <CardContent className="p-2 lg:p-6 flex flex-col lg:flex-row justify-between">
+          <div className="flex border-b lg:border-b-0 mb-4 lg:mb-0 items-center justify-between">
+            <Button variant="ghost" asChild>
               <Link to="/group-items">Group Items</Link>
             </Button>
             <ChevronRight className="size-4 mx-1" />
             <div className="flex items-center  justify-between">
-            <Button variant="ghost" asChild>
-              <Link
-                to={`/group-items/${currentItem.id}`}
-                className="flex items-center space-x-3"
-              >
-                <ItemIcon className="size-6" />
-                <h3 className="font-semibold text-lg">{currentItem.name}</h3>
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link
+                  to={`/group-items/${currentItem.id}`}
+                  className="flex items-center space-x-3"
+                >
+                  <ItemIcon className="size-6" />
+                  <h3 className="font-semibold text-lg">{currentItem.name}</h3>
+                </Link>
               </Button>
             </div>
           </div>
