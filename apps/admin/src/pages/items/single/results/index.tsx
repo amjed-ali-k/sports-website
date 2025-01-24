@@ -31,7 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
-import { Award } from "lucide-react";
+import { Award, Trash } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useResults } from "@/hooks/use-results";
 import { useRole } from "@/lib/auth";
@@ -119,6 +119,21 @@ export function ItemResultsPage() {
     mutation.mutate(values);
   };
 
+  const isManager = useRole("manager");
+  const handleDelete = async (id: number) => {
+    if (!isManager) {
+      toast({
+        title: "Error",
+        description: "You don't have permission to perform this action",
+        variant: "destructive",
+      });
+      return;
+    }
+    const res = await apiClient.deleteResult(id);
+    if ("success" in res)
+      queryClient.invalidateQueries({ queryKey: ["results"] });
+  };
+
   const isLoading = itemsLoading;
   if (isLoading) return <div>Loading...</div>;
 
@@ -126,7 +141,7 @@ export function ItemResultsPage() {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Results Management</h1>
-        {(isAdmin) && (
+        {isAdmin && (
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button>Add Result</Button>
@@ -204,12 +219,16 @@ export function ItemResultsPage() {
                             </SelectContent>
                           </Select>
                           <FormMessage />
-                        </FormItem> 
+                        </FormItem>
                       );
                     }}
                   />
 
-                  <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={mutation.isPending}
+                  >
                     Add Result
                   </Button>
                 </form>
@@ -227,6 +246,7 @@ export function ItemResultsPage() {
             <TableHead>Chest No</TableHead>
             <TableHead>Section</TableHead>
             <TableHead>Points</TableHead>
+            {isManager && <TableHead>Action</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -249,6 +269,11 @@ export function ItemResultsPage() {
                   <TableCell>
                     <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
                   </TableCell>
+                  {isManager && (
+                    <TableCell>
+                      <div className="h-4 w-12 animate-pulse rounded bg-muted"></div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </>
@@ -270,6 +295,16 @@ export function ItemResultsPage() {
                     }
                   </TableCell>
                   <TableCell>{result.points}</TableCell>
+                  {isManager && (
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDelete(result.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
           ) : (

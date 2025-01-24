@@ -234,8 +234,12 @@ const router = hono()
     ) {
       return c.json({ error: "Registration not found" }, 404);
     }
-
-    await db.delete(registrations).where(eq(registrations.id, id));
+    try {
+      await db.delete(registrations).where(eq(registrations.id, id));
+    } catch (error) {
+      console.error(error);
+      return c.json({ error: "Failed to delete registration" }, 500);
+    }
     return c.json({ success: true });
   })
   .patch(
