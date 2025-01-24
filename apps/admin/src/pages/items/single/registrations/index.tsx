@@ -15,7 +15,7 @@ import {
 } from "@sports/ui";
 import { apiClient } from "@/lib/api";
 import { EmptyState } from "@/components/empty-state";
-import { Plus, Users } from "lucide-react";
+import { Plus, Trash, Users } from "lucide-react";
 import { SectionName } from "@/components/section-name";
 import { useRegistrations } from "@/hooks/use-registrations";
 import { ProtectedView, useRole } from "@/lib/auth";
@@ -133,6 +133,17 @@ const Row = ({ registration, participant }: RowProps) => {
   };
   const isManager = useRole("manager");
 
+  const handleDelete = async () => {
+    const res = await apiClient.deleteRegistration(registration.id);
+    
+    if ("success" in res)
+      queryClient.setQueryData(
+        ["registrations-item", itemId],
+        (e: RowProps[]) =>
+          e ? e.filter((r) => r.registration.id !== registration.id) : e
+      );
+  };
+
   return (
     <TableRow key={registration.id}>
       <TableCell>{participant.fullName}</TableCell>
@@ -186,6 +197,13 @@ const Row = ({ registration, participant }: RowProps) => {
               </ToggleGroupItem>
             </ToggleGroup>
           </ProtectedView>
+        </TableCell>
+      )}
+      {isManager && (
+        <TableCell>
+          <Button size="icon" variant="outline">
+            <Trash className="size-4" onClick={handleDelete} />
+          </Button>
         </TableCell>
       )}
     </TableRow>
