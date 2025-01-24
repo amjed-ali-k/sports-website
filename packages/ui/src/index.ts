@@ -31,6 +31,7 @@ export * from "./components/ui/pagination"
 export * from "./components/ui/toggle"
 export * from "./components/ui/toggle-group"
 export * from "./components/ui/alert-dialog"
+export * from "./components/ui/skeleton"
 
 // Export styles
 import "./styles.css";
