@@ -49,6 +49,7 @@ export function SingleItemRegistrationsPage() {
             <TableHead>Section</TableHead>
             <TableHead>Status</TableHead>
             {isManager && <TableHead>Action</TableHead>}
+            {isManager && <TableHead>-</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -135,7 +136,7 @@ const Row = ({ registration, participant }: RowProps) => {
 
   const handleDelete = async () => {
     const res = await apiClient.deleteRegistration(registration.id);
-    
+
     if ("success" in res)
       queryClient.setQueryData(
         ["registrations-item", itemId],
