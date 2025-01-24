@@ -54,21 +54,21 @@ const router = hono()
       return c.json({ error: "Item or registration not found" }, 404);
     }
 
-    // Check if result already exists
-    const existingResult = await db
-      .select()
-      .from(results)
-      .where(
-        and(
-          eq(results.itemId, data.itemId),
-          eq(results.position, data.position)
-        )
-      )
-      .get();
+    // // Check if result already exists
+    // const existingResult = await db
+    //   .select()
+    //   .from(results)
+    //   .where(
+    //     and(
+    //       eq(results.itemId, data.itemId),
+    //       eq(results.position, data.position)
+    //     )
+    //   )
+    //   .get();
 
-    if (existingResult) {
-      return c.json({ error: "Position already taken for this item" }, 400);
-    }
+    // if (existingResult) {
+    //   return c.json({ error: "Position already taken for this item" }, 400);
+    // }
 
     // Get registration details to check if it's a group
     const registrationDetails = await db
