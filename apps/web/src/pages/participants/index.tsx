@@ -37,7 +37,7 @@ export const ParticipantsPage = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const event = useEvent();
   const { data, isLoading } = useSWR(
-    [url, pageNumber],
+    event?.id ? [url, pageNumber, event?.id] : null,
     fetcher({
       query: {
         limit: "10",
