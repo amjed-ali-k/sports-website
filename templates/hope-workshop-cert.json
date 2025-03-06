@@ -1,0 +1,41 @@
+{
+  "certificateElements": [
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 489,
+        "left": 140,
+        "fontFamily": "Aubrey",
+        "color": "#403f40",
+        "fontSize": 139
+      },
+      "variable": "name"
+    },
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 694,
+        "left": 148,
+        "fontFamily": "Rubik",
+        "color": "#403f40",
+        "fontSize": 63
+      },
+      "variable": "itemName"
+    },
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 965,
+        "left": 393,
+        "fontFamily": "Rubik",
+        "color": "#403f40",
+        "fontSize": 34
+      },
+      "variable": "id"
+    }
+  ],
+  "height": 1426,
+  "width": 2000,
+  "fonts": ["Aubrey", "Rubik"],
+  "certificateBackground": "https://i.ibb.co/0VqhTsmf/cert-workhop-2.png"
+}
