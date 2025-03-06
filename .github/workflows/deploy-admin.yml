@@ -8,7 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy Admin Website
+    strategy:
+      matrix:
+        include:
+          - name: "sports-admin"
+            vite_api_url: "https://sports-api.amjedmgm.workers.dev"
+            project_name: "sports-admin"
+          - name: "gptc-techfest-hope25-admin-website"
+            vite_api_url: "https://gptc-techfest-hope-25-api.amjedmgm.workers.dev"
+            project_name: "gptc-techfest-hope25-admin-website"
+    name: Deploy Admin Website - ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -18,7 +27,7 @@ jobs:
       - name: Build Admin
         run: bun run build --filter @sports/admin
         env:
-          VITE_API_URL: ${{ secrets.API_URL }}
+          VITE_API_URL: ${{ matrix.vite_api_url }}
           VITE_CERTIFICATE_URL: https://certificates.gptcperinthalmanna.in
         
       - name: Deploy to Cloudflare Pages
@@ -27,5 +36,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/admin'
-          command: pages deploy dist --project-name=sports-admin
+          command: pages deploy dist --project-name=${{ matrix.project_name }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
