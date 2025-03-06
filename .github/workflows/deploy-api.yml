@@ -8,7 +8,16 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy API
+    strategy:
+      matrix:
+        include:
+          - name: "sports-api"
+            database_name: "gptc-pmna-sports-db"
+            database_id: "4ea851bc-2f5c-473a-b650-1015a9ffb018"
+          - name: "gptc-techfest-hope-25-api"
+            database_name: "gptc-pmna-techfest-hope-25-db"
+            database_id: "68ee2179-c2cd-4353-af50-889881dbac6a"
+    name: Deploy API - ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -18,7 +27,7 @@ jobs:
       - name: Create wrangler.toml
         run: |
           cat > apps/api/wrangler.toml << EOF
-          name = "sports-api"
+          name = "${{ matrix.name }}"
           main = "src/index.ts"
           compatibility_date = "2024-11-30"
           compatibility_flags = [ "nodejs_compat" ]
@@ -31,8 +40,8 @@ jobs:
           
           [[d1_databases]]
           binding = "DB"
-          database_name = "gptc-pmna-sports-db"
-          database_id = "${{ secrets.DATABASE_ID }}"
+          database_name = "${{ matrix.database_name }}"
+          database_id = "${{ matrix.database_id }}"
           migrations_dir = "drizzle"
 
           [observability]

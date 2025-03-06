@@ -24,6 +24,7 @@ export const singleCertTemplate = z
           "position",
           "points",
           "date",
+          "id",
           "sectionName",
         ]).optional(),
       })
