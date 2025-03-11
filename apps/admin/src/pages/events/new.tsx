@@ -36,6 +36,8 @@ const eventSchema = z.object({
   }),
   description: z.string().optional(),
   eventStartTime: z.string().nullish(),
+  issuer: z.string().optional(),
+  issuerDescription: z.string().optional(),
   eventEndTime: z.string().nullish(),
   registrationStartDate: z.string().nullish(),
   registrationEndDate: z.string().nullish(),
@@ -176,6 +178,32 @@ export default function NewEventsPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="issuer"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Certificate Issuer</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="issuerDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Certificate Issuer Description</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>

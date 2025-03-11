@@ -38,6 +38,8 @@ const createEventSchema = z.object({
   logo: z.string().nullish(),
   image: z.string().nullish(),
   maxRegistrationPerParticipant: z.number().int().min(1).default(3),
+  issuer: z.string().nullish(),
+  issuerDescription: z.string().nullish(),
   certificateTemplates: z
     .object({
       participation: singleCertTemplate,
