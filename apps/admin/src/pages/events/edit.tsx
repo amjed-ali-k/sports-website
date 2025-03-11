@@ -113,6 +113,8 @@ export default function EditEventsPage() {
         thirdPrizeCertificateBg:
           editingEvent.certificateTemplates?.third?.certificateBackground,
         description: editingEvent.description ?? "",
+        issuer: editingEvent.issuer ?? "",
+        issuerDescription: editingEvent.issuerDescription ?? "",
       });
   }, [editingEvent]);
 
