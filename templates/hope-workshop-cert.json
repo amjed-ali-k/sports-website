@@ -3,7 +3,7 @@
     {
       "styles": {
         "position": "absolute",
-        "top": 489,
+        "top": 488,
         "left": 140,
         "fontFamily": "Aubrey",
         "color": "#403f40",
@@ -14,7 +14,7 @@
     {
       "styles": {
         "position": "absolute",
-        "top": 694,
+        "top": 692,
         "left": 148,
         "fontFamily": "Rubik",
         "color": "#403f40",
@@ -25,7 +25,7 @@
     {
       "styles": {
         "position": "absolute",
-        "top": 965,
+        "top": 964,
         "left": 393,
         "fontFamily": "Rubik",
         "color": "#403f40",
@@ -37,5 +37,5 @@
   "height": 1426,
   "width": 2000,
   "fonts": ["Aubrey", "Rubik"],
-  "certificateBackground": "https://i.ibb.co/0VqhTsmf/cert-workhop-2.png"
+  "certificateBackground": "https://i.ibb.co/HLCfPVnw/cert-workhop-3.png"
 }

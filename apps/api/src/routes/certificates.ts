@@ -153,9 +153,14 @@ export const certificateRouter = hono()
         details.type === "participation"
           ? `Participation in ${item.name} at ${event.name}.`
           : `Achieving ${details.type} prize in ${item.name} at ${event.name}.`,
+
+
     };
+
+    if(event.issuer) body.issuer = event.issuer;
+    if(event.issuerDescription) body.issuerDescription = event.issuerDescription;
+
     const data = jwt.sign(body, c.env.CERT_KEY ?? "my-super-secret-key");
-    console.log(JSON.stringify({ url: `${c.env.CERT_API}/generate-cert` }));
     try {
       const certRes = (await fetch(`${c.env.CERT_API}/generate-cert`, {
         method: "PUT",

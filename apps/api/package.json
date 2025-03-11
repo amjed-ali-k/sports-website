@@ -12,7 +12,7 @@
     "db:migrate": "wrangler d1 migrations apply gptc-pmna-sports-db",
     "db:generate": "drizzle-kit generate",
     "db:drop": "drizzle-kit drop",
-    "db:push": "wrangler d1 migrations apply gptc-pmna-sports-db",
+    "db:push": "wrangler d1 migrations apply gptc-pmna-techfest-hope-25-db",
     "db:studio": "drizzle-kit studio",
     "build": "tsc",
     "generate:types": "tsc --emitDeclarationOnly --outDir dist"

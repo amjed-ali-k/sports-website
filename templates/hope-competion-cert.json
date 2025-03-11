@@ -1,0 +1,52 @@
+{
+  "certificateElements": [
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 661,
+        "textAlign": "center",
+        "fontFamily": "Raleway:bold",
+        "color": "#102b47",
+        "fontSize": 75
+      },
+      "variable": "name"
+    },
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 772,
+        "textAlign": "center",
+        "fontFamily": "Raleway",
+        "color": "#102b47",
+        "fontSize": 32
+      },
+      "variable": "sectionName"
+    },
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 886,
+        "textAlign": "center",
+        "fontFamily": "Raleway:bold",
+        "color": "#102b47",
+        "fontSize": 30
+      },
+      "variable": "itemName"
+    },
+    {
+      "styles": {
+        "position": "absolute",
+        "top": 1337,
+        "left": 862,
+        "fontFamily": "Raleway",
+        "color": "#102b47",
+        "fontSize": 15
+      },
+      "variable": "id"
+    }
+  ],
+  "height": 1416,
+  "width": 2000,
+  "fonts": ["Raleway", "Raleway:bold"],
+  "certificateBackground": "https://i.ibb.co/S4KQs0Fb/cert-participation.png"
+}
