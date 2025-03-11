@@ -12,3 +12,10 @@ binding = "DB"
 database_name = "gptc-sports-db"
 database_id = "fcf3bd8a-90f7-4f54-88a3-8e9ecb70f8dd"
 migrations_dir = "drizzle"
+
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gptc-pmna-techfest-hope-25-db"
+database_id = "68ee2179-c2cd-4353-af50-889881dbac6a"
+migrations_dir = "drizzle"
