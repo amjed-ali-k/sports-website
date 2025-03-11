@@ -82,6 +82,8 @@ export const events = sqliteTable("events", {
     third?: Cert | undefined;
   }>(),
   logo: text("logo"),
+  issuer: text("issuer"),
+  issuerDescription: text("issuer_description"),
   maxRegistrationPerParticipant: integer(
     "max_registration_per_participant"
   ).notNull(),
