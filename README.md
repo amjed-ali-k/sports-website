@@ -15,6 +15,8 @@ A comprehensive platform for managing college-level sports, games, and arts even
 - 📊 Department-wise scoring and tracking
 - 📱 Mobile-optimized interface
 
+![Alt](https://repobeats.axiom.co/api/embed/364d3f7618fb2f6f1865e91f83b3d4b384c45486.svg "Repobeats analytics image")
+
 ## 🏗️ Project Structure
 
 The project is organized as a monorepo using Turborepo:
